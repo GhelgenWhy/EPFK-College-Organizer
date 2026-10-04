@@ -1,3 +1,5 @@
+import profileAvatar from '../../assets/profile-avatar.png';
+
 interface HeaderProps {
   lastSync?: string;
   userName?: string;
@@ -9,7 +11,7 @@ interface HeaderProps {
 export const Header = ({
   lastSync = 'Сьогодні 23:01',
   userName = 'Don Psone',
-  userAvatar = '/Asd1.png',
+  userAvatar = profileAvatar,
   onSyncClick,
   onProfileClick,
 }: HeaderProps) => {
@@ -18,7 +20,8 @@ export const Header = ({
 
       {/* Кнопка синхронізації */}
       <button type="button" onClick={onSyncClick} className="sync-badge">
-        Остання синхронізація: {lastSync}
+        <span className="sync-badge__label">Остання синхронізація:</span>
+        <span className="sync-badge__time">{lastSync}</span>
       </button>
 
       {/* Профіль користувача */}

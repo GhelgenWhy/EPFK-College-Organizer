@@ -9,11 +9,16 @@ import { CalendarHeader } from '../features/calendar/components/CalendarHeader';
 import { CalendarGrid } from '../features/calendar/components/CalendarGrid';
 import { EventSidebar } from '../features/calendar/components/EventSidebar';
 
-export function CalendarPage() {
+interface CalendarPageProps {
+  initialDate?: Date;
+  initialFilter?: CalendarFilterType;
+}
+
+export function CalendarPage({ initialDate, initialFilter = 'ALL' }: CalendarPageProps) {
   // Стан календаря
-  const [viewDate, setViewDate] = useState<Date>(() => new Date());
-  const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
-  const [activeFilter, setActiveFilter] = useState<CalendarFilterType>('ALL');
+  const [viewDate, setViewDate] = useState<Date>(() => initialDate ?? new Date());
+  const [selectedDate, setSelectedDate] = useState<Date>(() => initialDate ?? new Date());
+  const [activeFilter, setActiveFilter] = useState<CalendarFilterType>(initialFilter);
 
   // Перехід до попереднього місяця
   const handlePrevMonth = () => {
@@ -43,27 +48,33 @@ export function CalendarPage() {
   });
 
   return (
-    <div className="calendar-page-layout">
-      {/* Основна частина календаря */}
-      <div className="calendar-main">
-        <CalendarHeader
-          viewDate={viewDate}
-          onPrevMonth={handlePrevMonth}
-          onNextMonth={handleNextMonth}
-          activeFilter={activeFilter}
-          onToggleFilter={setActiveFilter}
-        />
+    <main className="calendar-page" aria-labelledby="calendar-page-title">
+      <header className="content-page-heading">sssd sda
+        <h1 id="calendar-page-title">Календар</h1>
+      </header>
 
-        <CalendarGrid
-          days={days}
-          events={MOCK_CALENDAR_EVENTS}
-          activeFilter={activeFilter}
-          onSelectDay={handleSelectDay}
-        />
+      <div className="calendar-page-layout">
+        {/* Основна частина календаря */}
+        <div className="calendar-main">
+          <CalendarHeader
+            viewDate={viewDate}
+            onPrevMonth={handlePrevMonth}
+            onNextMonth={handleNextMonth}
+            activeFilter={activeFilter}
+            onToggleFilter={setActiveFilter}
+          />
+
+          <CalendarGrid
+            days={days}
+            events={MOCK_CALENDAR_EVENTS}
+            activeFilter={activeFilter}
+            onSelectDay={handleSelectDay}
+          />
+        </div>
+
+        {/* Бічна панель з подіями */}
+        <EventSidebar selectedDate={selectedDate} events={sidebarEvents} />
       </div>
-
-      {/* Бічна панель з подіями */}
-      <EventSidebar selectedDate={selectedDate} events={sidebarEvents} />
-    </div>
+    </main>
   );
 }

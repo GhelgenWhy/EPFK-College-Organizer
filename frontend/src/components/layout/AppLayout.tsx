@@ -24,7 +24,7 @@ export const AppLayout = ({
   onProfileClick,
 }: AppLayoutProps) => {
   return (
-    <div className="app-layout">
+    <div className="app-layout" data-page={activeTab}>
       <Sidebar activeTab={activeTab} onSelectTab={onSelectTab} />
       <div className="layout-content">
         <Header

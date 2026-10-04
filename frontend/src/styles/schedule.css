@@ -2,11 +2,12 @@
 .schedule-page {
   display: flex;
   flex-direction: column;
+  gap: 13px;
   width: 100%;
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0 40px 20px 40px;
+  padding: 29px 40px 20px 30px;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }

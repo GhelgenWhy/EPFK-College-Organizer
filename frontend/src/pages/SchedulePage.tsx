@@ -29,7 +29,11 @@ export const SchedulePage = () => {
   }, [currentWeekType]);
 
   return (
-    <main className="schedule-page">
+    <main className="schedule-page" aria-labelledby="schedule-page-title">
+      <header className="content-page-heading">
+        <h1 id="schedule-page-title">Розклад</h1>
+      </header>
+
       {/* Перемикач типу тижня */}
       <div className="week-toggle-wrapper">
         <WeekTypeToggle

@@ -6,6 +6,11 @@
 **/coverage/
 **/*.tsbuildinfo
 
+**/.playwright-cli
+**/frontend/.playwright-cli
+**/output/
+
+
 # Local configuration and secrets
 **/.env
 **/.env.*

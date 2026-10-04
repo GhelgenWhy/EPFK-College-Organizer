@@ -1,10 +1,21 @@
+.calendar-page {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  gap: 13px;
+  overflow: hidden;
+  padding: 29px 20px 20px 30px;
+  box-sizing: border-box;
+}
+
 /* Основний блок календаря */
 .calendar-page-layout {
   display: flex;
-  height: calc(100vh - 80px);
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
   gap: 20px;
-  padding: 0 20px 20px 0;
   box-sizing: border-box;
 }
 

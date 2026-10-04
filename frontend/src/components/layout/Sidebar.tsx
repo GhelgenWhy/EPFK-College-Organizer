@@ -26,11 +26,13 @@ export const Sidebar = ({ activeTab = 'schedule', onSelectTab }: SidebarProps) =
           {/* Головна */}
           <button
             type="button"
-            className="sidebar-btn"
-            disabled
+            onClick={() => onSelectTab?.('home')}
+            className={`sidebar-btn ${activeTab === 'home' ? 'active' : ''}`}
+            aria-current={activeTab === 'home' ? 'page' : undefined}
+            aria-label="Головна"
             title="Головна"
           >
-            <img src={homeSvg} alt="Home" />
+            <img src={homeSvg} alt="" />
           </button>
 
           {/* Календар */}
@@ -38,9 +40,11 @@ export const Sidebar = ({ activeTab = 'schedule', onSelectTab }: SidebarProps) =
             type="button"
             onClick={() => onSelectTab?.('calendar')}
             className={`sidebar-btn ${activeTab === 'calendar' ? 'active' : ''}`}
+            aria-current={activeTab === 'calendar' ? 'page' : undefined}
+            aria-label="Календар"
             title="Календар"
           >
-            <img src={calendarSvg} alt="Calendar" />
+            <img src={calendarSvg} alt="" />
           </button>
 
           {/* Розклад */}
@@ -48,19 +52,31 @@ export const Sidebar = ({ activeTab = 'schedule', onSelectTab }: SidebarProps) =
             type="button"
             onClick={() => onSelectTab?.('schedule')}
             className={`sidebar-btn ${activeTab === 'schedule' ? 'active' : ''}`}
+            aria-current={activeTab === 'schedule' ? 'page' : undefined}
+            aria-label="Розклад"
             title="Розклад"
           >
-            <img src={scheduleSvg} alt="Schedule" />
+            <img src={scheduleSvg} alt="" />
+          </button>
+
+          {/* Навчальні матеріали */}
+          <button className="sidebar-btn sidebar-btn--disabled" type="button" disabled title="Курси" aria-label="Курси">
+            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m2.5 8.2 9.5-5 9.5 5-9.5 5-9.5-5Z" />
+              <path d="M6 10.2v5.1c0 1.2 2.7 3.2 6 3.2s6-2 6-3.2v-5.1M21.5 8.2v6" />
+            </svg>
           </button>
 
           {/* Завдання */}
           <button
             type="button"
-            className="sidebar-btn"
-            disabled
+            onClick={() => onSelectTab?.('assignments')}
+            className={`sidebar-btn ${activeTab === 'assignments' ? 'active' : ''}`}
+            aria-current={activeTab === 'assignments' ? 'page' : undefined}
+            aria-label="Завдання"
             title="Завдання"
           >
-            <img src={tasksSvg} alt="Tasks" />
+            <img src={tasksSvg} alt="" />
           </button>
 
           {/* Події */}

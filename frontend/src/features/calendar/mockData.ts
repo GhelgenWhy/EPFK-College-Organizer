@@ -1,6 +1,7 @@
 import type { CalendarEvent } from './types';
+import { HOME_DEADLINES, HOME_EVENTS } from '../home/mockData';
 
-export const MOCK_CALENDAR_EVENTS: CalendarEvent[] = [
+const existingCalendarEvents: CalendarEvent[] = [
   {
     id: 1,
     title: 'тест з математики',
@@ -292,4 +293,22 @@ export const MOCK_CALENDAR_EVENTS: CalendarEvent[] = [
     date: '2026-10-07',
     type: 'EVENT',
   },
+];
+
+export const MOCK_CALENDAR_EVENTS: CalendarEvent[] = [
+  ...existingCalendarEvents,
+  ...HOME_DEADLINES.map((deadline): CalendarEvent => ({
+    id: `home-${deadline.id}`,
+    title: deadline.title,
+    date: deadline.date,
+    type: 'DEADLINE',
+    discipline: deadline.course,
+  })),
+  ...HOME_EVENTS.map((event): CalendarEvent => ({
+    id: `home-${event.id}`,
+    title: event.title,
+    date: event.date,
+    type: 'EVENT',
+    description: event.details,
+  })),
 ];

@@ -10,14 +10,14 @@
 
 /* Бічна панель */
 .sidebar {
-  width: 100px;
+  width: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
   min-height: calc(100vh - 20px);
-  padding: 10px;
+  padding: 0 10px;
 }
 
 .sidebar-top {
@@ -44,6 +44,11 @@
   object-fit: contain;
 }
 
+.app-layout[data-page='home'] .sidebar-logo {
+  width: 60px;
+  height: 60px;
+}
+
 /* Навігація */
 .sidebar-nav {
   display: flex;
@@ -55,6 +60,11 @@
   background-color: var(--bg-white);
   border-radius: var(--radius-pill);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.app-layout[data-page='home'] .sidebar-nav {
+  width: 60px;
+  margin-left: 0;
 }
 
 .sidebar-btn {
@@ -80,14 +90,23 @@
   background-color: var(--bg-active);
 }
 
+.sidebar-btn.active img {
+  filter: brightness(0);
+}
+
 .sidebar-btn:hover:not(.active) {
   background-color: #F5F5F5;
 }
 
+.sidebar-btn--disabled {
+  color: #a3aaa9;
+  cursor: default;
+}
+
 /* Кнопка виходу */
 .sidebar-logout {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   border: none;
   background-color: var(--bg-white);
@@ -113,13 +132,29 @@
   height: calc(100vh - 20px);
 }
 
+.content-page-heading {
+  display: flex;
+  min-height: 38px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.content-page-heading h1 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: clamp(30px, 1.8vw, 34px);
+  font-weight: 750;
+  letter-spacing: -0.045em;
+  line-height: 1.15;
+}
+
 /* Верхня панель */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 40px;
-  height: 80px;
+  padding: 0 75px 0 85px;
+  height: 60px;
   width: 100%;
   flex-shrink: 0;
 }
@@ -127,6 +162,7 @@
 /* Кнопка синхронізації */
 .sync-badge {
   display: flex;
+  gap: 4px;
   align-items: center;
   height: 34px;
   padding: 10px 20px;
@@ -134,7 +170,7 @@
   border-radius: var(--radius-pill);
   border: none;
   color: var(--text-muted);
-  font-weight: 700;
+  font-weight: 600;
   font-size: 16px;
   cursor: pointer;
   white-space: nowrap;
@@ -146,7 +182,7 @@
   align-items: center;
   gap: 10px;
   height: 60px;
-  padding: 8px 20px 8px 10px;
+  padding: 8px 27px 8px 10px;
   background-color: var(--bg-white);
   border-radius: var(--radius-pill);
   border: none;
@@ -176,4 +212,126 @@
   font-size: 16px;
   color: #000;
   white-space: nowrap;
+}
+
+.sync-badge__label {
+  color: #646464;
+  font-weight: 750;
+}
+
+.sync-badge__time {
+  color: #a0a0a0;
+  font-weight: 650;
+}
+
+.app-layout[data-page='home'] .sidebar-top {
+  gap: 54px;
+}
+
+.app-layout[data-page='home'] .sidebar-nav {
+  gap: 9px;
+}
+
+@media (max-width: 760px) {
+  .app-layout[data-page='home'] .sidebar-nav {
+    width: 100%;
+    gap: 3px;
+    margin-left: 0;
+  }
+}
+
+.app-layout[data-page='home'] .header {
+  padding-right: 5.55vw;
+  padding-left: 5.4vw;
+}
+
+@media (max-width: 760px) {
+  .app-layout {
+    min-height: 100dvh;
+    padding: 8px;
+  }
+
+  .sidebar {
+    position: fixed;
+    z-index: 5;
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    width: auto;
+    min-height: 0;
+    padding: 6px;
+    border: 1px solid #e4ece9;
+    border-radius: var(--radius-pill);
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 8px 30px rgba(1, 37, 59, 0.11);
+    backdrop-filter: blur(12px);
+  }
+
+  .sidebar-top {
+    gap: 0;
+  }
+
+  .sidebar-logo,
+  .sidebar-logout {
+    display: none;
+  }
+
+  .sidebar-nav {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-evenly;
+    gap: 3px;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .sidebar-btn {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+  }
+
+  .layout-content {
+    height: calc(100dvh - 16px);
+    min-height: 0;
+    padding-bottom: 68px;
+  }
+
+  .header {
+    height: 69px;
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .app-layout[data-page='home'] .header {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .sync-badge {
+    max-width: 52%;
+    overflow: hidden;
+    padding: 8px 12px;
+    font-size: 9px;
+    text-overflow: ellipsis;
+  }
+
+  .user-profile {
+    gap: 7px;
+    height: 44px;
+    padding: 4px 11px 4px 5px;
+  }
+
+  .user-avatar {
+    width: 34px;
+    height: 34px;
+  }
+
+  .user-name {
+    max-width: 90px;
+    overflow: hidden;
+    font-size: 12px;
+    text-overflow: ellipsis;
+  }
 }
