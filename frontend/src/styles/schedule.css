@@ -1,176 +1,178 @@
+@layer components {
 /* Сторінка розкладу */
 .schedule-page {
-  display: flex;
-  flex-direction: column;
-  gap: 13px;
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 29px 40px 20px 30px;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:13px];
+  @apply [width:100%];
+  @apply [height:100%];
+  @apply [overflow-y:auto];
+  @apply [overflow-x:hidden];
+  @apply [padding:29px_40px_20px_30px];
+  @apply [scrollbar-width:none];
+  @apply [-ms-overflow-style:none];
 }
 
 .schedule-page::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
+  @apply [display:none];
+  @apply [width:0];
+  @apply [height:0];
 }
 
 /* Перемикач типу тижня */
 .week-toggle-wrapper {
-  display: flex;
-  align-items: center;
-  height: 75px;
-  flex-shrink: 0;
-  padding: 10px 0;
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [height:75px];
+  @apply [flex-shrink:0];
+  @apply [padding:10px_0];
 }
 
 .week-toggle {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 5px;
-  height: 55px;
-  background-color: var(--bg-white);
-  border-radius: var(--radius-md);
-  width: fit-content;
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:15px];
+  @apply [padding:5px];
+  @apply [height:55px];
+  @apply [background-color:var(--bg-white)];
+  @apply [border-radius:var(--radius-md)];
+  @apply [width:fit-content];
 }
 
 .toggle-btn {
-  padding: 5px 28px;
-  height: 100%;
-  border-radius: var(--radius-sm);
-  border: none;
-  background: transparent;
-  font-weight: 700;
-  font-size: 16px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background-color 0.2s;
+  @apply [padding:5px_28px];
+  @apply [height:100%];
+  @apply [border-radius:var(--radius-sm)];
+  @apply [border:none];
+  @apply [background:transparent];
+  @apply [font-weight:700];
+  @apply [font-size:16px];
+  @apply [cursor:pointer];
+  @apply [white-space:nowrap];
+  @apply [transition:background-color_0.2s];
 }
 
 .toggle-btn.active {
-  background-color: var(--bg-active);
+  @apply [background-color:var(--bg-active)];
 }
 
 /* Таблиця розкладу */
 .timetable-container {
-  display: grid;
-  grid-template-columns: 150px repeat(5, minmax(0, 1fr));
-  gap: 5px;
-  width: 100%;
+  @apply [display:grid];
+  @apply [grid-template-columns:150px_repeat(5,_minmax(0,_1fr))];
+  @apply [gap:5px];
+  @apply [width:100%];
 }
 
 .timetable-container.has-saturday {
-  grid-template-columns: 150px repeat(6, minmax(0, 1fr));
+  @apply [grid-template-columns:150px_repeat(6,_minmax(0,_1fr))];
 }
 
 .timetable-col {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  min-width: 0;
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:5px];
+  @apply [min-width:0];
 }
 
 /* Заголовки днів */
 .timetable-header-cell {
-  height: 55px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--bg-white);
-  border-radius: var(--radius-md);
-  font-weight: 700;
-  font-size: 16px;
-  color: #000;
-  text-align: center;
-  flex-shrink: 0;
+  @apply [height:55px];
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [justify-content:center];
+  @apply [background-color:var(--bg-white)];
+  @apply [border-radius:var(--radius-md)];
+  @apply [font-weight:700];
+  @apply [font-size:16px];
+  @apply [color:#000];
+  @apply [text-align:center];
+  @apply [flex-shrink:0];
 }
 
 .timetable-header-cell.current {
-  background-color: var(--bg-day-active);
+  @apply [background-color:var(--bg-day-active)];
 }
 
 /* Час занять */
 .timetable-time-list {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:5px];
 }
 
 .timetable-time-cell {
-  height: 128px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--bg-white);
-  border-radius: var(--radius-md);
-  font-weight: 700;
-  font-size: 16px;
-  color: #000;
-  white-space: nowrap;
+  @apply [height:128px];
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [justify-content:center];
+  @apply [background-color:var(--bg-white)];
+  @apply [border-radius:var(--radius-md)];
+  @apply [font-weight:700];
+  @apply [font-size:16px];
+  @apply [color:#000];
+  @apply [white-space:nowrap];
 }
 
 /* Комірки розкладу */
 .timetable-day-body {
-  background-color: var(--bg-white);
-  border-radius: var(--radius-md);
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+  @apply [background-color:var(--bg-white)];
+  @apply [border-radius:var(--radius-md)];
+  @apply [padding:6px];
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:5px];
 }
 
 .timetable-slot {
-  height: 126px;
-  width: 100%;
-  display: flex;
-  align-items: stretch;
+  @apply [height:126px];
+  @apply [width:100%];
+  @apply [display:flex];
+  @apply [align-items:stretch];
 }
 
 /* Картка заняття */
 .lesson-card {
-  width: 100%;
-  height: 100%;
-  padding: 20px 15px;
-  background-color: var(--bg-card);
-  border-radius: var(--radius-sm);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
-  overflow: hidden;
+  @apply [width:100%];
+  @apply [height:100%];
+  @apply [padding:20px_15px];
+  @apply [background-color:var(--bg-card)];
+  @apply [border-radius:var(--radius-sm)];
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [justify-content:space-between];
+  @apply [align-items:flex-start];
+  @apply [overflow:hidden];
 }
 
 .lesson-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
-  width: 100%;
-  line-height: 1.25;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  @apply [font-size:16px];
+  @apply [font-weight:700];
+  @apply [color:var(--text-primary)];
+  @apply [width:100%];
+  @apply [line-height:1.25];
+  @apply [display:-webkit-box];
+  @apply [-webkit-line-clamp:2];
+  @apply [line-clamp:2];
+  @apply [-webkit-box-orient:vertical];
+  @apply [overflow:hidden];
 }
 
 .lesson-teacher {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-secondary);
+  @apply [font-size:14px];
+  @apply [font-weight:600];
+  @apply [color:var(--text-secondary)];
 }
 
 .lesson-link,
 .lesson-room {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-link);
-  text-decoration: none;
+  @apply [font-size:12px];
+  @apply [font-weight:700];
+  @apply [color:var(--text-link)];
+  @apply [text-decoration:none];
 }
 
 .lesson-link:hover {
-  text-decoration: underline;
+  @apply [text-decoration:underline];
+}
 }

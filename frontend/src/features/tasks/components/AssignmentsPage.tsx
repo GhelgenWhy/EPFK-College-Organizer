@@ -3,7 +3,6 @@ import { useTaskCompletion } from '../hooks/useTaskCompletion';
 import { useKyivClock, type KyivTime } from '../hooks/useKyivClock';
 import { ASSIGNMENTS } from '../assignmentsData';
 import type { Assignment } from '../types';
-import './assignments.css';
 
 type StatusFilter = 'ALL' | 'COMPLETED' | 'ACTIVE' | 'OVERDUE';
 type SortOrder = 'SOONEST' | 'LATEST' | 'TITLE';

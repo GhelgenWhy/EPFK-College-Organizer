@@ -1,6 +1,22 @@
 /* Підключення шрифту */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
+@theme {
+  --color-bg-main: #EEF7F6;
+  --color-bg-card: #E4F6F5;
+  --color-bg-active: #FFD86F;
+  --color-bg-day-active: #FFEAB2;
+  --color-text-primary: #01253B;
+  --color-text-secondary: #657A83;
+  --color-text-muted: #9A9A9A;
+  --color-text-link: #087977;
+  --color-danger: #FF6060;
+  --radius-sm: 15px;
+  --radius-md: 20px;
+  --radius-pill: 50px;
+  --font-sans: 'Inter', sans-serif;
+}
+
 /* Основні кольори та розміри */
 :root {
   --bg-main: #EEF7F6;
@@ -19,16 +35,12 @@
 }
 
 /* Базові стилі */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+@layer base {
+  * {
+    @apply box-border m-0 p-0;
+  }
 
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: var(--bg-main);
-  color: #000;
-  min-height: 100vh;
-  overflow: hidden;
+  body {
+    @apply min-h-screen overflow-hidden bg-bg-main font-sans text-black;
+  }
 }

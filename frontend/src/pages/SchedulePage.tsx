@@ -29,7 +29,7 @@ export const SchedulePage = () => {
   useEffect(() => {
     const controller = new AbortController();
 
-    fetch('/schedule.json', { signal: controller.signal })
+    fetch('/api/schedule', { signal: controller.signal })
       .then((response) => {
         if (!response.ok) throw new Error('Schedule request failed');
         return response.json() as Promise<unknown>;
