@@ -7,29 +7,27 @@ interface TimetableGridProps {
 }
 
 export const TimetableGrid = ({ timeSlots, days }: TimetableGridProps) => (
-  <div className="min-h-0 min-w-0 flex-1 overflow-auto overscroll-contain rounded-[20px]">
-    <div className="grid min-w-[1100px] grid-cols-[150px_repeat(5,minmax(0,1fr))] items-start gap-[5px] pb-2">
-      <div className="sticky left-0 z-20 flex min-w-0 flex-col gap-[5px]">
-        <div className="sticky top-0 z-30 flex h-[55px] shrink-0 items-center justify-center rounded-md bg-white text-center text-base font-bold text-black shadow-sm">Час</div>
-        <div className="flex flex-col gap-[5px]">
-          {timeSlots.map((time) => (
-            <div key={time} className="flex h-[128px] items-center justify-center whitespace-nowrap rounded-md bg-white text-base font-bold text-black">{time}</div>
+  <div className="grid min-h-0 min-w-0 flex-1 grid-cols-[clamp(60px,8vw,130px)_repeat(5,minmax(0,1fr))] gap-1">
+    <div className="grid min-h-0 min-w-0 grid-rows-[clamp(28px,5vh,48px)_minmax(0,1fr)] gap-1">
+      <div className="flex min-w-0 items-center justify-center rounded-md bg-white px-1 text-center text-[clamp(9px,1vw,16px)] font-bold text-black">Час</div>
+      <div className="grid min-h-0 grid-rows-6 gap-1 p-1">
+        {timeSlots.map((time) => (
+          <div key={time} className="flex min-h-0 min-w-0 items-center justify-center rounded-md bg-white px-1 text-center text-[clamp(9px,1vw,16px)] font-bold leading-tight text-black">{time}</div>
+        ))}
+      </div>
+    </div>
+
+    {days.map((day) => (
+      <div key={day.weekday} className="grid min-h-0 min-w-0 grid-rows-[clamp(28px,5vh,48px)_minmax(0,1fr)] gap-1">
+        <div className="flex min-w-0 items-center justify-center rounded-md bg-white px-1 text-center text-[clamp(9px,1vw,16px)] font-bold leading-tight text-black">{day.name}</div>
+        <div className="grid min-h-0 grid-rows-6 gap-1 rounded-md bg-white p-1">
+          {day.lessons.map((lesson, index) => (
+            <div key={index} className="flex min-h-0 min-w-0 items-stretch">
+              {lesson && <LessonCard lesson={lesson} />}
+            </div>
           ))}
         </div>
       </div>
-
-      {days.map((day) => (
-        <div key={day.weekday} className="flex min-w-0 flex-col gap-[5px]">
-          <div className="sticky top-0 z-10 flex h-[55px] shrink-0 items-center justify-center rounded-md bg-white text-center text-base font-bold text-black shadow-sm">{day.name}</div>
-          <div className="flex flex-col gap-[5px] rounded-md bg-white p-[6px]">
-            {day.lessons.map((lesson, index) => (
-              <div key={index} className="flex h-[126px] w-full items-stretch">
-                {lesson && <LessonCard lesson={lesson} />}
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
+    ))}
   </div>
 );
