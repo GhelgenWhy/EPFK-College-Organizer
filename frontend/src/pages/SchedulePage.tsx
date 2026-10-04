@@ -56,10 +56,6 @@ export const SchedulePage = () => {
 
   return (
     <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-[13px] overflow-hidden px-[30px] pt-[29px] pr-[40px] pb-5 max-[760px]:px-4 max-[760px]:pt-4" aria-labelledby="schedule-page-title">
-      <header className="flex min-h-[38px] shrink-0 items-center">
-        <h1 id="schedule-page-title" className="text-[clamp(30px,1.8vw,34px)] font-bold leading-[1.15] tracking-[-0.045em] text-primary">Розклад</h1>
-      </header>
-
       <div className="flex h-[75px] shrink-0 items-center py-[10px]">
         <WeekTypeToggle currentWeekType={currentWeekType} onChange={changeWeek} />
       </div>
