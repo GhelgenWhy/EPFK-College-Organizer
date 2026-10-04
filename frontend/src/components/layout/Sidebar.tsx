@@ -50,7 +50,7 @@ export const Sidebar = () => (
         <SidebarLink to="/calendar" label="Календар" icon={calendarSvg} />
         <SidebarLink to="/schedule" label="Розклад" icon={scheduleSvg} />
 
-        {/* <button
+        <button
           className="flex h-[50px] w-[50px] shrink-0 cursor-default items-center justify-center rounded-full text-[#a3aaa9] max-[760px]:h-[46px] max-[760px]:w-[46px]"
           type="button"
           disabled
@@ -71,19 +71,10 @@ export const Sidebar = () => (
             <path d="m2.5 8.2 9.5-5 9.5 5-9.5 5-9.5-5Z" />
             <path d="M6 10.2v5.1c0 1.2 2.7 3.2 6 3.2s6-2 6-3.2v-5.1M21.5 8.2v6" />
           </svg>
-        </button> */}
+        </button>
 
         <SidebarLink to="/assignments" label="Завдання" icon={tasksSvg} />
         <SidebarLink to="/events" label="Події" icon={eventSvg} />
-        {/* <button
-          className="flex h-[50px] w-[50px] shrink-0 cursor-default items-center justify-center rounded-full max-[760px]:h-[46px] max-[760px]:w-[46px]"
-          type="button"
-          disabled
-          title="Події"
-          aria-label="Події"
-        >
-          <img className="h-6 w-6 object-contain" src={eventSvg} alt="" />
-        </button> */}
       </nav>
     </div>
 

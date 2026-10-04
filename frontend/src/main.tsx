@@ -7,6 +7,7 @@ import { AssignmentsPage } from "./features/tasks/components/AssignmentsPage";
 import { SchedulePage } from "./pages/SchedulePage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { EventPage } from "./pages/EventPage.tsx";
+import { ProfilePage } from "./pages/ProfilePage.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -18,6 +19,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="schedule" element={<SchedulePage />} />
           <Route path="calendar" element={<CalendarPage />} />
           <Route path="events" element={<EventPage />} />
+          <Route path="profile" element={<ProfilePage />} />
         </Route>
         <Route path="*" element={<NotFoundRoute />} />
       </Routes>
