@@ -26,16 +26,16 @@ export function CalendarGrid({
   return (
     <>
       {/* Дні тижня */}
-      <div className="calendar-weekdays-bar">
+      <div className="grid h-9 grid-cols-7 items-center rounded-[20px] bg-[#f5faf9]">
         {WEEKDAYS_SHORT.map((wd) => (
-          <div key={wd} className="calendar-weekday-item">
+          <div key={wd} className="text-center text-[13px] font-bold text-[#819b9b]">
             {wd}
           </div>
         ))}
       </div>
 
       {/* Сітка календаря */}
-      <div className="calendar-grid">
+      <div className="grid h-full min-h-0 flex-1 auto-rows-[minmax(0,1fr)] grid-cols-7 gap-[6px]">
         {days.map((day) => {
           const dayEvents = filteredEvents.filter(
             (e) => e.date === day.dateString

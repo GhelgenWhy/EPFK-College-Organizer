@@ -8,42 +8,40 @@ interface EventSidebarProps {
 
 export function EventSidebar({ selectedDate, events }: EventSidebarProps) {
   return (
-    <div className="calendar-sidebar">
+    <div className="flex w-[360px] shrink-0 flex-col gap-2 max-[760px]:max-h-[35%] max-[760px]:w-full">
 
       {/* Заголовок з вибраною датою */}
-      <div className="calendar-sidebar-header-card">
-        <h3 className="calendar-sidebar-header-title">
+      <div className="box-border flex h-[110px] items-center rounded-[20px] bg-[#c8f0e7] px-5">
+        <h3 className="m-0 text-[32px] font-bold text-[#16393c]">
           {formatSelectedDateHeader(selectedDate)}
         </h3>
       </div>
 
       {/* Список подій */}
-      <div className="calendar-sidebar-content-card">
+      <div className="box-border flex flex-1 flex-col gap-[9px] overflow-y-auto rounded-[20px] bg-white px-3 py-[14px]">
         {events.length === 0 ? (
           // Повідомлення, якщо подій немає
-          <p style={{ color: '#9A9A9A', margin: 0, padding: '10px 4px' }}>
+          <p className="m-0 px-1 py-[10px] text-muted">
             На цей день подій немає
           </p>
         ) : (
           events.map((event) => (
             <div
               key={event.id}
-              className={`calendar-detail-card ${
-                event.type === 'DEADLINE' ? 'deadline' : 'event'
-              }`}
+              className={`box-border flex flex-col rounded-[15px] p-[10px] ${event.type === 'DEADLINE' ? 'gap-[2px] bg-[#ffd5d5]' : 'gap-[10px] bg-[#d1cbfb]'}`}
             >
-              <p className="calendar-detail-title">{event.title}</p>
+              <p className="m-0 text-sm font-bold text-black">{event.title}</p>
 
               {event.discipline && (
-                <p className="calendar-detail-sub">{event.discipline}</p>
+                <p className="m-0 text-sm text-black">{event.discipline}</p>
               )}
 
               {event.description && (
-                <p className="calendar-detail-desc">{event.description}</p>
+                <p className="m-0 whitespace-pre-line text-base text-black">{event.description}</p>
               )}
 
               {event.time && (
-                <p className="calendar-detail-meta">Дата: {event.time}</p>
+                <p className="m-0 text-xs font-bold text-black">Дата: {event.time}</p>
               )}
 
               {event.linkUrl ? (
@@ -51,7 +49,7 @@ export function EventSidebar({ selectedDate, events }: EventSidebarProps) {
                   href={event.linkUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="calendar-detail-link"
+                  className="inline-block cursor-pointer text-xs font-bold text-black underline"
                 >
                   {event.type === 'DEADLINE'
                     ? 'посилання на завдання'
@@ -59,7 +57,7 @@ export function EventSidebar({ selectedDate, events }: EventSidebarProps) {
                 </a>
               ) : (
                 event.type === 'EVENT' && (
-                  <span className="calendar-detail-link">Детальніше</span>
+                  <span className="inline-block cursor-pointer text-xs font-bold text-black underline">Детальніше</span>
                 )
               )}
             </div>

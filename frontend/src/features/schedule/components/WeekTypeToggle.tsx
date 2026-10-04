@@ -7,11 +7,11 @@ interface WeekTypeToggleProps {
 
 export const WeekTypeToggle = ({ currentWeekType, onChange }: WeekTypeToggleProps) => {
   return (
-    <div className="week-toggle">
+    <div className="flex h-[55px] w-fit items-center gap-[15px] rounded-md bg-white p-[5px]">
       <button
         type="button"
         onClick={() => onChange('NUMERATOR')}
-        className={`toggle-btn ${currentWeekType === 'NUMERATOR' ? 'active' : ''}`}
+        className={`h-full whitespace-nowrap rounded-sm border-0 bg-transparent px-7 py-[5px] text-base font-bold transition-colors ${currentWeekType === 'NUMERATOR' ? 'bg-bg-active' : ''}`}
       >
         Чисельник
       </button>
@@ -19,7 +19,7 @@ export const WeekTypeToggle = ({ currentWeekType, onChange }: WeekTypeToggleProp
       <button
         type="button"
         onClick={() => onChange('DENOMINATOR')}
-        className={`toggle-btn ${currentWeekType === 'DENOMINATOR' ? 'active' : ''}`}
+        className={`h-full whitespace-nowrap rounded-sm border-0 bg-transparent px-7 py-[5px] text-base font-bold transition-colors ${currentWeekType === 'DENOMINATOR' ? 'bg-bg-active' : ''}`}
       >
         Знаменник
       </button>

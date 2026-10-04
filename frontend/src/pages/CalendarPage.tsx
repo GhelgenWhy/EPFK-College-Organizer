@@ -76,14 +76,14 @@ export function CalendarPage() {
   });
 
   return (
-    <main className="calendar-page" aria-labelledby="calendar-page-title">
-      <header className="content-page-heading">
-        <h1 id="calendar-page-title">Календар</h1>
+    <main className="flex min-h-0 flex-1 flex-col gap-[13px] overflow-hidden px-[30px] pt-[29px] pb-5 max-[760px]:px-4 max-[760px]:pt-4" aria-labelledby="calendar-page-title">
+      <header className="flex min-h-[38px] shrink-0 items-center">
+        <h1 id="calendar-page-title" className="text-[clamp(30px,1.8vw,34px)] font-bold leading-[1.15] tracking-[-0.045em] text-primary">Календар</h1>
       </header>
 
-      <div className="calendar-page-layout">
+      <div className="flex min-h-0 flex-1 gap-5 overflow-hidden max-[760px]:flex-col max-[760px]:gap-3">
         {/* Основна частина календаря */}
-        <div className="calendar-main">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col max-[760px]:overflow-y-auto">
           <CalendarHeader
             viewDate={viewDate}
             onPrevMonth={handlePrevMonth}

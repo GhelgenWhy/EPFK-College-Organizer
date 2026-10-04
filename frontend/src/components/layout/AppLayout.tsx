@@ -1,12 +1,9 @@
 import type { ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
-import { useLocation } from 'react-router';
 
 interface AppLayoutProps {
   children: ReactNode;
-  activeTab?: string;
-  onSelectTab?: (tab: string) => void;
   lastSync?: string;
   userName?: string;
   userAvatar?: string;
@@ -22,13 +19,10 @@ export const AppLayout = ({
   onSyncClick,
   onProfileClick,
 }: AppLayoutProps) => {
-  const { pathname } = useLocation();
-  const activeTab = pathname === '/' ? 'home' : pathname.slice(1);
-
   return (
-    <div className="app-layout" data-page={activeTab}>
+    <div className="flex min-h-screen items-start gap-[10px] bg-bg-main p-[10px] max-[760px]:min-h-dvh max-[760px]:p-2">
       <Sidebar />
-      <div className="layout-content">
+      <div className="flex h-[calc(100vh-20px)] min-w-0 flex-1 flex-col max-[760px]:h-[calc(100dvh-16px)] max-[760px]:min-h-0 max-[760px]:pb-[68px]">
         <Header
           lastSync={lastSync}
           userName={userName}

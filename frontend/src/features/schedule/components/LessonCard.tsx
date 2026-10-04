@@ -6,11 +6,11 @@ interface LessonCardProps {
 
 export const LessonCard = ({ lesson }: LessonCardProps) => {
   return (
-    <div className="lesson-card">
+    <div className="flex h-full w-full flex-col items-start justify-between overflow-hidden rounded-sm bg-bg-card px-[15px] py-5">
 
       {/* Назва предмета та викладач */}
-      <p className="lesson-title">{lesson.disciplineName}</p>
-      <p className="lesson-teacher">{lesson.teacherName}</p>
+      <p className="line-clamp-2 w-full text-base font-bold leading-[1.25] text-primary">{lesson.disciplineName}</p>
+      <p className="text-sm font-semibold text-secondary">{lesson.teacherName}</p>
 
       {/* Посилання на онлайн-заняття або аудиторія */}
       {lesson.meetingUrl ? (
@@ -18,12 +18,12 @@ export const LessonCard = ({ lesson }: LessonCardProps) => {
           href={lesson.meetingUrl}
           target="_blank"
           rel="noreferrer"
-          className="lesson-link"
+          className="text-xs font-bold text-link no-underline hover:underline"
         >
           Google meet
         </a>
       ) : (
-        <span className="lesson-room">{lesson.room || 'Онлайн'}</span>
+        <span className="text-xs font-bold text-link">{lesson.room || 'Онлайн'}</span>
       )}
     </div>
   );
