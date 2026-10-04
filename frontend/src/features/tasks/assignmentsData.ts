@@ -45,5 +45,3 @@ export const ASSIGNMENTS: Assignment[] = [
     moodleUrl: 'https://moodle.org/',
   },
 ];
-
-export const ASSIGNMENTS_SNAPSHOT_DATE = new Date(2026, 8, 21);
