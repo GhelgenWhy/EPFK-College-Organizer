@@ -55,7 +55,7 @@ export const SchedulePage = () => {
   }
 
   return (
-    <main className="flex h-full w-full flex-col gap-[13px] overflow-x-hidden overflow-y-auto px-[30px] pt-[29px] pr-[40px] pb-5 max-[760px]:px-4 max-[760px]:pt-4" aria-labelledby="schedule-page-title">
+    <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-[13px] overflow-hidden px-[30px] pt-[29px] pr-[40px] pb-5 max-[760px]:px-4 max-[760px]:pt-4" aria-labelledby="schedule-page-title">
       <header className="flex min-h-[38px] shrink-0 items-center">
         <h1 id="schedule-page-title" className="text-[clamp(30px,1.8vw,34px)] font-bold leading-[1.15] tracking-[-0.045em] text-primary">Розклад</h1>
       </header>

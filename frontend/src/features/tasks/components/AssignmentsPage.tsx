@@ -105,7 +105,7 @@ export function AssignmentsPage() {
         {STATUS_TABS.map((tab) => (
           <button
             aria-pressed={statusFilter === tab.id}
-            className={`inline-flex min-h-[38px] flex-[0_0_auto] items-center justify-center rounded-[10px] border-0 bg-transparent px-[8.5px] text-[13px] font-semibold text-[#626262] transition-colors hover:bg-[#eef7f6] hover:text-primary focus-visible:outline-3 focus-visible:outline-[#0b8580] focus-visible:outline-offset-[3px] max-[760px]:min-h-[35px] max-[760px]:px-[9px] max-[760px]:text-[10px] max-[380px]:px-[7px] max-[380px]:text-[9px] ${statusFilter === tab.id ? 'bg-[#079b98] text-white hover:bg-[#079b98] hover:text-white' : ''}`}
+            className={`inline-flex min-h-[38px] flex-[0_0_auto] items-center justify-center rounded-[10px] border-0 px-[8.5px] text-[13px] font-semibold transition-colors focus-visible:outline-3 focus-visible:outline-[#0b8580] focus-visible:outline-offset-[3px] max-[760px]:min-h-[35px] max-[760px]:px-[9px] max-[760px]:text-[10px] max-[380px]:px-[7px] max-[380px]:text-[9px] ${statusFilter === tab.id ? 'bg-[#079b98] text-white hover:bg-[#078582]' : 'bg-transparent text-[#626262] hover:bg-[#eef7f6] hover:text-primary'}`}
             key={tab.id}
             onClick={() => setStatusFilter(tab.id)}
             type="button"
@@ -180,10 +180,10 @@ function AssignmentCard({ task, completed, urgent, onToggle }: {
   onToggle: () => void;
 }) {
   return (
-    <article className={`relative min-w-0 min-h-[142px] rounded-[18px] border border-[#e1eae7] bg-white py-[14px] pr-[112px] pb-[13px] pl-4 transition-[border-color,box-shadow] hover:border-[#cfdfda] hover:shadow-[0_3px_12px_rgba(1,37,59,0.035)] max-[1250px]:pr-[105px] max-[760px]:min-h-0 max-[760px]:rounded-[15px] max-[760px]:py-[14px] max-[760px]:pr-[95px] max-[760px]:pb-3 max-[760px]:pl-[13px] max-[380px]:pr-[13px] ${completed ? 'bg-[#fbfcfb]' : ''}`}>
+    <article className={`relative min-w-0 min-h-[142px] rounded-[18px] border border-[#e1eae7] py-[14px] pr-[112px] pb-[13px] pl-4 transition-[border-color,box-shadow] hover:border-[#cfdfda] hover:shadow-[0_3px_12px_rgba(1,37,59,0.035)] max-[1250px]:pr-[105px] max-[760px]:min-h-0 max-[760px]:rounded-[15px] max-[760px]:py-[14px] max-[760px]:pr-[95px] max-[760px]:pb-3 max-[760px]:pl-[13px] max-[380px]:pr-[13px] ${completed ? 'bg-[#fbfcfb]' : 'bg-white'}`}>
       <button
         aria-pressed={completed}
-        className={`absolute top-[15px] right-[15px] inline-flex min-h-[41px] w-[86px] cursor-pointer items-center justify-center whitespace-nowrap rounded-xl border-0 bg-[#c2edf8] px-[7px] font-semibold text-[10px] text-primary transition-[filter] hover:brightness-95 focus-visible:outline-3 focus-visible:outline-[#0b8580] focus-visible:outline-offset-[3px] max-[760px]:top-3 max-[760px]:right-[11px] max-[760px]:min-h-[34px] max-[760px]:w-[77px] max-[760px]:rounded-[10px] max-[760px]:text-[9px] max-[380px]:static max-[380px]:mb-[10px] max-[380px]:min-h-7 max-[380px]:w-auto max-[380px]:px-[9px] ${completed ? 'bg-[#dff0eb] text-link' : ''}`}
+        className={`absolute top-[15px] right-[15px] inline-flex min-h-[41px] w-[86px] cursor-pointer items-center justify-center whitespace-nowrap rounded-xl border-0 px-[7px] font-semibold text-[10px] transition-[filter] hover:brightness-95 focus-visible:outline-3 focus-visible:outline-[#0b8580] focus-visible:outline-offset-[3px] max-[760px]:top-3 max-[760px]:right-[11px] max-[760px]:min-h-[34px] max-[760px]:w-[77px] max-[760px]:rounded-[10px] max-[760px]:text-[9px] max-[380px]:static max-[380px]:mb-[10px] max-[380px]:min-h-7 max-[380px]:w-auto max-[380px]:px-[9px] ${completed ? 'bg-[#dff0eb] text-link' : 'bg-[#c2edf8] text-primary'}`}
         onClick={onToggle}
         type="button"
       >
