@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { useLocation } from 'react-router';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -15,17 +16,18 @@ interface AppLayoutProps {
 
 export const AppLayout = ({
   children,
-  activeTab = 'schedule',
-  onSelectTab,
   lastSync,
   userName,
   userAvatar,
   onSyncClick,
   onProfileClick,
 }: AppLayoutProps) => {
+  const { pathname } = useLocation();
+  const activeTab = pathname === '/' ? 'home' : pathname.slice(1);
+
   return (
     <div className="app-layout" data-page={activeTab}>
-      <Sidebar activeTab={activeTab} onSelectTab={onSelectTab} />
+      <Sidebar />
       <div className="layout-content">
         <Header
           lastSync={lastSync}

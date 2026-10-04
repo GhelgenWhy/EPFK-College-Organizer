@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useSearchParams } from 'react-router';
 import type { CalendarDay, CalendarFilterType } from '../features/calendar/types';
 import { MOCK_CALENDAR_EVENTS } from '../features/calendar/mockData';
 import {
@@ -9,30 +9,58 @@ import { CalendarHeader } from '../features/calendar/components/CalendarHeader';
 import { CalendarGrid } from '../features/calendar/components/CalendarGrid';
 import { EventSidebar } from '../features/calendar/components/EventSidebar';
 
-interface CalendarPageProps {
-  initialDate?: Date;
-  initialFilter?: CalendarFilterType;
+function parseDate(value: string | null) {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return undefined;
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  return formatDateKey(date) === value ? date : undefined;
 }
 
-export function CalendarPage({ initialDate, initialFilter = 'ALL' }: CalendarPageProps) {
-  // Стан календаря
-  const [viewDate, setViewDate] = useState<Date>(() => initialDate ?? new Date());
-  const [selectedDate, setSelectedDate] = useState<Date>(() => initialDate ?? new Date());
-  const [activeFilter, setActiveFilter] = useState<CalendarFilterType>(initialFilter);
+function parseMonth(value: string | null, fallback: Date) {
+  if (!value || !/^\d{4}-\d{2}$/.test(value)) return new Date(fallback.getFullYear(), fallback.getMonth(), 1);
+  const [year, month] = value.split('-').map(Number);
+  if (month < 1 || month > 12) return new Date(fallback.getFullYear(), fallback.getMonth(), 1);
+  return new Date(year, month - 1, 1);
+}
+
+function parseFilter(value: string | null): CalendarFilterType {
+  if (value === 'deadlines_only') return 'DEADLINES_ONLY';
+  if (value === 'events_only') return 'EVENTS_ONLY';
+  return 'ALL';
+}
+
+export function CalendarPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedDate = parseDate(searchParams.get('date')) ?? new Date();
+  const viewDate = parseMonth(searchParams.get('month'), selectedDate);
+  const activeFilter = parseFilter(searchParams.get('filter'));
+
+  function updateCalendar(params: { date?: Date; month?: Date; filter?: CalendarFilterType }) {
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      if (params.date) next.set('date', formatDateKey(params.date));
+      if (params.month) next.set('month', formatDateKey(params.month).slice(0, 7));
+      if (params.filter) {
+        if (params.filter === 'ALL') next.delete('filter');
+        else next.set('filter', params.filter.toLowerCase());
+      }
+      return next;
+    });
+  }
 
   // Перехід до попереднього місяця
   const handlePrevMonth = () => {
-    setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1));
+    updateCalendar({ month: new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1) });
   };
 
   // Перехід до наступного місяця
   const handleNextMonth = () => {
-    setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1));
+    updateCalendar({ month: new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1) });
   };
 
   // Вибір дня календаря
   const handleSelectDay = (day: CalendarDay) => {
-    setSelectedDate(day.date);
+    updateCalendar({ date: day.date, month: day.date });
   };
 
   // Формування днів календаря
@@ -49,7 +77,7 @@ export function CalendarPage({ initialDate, initialFilter = 'ALL' }: CalendarPag
 
   return (
     <main className="calendar-page" aria-labelledby="calendar-page-title">
-      <header className="content-page-heading">sssd sda
+      <header className="content-page-heading">
         <h1 id="calendar-page-title">Календар</h1>
       </header>
 
@@ -61,7 +89,7 @@ export function CalendarPage({ initialDate, initialFilter = 'ALL' }: CalendarPag
             onPrevMonth={handlePrevMonth}
             onNextMonth={handleNextMonth}
             activeFilter={activeFilter}
-            onToggleFilter={setActiveFilter}
+            onToggleFilter={(filter) => updateCalendar({ filter })}
           />
 
           <CalendarGrid

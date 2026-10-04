@@ -4,13 +4,9 @@ import calendarSvg from '../../assets/calendar.svg';
 import scheduleSvg from '../../assets/schedule.svg';
 import tasksSvg from '../../assets/tasks.svg';
 import eventSvg from '../../assets/event.svg';
+import { NavLink } from 'react-router';
 
-interface SidebarProps {
-  activeTab?: string;
-  onSelectTab?: (tab: string) => void;
-}
-
-export const Sidebar = ({ activeTab = 'schedule', onSelectTab }: SidebarProps) => {
+export const Sidebar = () => {
   return (
     <aside className="sidebar">
 
@@ -24,40 +20,35 @@ export const Sidebar = ({ activeTab = 'schedule', onSelectTab }: SidebarProps) =
         <nav className="sidebar-nav">
 
           {/* Головна */}
-          <button
-            type="button"
-            onClick={() => onSelectTab?.('home')}
-            className={`sidebar-btn ${activeTab === 'home' ? 'active' : ''}`}
-            aria-current={activeTab === 'home' ? 'page' : undefined}
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) => `sidebar-btn ${isActive ? 'active' : ''}`}
             aria-label="Головна"
             title="Головна"
           >
             <img src={homeSvg} alt="" />
-          </button>
+          </NavLink>
 
           {/* Календар */}
-          <button
-            type="button"
-            onClick={() => onSelectTab?.('calendar')}
-            className={`sidebar-btn ${activeTab === 'calendar' ? 'active' : ''}`}
-            aria-current={activeTab === 'calendar' ? 'page' : undefined}
+          <NavLink
+            to="/calendar"
+            className={({ isActive }) => `sidebar-btn ${isActive ? 'active' : ''}`}
             aria-label="Календар"
             title="Календар"
           >
             <img src={calendarSvg} alt="" />
-          </button>
+          </NavLink>
 
           {/* Розклад */}
-          <button
-            type="button"
-            onClick={() => onSelectTab?.('schedule')}
-            className={`sidebar-btn ${activeTab === 'schedule' ? 'active' : ''}`}
-            aria-current={activeTab === 'schedule' ? 'page' : undefined}
+          <NavLink
+            to="/schedule"
+            className={({ isActive }) => `sidebar-btn ${isActive ? 'active' : ''}`}
             aria-label="Розклад"
             title="Розклад"
           >
             <img src={scheduleSvg} alt="" />
-          </button>
+          </NavLink>
 
           {/* Навчальні матеріали */}
           <button className="sidebar-btn sidebar-btn--disabled" type="button" disabled title="Курси" aria-label="Курси">
@@ -68,16 +59,14 @@ export const Sidebar = ({ activeTab = 'schedule', onSelectTab }: SidebarProps) =
           </button>
 
           {/* Завдання */}
-          <button
-            type="button"
-            onClick={() => onSelectTab?.('assignments')}
-            className={`sidebar-btn ${activeTab === 'assignments' ? 'active' : ''}`}
-            aria-current={activeTab === 'assignments' ? 'page' : undefined}
+          <NavLink
+            to="/assignments"
+            className={({ isActive }) => `sidebar-btn ${isActive ? 'active' : ''}`}
             aria-label="Завдання"
             title="Завдання"
           >
             <img src={tasksSvg} alt="" />
-          </button>
+          </NavLink>
 
           {/* Події */}
           <button
