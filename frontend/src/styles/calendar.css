@@ -1,0 +1,352 @@
+/* Основний блок календаря */
+.calendar-page-layout {
+  display: flex;
+  height: calc(100vh - 80px);
+  overflow: hidden;
+  gap: 20px;
+  padding: 0 20px 20px 0;
+  box-sizing: border-box;
+}
+
+/* Основна частина календаря */
+.calendar-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  min-height: 0;
+}
+
+/* Панель керування календарем */
+.calendar-controls-card {
+  background-color: var(--bg-white);
+  border-radius: 20px;
+  padding: 8px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  height: 76px;
+  box-sizing: border-box;
+}
+
+.calendar-month-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.calendar-nav-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  border: 1px solid #9A9A9A;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #4D4D4D;
+  padding: 0;
+  transition: background-color 0.15s;
+}
+
+.calendar-nav-btn:hover {
+  background-color: #f1f5f9;
+}
+
+.calendar-month-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #000000;
+}
+
+.calendar-filters-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 32px;
+}
+
+.calendar-filters-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #626262;
+  letter-spacing: 0.02em;
+}
+
+.calendar-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 15px;
+  border: 1px solid #6F6F6F;
+  background-color: #E3E3E3;
+  font-size: 13px;
+  font-weight: 700;
+  color: #6F6F6F;
+  cursor: pointer;
+  height: 30px;
+  box-sizing: border-box;
+  transition: all 0.2s;
+}
+
+.calendar-filter-btn.active {
+  background-color: #d1d5db;
+  color: #1f2937;
+}
+
+.calendar-filter-dot-wrapper {
+  width: 15px;
+  height: 15px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-filter-dot-wrapper.deadline {
+  background-color: #FFE4E4;
+}
+
+.calendar-filter-dot-wrapper.event {
+  background-color: #E48CFF;
+}
+
+.calendar-filter-dot-inner {
+  width: 10px;
+  height: 10px;
+  border-radius: 10px;
+}
+
+.calendar-filter-dot-inner.deadline {
+  background-color: #FFD5D5;
+}
+
+.calendar-filter-dot-inner.event {
+  background-color: #D54BFF;
+}
+
+/* Заголовки днів тижня */
+.calendar-weekdays-bar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-radius: 20px;
+  background-color: #F5FAF9;
+  height: 36px;
+  align-items: center;
+}
+
+.calendar-weekday-item {
+  font-size: 13px;
+  font-weight: 700;
+  color: #819B9B;
+  text-align: center;
+}
+
+/* Сітка календаря */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 6px;
+  height: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Комірки днів */
+.calendar-day-cell {
+  height: 100%;
+  min-height: 0;
+  border-radius: 10px;
+  background-color: #FFFFFF;
+  padding: 4px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  box-sizing: border-box;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.1s ease;
+  overflow: hidden;
+}
+
+.calendar-day-cell:hover {
+  transform: translateY(-1px);
+}
+
+.calendar-day-cell.other-month {
+  background-color: #E2ECEB;
+}
+
+.calendar-day-cell.selected {
+  background-color: #FFF6DC;
+  border-color: #FFD86F;
+}
+
+.calendar-day-num-box {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #000000;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.calendar-day-cell.today .calendar-day-num-box {
+  background-color: #FFD86F;
+}
+
+/* Події у комірках */
+.calendar-day-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.calendar-event-pill {
+  width: 100%;
+  height: 18px;
+  border-radius: 4px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.calendar-event-pill.deadline {
+  background-color: #FFD5D5;
+}
+
+.calendar-event-pill.event {
+  background-color: #D1CBFB;
+}
+
+.calendar-event-pill-text {
+  font-size: 11px;
+  font-weight: 700;
+  color: #000000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.calendar-more-label {
+  margin: auto 0 2px 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: #9A9A9A;
+  line-height: 1;
+}
+
+/* Бічна панель */
+.calendar-sidebar {
+  width: 360px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.calendar-sidebar-header-card {
+  background-color: #C8F0E7;
+  border-radius: 20px;
+  height: 110px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.calendar-sidebar-header-title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: #16393C;
+}
+
+/* Вміст бічної панелі */
+.calendar-sidebar-content-card {
+  background-color: #FFFFFF;
+  border-radius: 20px;
+  flex: 1;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* Картки подій */
+.calendar-detail-card {
+  border-radius: 15px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.calendar-detail-card.deadline {
+  background-color: #FFD5D5;
+  gap: 2px;
+}
+
+.calendar-detail-card.event {
+  background-color: #D1CBFB;
+  gap: 10px;
+}
+
+.calendar-detail-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #000000;
+}
+
+.calendar-detail-sub {
+  margin: 0;
+  font-size: 14px;
+  color: #000000;
+}
+
+.calendar-detail-desc {
+  margin: 0;
+  font-size: 16px;
+  color: #000000;
+  white-space: pre-line;
+}
+
+.calendar-detail-meta {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #000000;
+}
+
+.calendar-detail-link {
+  font-size: 12px;
+  font-weight: 700;
+  color: #000000;
+  text-decoration: underline;
+  cursor: pointer;
+  display: inline-block;
+}
