@@ -40,16 +40,16 @@ export const EventList: React.FC<EventListProps> = ({ events }) => {
   }
 
   return (
-    <div className="flex flex-col gap-3 px-[30px] pb-5 w-full max-[760px]:px-4">
+    <div className="flex flex-col gap-3 px-[30px] pb-5 w-full max-[760px]:px-4 overflow-y-auto flex-1">
       {events.map((event) => {
         const styles = getStatusStyles(event.status);
 
         return (
           <div
             key={event.id}
-            className={`flex flex-col justify-between h-[160px] max-h-[160px] bg-white border ${styles.border} rounded-[16px] px-5 py-3.5 shadow-sm relative transition-all hover:shadow-md overflow-hidden`}
+            className={`flex flex-col justify-between h-[180px] max-h-[180px] bg-white border ${styles.border} rounded-[16px] px-5 py-3.5 shadow-sm relative transition-all hover:shadow-md overflow-hidden shrink-0`}
           >
-            {/* Заголовок и Статус */}
+            {/* Заголовок і Статус */}
             <div className="flex items-start justify-between gap-4">
               <h3 className="text-base font-bold text-gray-900 truncate">
                 {event.title}
@@ -61,9 +61,9 @@ export const EventList: React.FC<EventListProps> = ({ events }) => {
               </span>
             </div>
 
-            {/* Дата и место */}
-            <div className="flex flex-wrap items-center gap-6 text-sm text-teal-700">
-              <div className="flex items-center gap-2">
+            {/* Дата і місце: за замовчуванням (маленька висота) — в 1 рядок, на великій висоті — в 2 рядки */}
+            <div className="flex flex-row items-center gap-6 [@media(min-height:800px)]:flex-col [@media(min-height:800px)]:items-start [@media(min-height:800px)]:gap-1 text-sm text-teal-700">
+              <div className="flex items-center gap-2 shrink-0">
                 <svg
                   className="w-4 h-4 shrink-0"
                   fill="none"
@@ -81,11 +81,11 @@ export const EventList: React.FC<EventListProps> = ({ events }) => {
                   {event.date} · {event.time}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 truncate">
                 <svg
                   className="w-4 h-4 shrink-0"
                   fill="none"
-                  stroke="currentColor"
+                  stroke="#03314D"
                   viewBox="0 0 24 24"
                 >
                   <path
@@ -101,16 +101,18 @@ export const EventList: React.FC<EventListProps> = ({ events }) => {
                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                <span>{event.location}</span>
+                <span className="truncate text-[#03314D]">
+                  {event.location}
+                </span>
               </div>
             </div>
 
-            {/* Описание */}
+            {/* Опис */}
             <p className="text-xs text-gray-600 truncate">
               {event.description}
             </p>
 
-            {/* Нижняя мета-информация */}
+            {/* Нижня мета-інформація */}
             <div className="flex items-center gap-2 text-xs text-gray-400 pt-2 border-t border-gray-100 truncate">
               <span>Організатор: {event.organizer}</span>
               <span>·</span>

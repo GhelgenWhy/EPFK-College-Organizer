@@ -6,26 +6,24 @@ import { EducationalInfoCard } from "../features/profile/components/EducationalI
 import { SecurityCard } from "../features/profile/components/SecurityCard";
 import { SettingsCard } from "../features/profile/components/SettingsCard";
 import { resolveAppRole } from "../features/auth/roles";
-
-type ProfileForm = {
-  firstName: string;
-  lastName: string;
-  group: string;
-  syncLink: string;
-  language: "Українська" | "English";
-  theme: "Світла" | "Темна";
-};
+import type { ProfileForm } from "../features/profile/types";
 
 const readMetadataString = (value: unknown, fallback = "") =>
   typeof value === "string" ? value : fallback;
 
 const getErrorMessage = (error: unknown) =>
-  error instanceof Error ? error.message : "Не вдалося зберегти зміни. Спробуйте ще раз.";
+  error instanceof Error
+    ? error.message
+    : "Не вдалося зберегти зміни. Спробуйте ще раз.";
 
 export const ProfilePage = () => {
   const { isLoaded, isSignedIn, user } = useUser();
   if (!isLoaded) {
-    return <div className="auth-loading" role="status">Завантаження профілю…</div>;
+    return (
+      <div className="auth-loading" role="status">
+        Завантаження профілю…
+      </div>
+    );
   }
   if (!isSignedIn || !user) return null;
   return <LoadedProfilePage key={user.id} user={user} />;
@@ -38,8 +36,10 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
     firstName: user.firstName ?? "",
     lastName: user.lastName ?? "",
     group: readMetadataString(user.unsafeMetadata.group),
-    syncLink: readMetadataString(user.unsafeMetadata.syncLink),
-    language: user.unsafeMetadata.language === "English" ? "English" : "Українська",
+    moodleLogin: readMetadataString(user.unsafeMetadata.moodleLogin),
+    moodlePassword: readMetadataString(user.unsafeMetadata.moodlePassword),
+    language:
+      user.unsafeMetadata.language === "English" ? "English" : "Українська",
     theme: user.unsafeMetadata.theme === "Темна" ? "Темна" : "Світла",
   }));
   const [busy, setBusy] = useState(false);
@@ -47,9 +47,16 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
   const [error, setError] = useState("");
 
   const role = resolveAppRole(user.publicMetadata.role);
-  const roleLabel = { user: "Користувач", admin: "Адміністратор", supervisor: "Куратор" }[role];
+  const roleLabel = {
+    user: "Користувач",
+    admin: "Адміністратор",
+    supervisor: "Куратор",
+  }[role];
 
-  const save = async (action: () => Promise<unknown>, successMessage: string) => {
+  const save = async (
+    action: () => Promise<unknown>,
+    successMessage: string,
+  ) => {
     setBusy(true);
     setError("");
     setNotice("");
@@ -65,17 +72,34 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
 
   const savePersonalData = () =>
     save(
-      () => user.update({ firstName: form.firstName.trim(), lastName: form.lastName.trim() }),
+      () =>
+        user.update({
+          firstName: form.firstName.trim(),
+          lastName: form.lastName.trim(),
+        }),
       "Особисті дані збережено в Clerk.",
     );
 
-  const saveEducation = () =>
-    save(
-      () => user.updateMetadata({
-        unsafeMetadata: { group: form.group.trim(), syncLink: form.syncLink.trim() },
-      }),
-      "Навчальну інформацію збережено.",
-    );
+  const saveEducation = (data: {
+    group: string;
+    moodleLogin: string;
+    moodlePassword: string;
+  }) =>
+    save(async () => {
+      await user.updateMetadata({
+        unsafeMetadata: {
+          group: data.group.trim(),
+          moodleLogin: data.moodleLogin.trim(),
+          moodlePassword: data.moodlePassword.trim(),
+        },
+      });
+      setForm((current) => ({
+        ...current,
+        group: data.group.trim(),
+        moodleLogin: data.moodleLogin.trim(),
+        moodlePassword: data.moodlePassword.trim(),
+      }));
+    }, "Навчальну інформацію збережено.");
 
   const changeAvatar = (file: File) =>
     save(() => user.setProfileImage({ file }), "Фото профілю оновлено.");
@@ -83,7 +107,9 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
   const removeAvatar = () =>
     save(() => user.setProfileImage({ file: null }), "Фото профілю видалено.");
 
-  const updatePreference = (next: Partial<Pick<ProfileForm, "language" | "theme">>) => {
+  const updatePreference = (
+    next: Partial<Pick<ProfileForm, "language" | "theme">>,
+  ) => {
     const updated = { ...form, ...next };
     setForm(updated);
     void save(
@@ -94,13 +120,14 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
 
   return (
     <main
-      className="flex min-h-0 min-w-0 flex-1 flex-col gap-6 overflow-y-auto px-[30px] py-[30px] [scrollbar-color:#c4d8d4_transparent] [scrollbar-width:thin] max-[760px]:px-4 max-[760px]:py-4 bg-gray-50/50"
+      className="flex min-h-0 min-w-0 flex-1 flex-col gap-6 overflow-y-auto px-7.5 py-7.5 [scrollbar-color:#c4d8d4_transparent] scrollbar-thin max-[760px]:px-4 max-[760px]:py-4"
       aria-labelledby="profile-heading"
       tabIndex={0}
     >
       <div>
-        <h1 id="profile-heading" className="text-2xl font-bold text-gray-900">Мій профіль</h1>
-        <p className="mt-1 text-sm text-gray-500">Дані облікового запису з Clerk</p>
+        <h1 id="profile-heading" className="text-2xl font-bold text-gray-900">
+          Мій профіль
+        </h1>
       </div>
 
       {(notice || error) && (
@@ -129,15 +156,17 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
           firstName={form.firstName}
           lastName={form.lastName}
           email={user.primaryEmailAddress?.emailAddress ?? ""}
-          onChange={(field, value) => setForm((current) => ({ ...current, [field]: value }))}
+          onChange={(field, value) =>
+            setForm((current) => ({ ...current, [field]: value }))
+          }
           onSave={savePersonalData}
           saving={busy}
         />
         <EducationalInfoCard
           group={form.group}
           role={roleLabel}
-          syncLink={form.syncLink}
-          onChange={(field, value) => setForm((current) => ({ ...current, [field]: value }))}
+          moodleLogin={form.moodleLogin}
+          moodlePassword={form.moodlePassword}
           onSave={saveEducation}
           saving={busy}
         />
@@ -148,8 +177,17 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
         <SettingsCard
           language={form.language}
           theme={form.theme}
-          onToggleLanguage={() => updatePreference({ language: form.language === "Українська" ? "English" : "Українська" })}
-          onToggleTheme={() => updatePreference({ theme: form.theme === "Світла" ? "Темна" : "Світла" })}
+          onToggleLanguage={() =>
+            updatePreference({
+              language:
+                form.language === "Українська" ? "English" : "Українська",
+            })
+          }
+          onToggleTheme={() =>
+            updatePreference({
+              theme: form.theme === "Світла" ? "Темна" : "Світла",
+            })
+          }
           saving={busy}
         />
       </div>

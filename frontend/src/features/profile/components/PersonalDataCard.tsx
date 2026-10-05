@@ -41,7 +41,11 @@ export const PersonalDataCard = ({
       setPendingEmailId(address.id);
       setEmailNotice(`Код підтвердження надіслано на ${newEmail.trim()}.`);
     } catch (error) {
-      setEmailError(error instanceof Error ? error.message : "Не вдалося надіслати код підтвердження.");
+      setEmailError(
+        error instanceof Error
+          ? error.message
+          : "Не вдалося надіслати код підтвердження.",
+      );
     } finally {
       setEmailBusy(false);
     }
@@ -50,9 +54,13 @@ export const PersonalDataCard = ({
   const verifyEmailChange = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!user) return;
-    const address = user.emailAddresses.find((item) => item.id === pendingEmailId);
+    const address = user.emailAddresses.find(
+      (item) => item.id === pendingEmailId,
+    );
     if (!address) {
-      setEmailError("Адресу для підтвердження не знайдено. Почніть зміну пошти ще раз.");
+      setEmailError(
+        "Адресу для підтвердження не знайдено. Почніть зміну пошти ще раз.",
+      );
       setPendingEmailId("");
       return;
     }
@@ -68,7 +76,11 @@ export const PersonalDataCard = ({
       setNewEmail("");
       setEmailNotice("Основну електронну пошту оновлено.");
     } catch (error) {
-      setEmailError(error instanceof Error ? error.message : "Не вдалося підтвердити електронну пошту.");
+      setEmailError(
+        error instanceof Error
+          ? error.message
+          : "Не вдалося підтвердити електронну пошту.",
+      );
     } finally {
       setEmailBusy(false);
     }
@@ -87,7 +99,7 @@ export const PersonalDataCard = ({
     <section className="bg-white rounded-[20px] p-6 shadow-sm flex flex-col gap-4 flex-1">
       <div>
         <h2 className="text-lg font-bold text-gray-900">Особисті дані</h2>
-        <p className="text-xs text-gray-400 mt-0.5">Ім’я зберігається в профілі Clerk</p>
+        <p className="text-xs text-gray-400 mt-0.5">Дані профілю</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -126,12 +138,18 @@ export const PersonalDataCard = ({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs text-gray-500">Основна електронна пошта</p>
-            <p className="text-sm text-gray-800 break-all">{email || "Не вказано"}</p>
+            <p className="text-sm text-gray-800 break-all">
+              {email || "Не вказано"}
+            </p>
           </div>
           {!editingEmail && (
             <button
               type="button"
-              onClick={() => { setEditingEmail(true); setEmailError(""); setEmailNotice(""); }}
+              onClick={() => {
+                setEditingEmail(true);
+                setEmailError("");
+                setEmailNotice("");
+              }}
               className="px-3 py-2 border border-teal-600 text-teal-700 rounded-xl text-sm font-medium hover:bg-teal-50"
             >
               Змінити пошту
@@ -140,7 +158,10 @@ export const PersonalDataCard = ({
         </div>
 
         {editingEmail && !pendingEmailId && (
-          <form onSubmit={startEmailChange} className="mt-4 flex flex-col gap-3">
+          <form
+            onSubmit={startEmailChange}
+            className="mt-4 flex flex-col gap-3"
+          >
             <label className="flex flex-col gap-1 text-xs text-gray-500">
               Нова електронна пошта
               <input
@@ -153,16 +174,29 @@ export const PersonalDataCard = ({
               />
             </label>
             <div className="flex gap-2">
-              <button type="submit" disabled={emailBusy} className="px-4 py-2 bg-teal-700 text-white rounded-xl text-sm disabled:opacity-50">
+              <button
+                type="submit"
+                disabled={emailBusy}
+                className="px-4 py-2 bg-teal-700 text-white rounded-xl text-sm disabled:opacity-50"
+              >
                 {emailBusy ? "Надсилаємо…" : "Надіслати код"}
               </button>
-              <button type="button" onClick={cancelEmailChange} className="px-4 py-2 border border-gray-200 rounded-xl text-sm">Скасувати</button>
+              <button
+                type="button"
+                onClick={cancelEmailChange}
+                className="px-4 py-2 border border-gray-200 rounded-xl text-sm"
+              >
+                Скасувати
+              </button>
             </div>
           </form>
         )}
 
         {editingEmail && pendingEmailId && (
-          <form onSubmit={verifyEmailChange} className="mt-4 flex flex-col gap-3">
+          <form
+            onSubmit={verifyEmailChange}
+            className="mt-4 flex flex-col gap-3"
+          >
             <label className="flex flex-col gap-1 text-xs text-gray-500">
               Код із листа
               <input
@@ -176,15 +210,28 @@ export const PersonalDataCard = ({
               />
             </label>
             <div className="flex gap-2">
-              <button type="submit" disabled={emailBusy} className="px-4 py-2 bg-teal-700 text-white rounded-xl text-sm disabled:opacity-50">
+              <button
+                type="submit"
+                disabled={emailBusy}
+                className="px-4 py-2 bg-teal-700 text-white rounded-xl text-sm disabled:opacity-50"
+              >
                 {emailBusy ? "Перевіряємо…" : "Підтвердити пошту"}
               </button>
-              <button type="button" onClick={cancelEmailChange} className="px-4 py-2 border border-gray-200 rounded-xl text-sm">Скасувати</button>
+              <button
+                type="button"
+                onClick={cancelEmailChange}
+                className="px-4 py-2 border border-gray-200 rounded-xl text-sm"
+              >
+                Скасувати
+              </button>
             </div>
           </form>
         )}
         {(emailError || emailNotice) && (
-          <p className={`mt-3 text-sm ${emailError ? "text-red-700" : "text-teal-800"}`} role={emailError ? "alert" : "status"}>
+          <p
+            className={`mt-3 text-sm ${emailError ? "text-red-700" : "text-teal-800"}`}
+            role={emailError ? "alert" : "status"}
+          >
             {emailError || emailNotice}
           </p>
         )}

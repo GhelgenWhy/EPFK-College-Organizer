@@ -23,7 +23,7 @@ export const EventPage = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // 1. Фильтрация по периоду
+    // 1. Фільтрація за періодом
     const periodFiltered = MOCK_COLLEGE_EVENTS.filter((event) => {
       const eventDate = new Date(event.date);
       eventDate.setHours(0, 0, 0, 0);
@@ -49,13 +49,12 @@ export const EventPage = () => {
       return true; // "Усі дати"
     });
 
-    // 2. Фильтрация по статусу
+    // 2. Фільтрація за статусом
     const statusFiltered = periodFiltered.filter((event) => {
       if (status === "Усі статуси") return true;
       return event.status === status;
     });
 
-    // 3. Сортировка и ограничение ровно до 4 событий
     const sorted = [...statusFiltered].sort((a, b) => {
       if (sort === "За назвою") {
         return a.title.localeCompare(b.title);
@@ -72,11 +71,11 @@ export const EventPage = () => {
       return 0;
     });
 
-    return sorted.slice(0, 4);
+    return sorted;
   }, [period, status, sort]);
 
   return (
-    <div className="flex flex-col w-full h-full">
+    <div className="flex flex-col w-full h-full overflow-hidden">
       <EventHeader
         period={period}
         setPeriod={setPeriod}

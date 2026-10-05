@@ -49,43 +49,43 @@ export const Sidebar = () => {
           />
         </div>
 
-      <nav className="flex w-[60px] flex-col items-center gap-[10px] rounded-[50px] bg-white py-[5px] shadow-[0_1px_3px_rgba(0,0,0,0.05)] max-[760px]:w-full max-[760px]:flex-row max-[760px]:justify-evenly max-[760px]:gap-[3px] max-[760px]:bg-transparent max-[760px]:py-0 max-[760px]:shadow-none">
-        <SidebarLink to="/" label="Головна" icon={homeSvg} />
-        <SidebarLink to="/calendar" label="Календар" icon={calendarSvg} />
-        <SidebarLink to="/schedule" label="Розклад" icon={scheduleSvg} />
+        <nav className="flex w-[60px] flex-col items-center gap-[10px] rounded-[50px] bg-white py-[5px] shadow-[0_1px_3px_rgba(0,0,0,0.05)] max-[760px]:w-full max-[760px]:flex-row max-[760px]:justify-evenly max-[760px]:gap-[3px] max-[760px]:bg-transparent max-[760px]:py-0 max-[760px]:shadow-none">
+          <SidebarLink to="/" label="Головна" icon={homeSvg} />
+          <SidebarLink to="/calendar" label="Календар" icon={calendarSvg} />
+          <SidebarLink to="/schedule" label="Розклад" icon={scheduleSvg} />
 
-        <button
-          className="flex h-[50px] w-[50px] shrink-0 cursor-default items-center justify-center rounded-full text-[#a3aaa9] max-[760px]:h-[46px] max-[760px]:w-[46px]"
-          type="button"
-          disabled
-          title="Курси"
-          aria-label="Курси"
-        >
-          <svg
-            aria-hidden="true"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+          <button
+            className="flex h-[50px] w-[50px] shrink-0 cursor-default items-center justify-center rounded-full text-[#a3aaa9] max-[760px]:h-[46px] max-[760px]:w-[46px]"
+            type="button"
+            disabled
+            title="Курси"
+            aria-label="Курси"
           >
-            <path d="m2.5 8.2 9.5-5 9.5 5-9.5 5-9.5-5Z" />
-            <path d="M6 10.2v5.1c0 1.2 2.7 3.2 6 3.2s6-2 6-3.2v-5.1M21.5 8.2v6" />
-          </svg>
-        </button>
+            <svg
+              aria-hidden="true"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m2.5 8.2 9.5-5 9.5 5-9.5 5-9.5-5Z" />
+              <path d="M6 10.2v5.1c0 1.2 2.7 3.2 6 3.2s6-2 6-3.2v-5.1M21.5 8.2v6" />
+            </svg>
+          </button>
 
-        <SidebarLink to="/assignments" label="Завдання" icon={tasksSvg} />
-        <SidebarLink to="/events" label="Події" icon={eventSvg} />
-      </nav>
-    </div>
+          <SidebarLink to="/assignments" label="Завдання" icon={tasksSvg} />
+          <SidebarLink to="/events" label="Події" icon={eventSvg} />
+        </nav>
+      </div>
 
       <button
         className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.05)] transition-colors hover:bg-red-100 max-[760px]:hidden"
         type="button"
-        onClick={() => void signOut({ redirectUrl: '/sign-in' })}
+        onClick={() => void signOut({ redirectUrl: "/sign-in" })}
         title="Вийти"
         aria-label="Вийти з облікового запису"
       >
