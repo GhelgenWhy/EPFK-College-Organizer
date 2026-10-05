@@ -6,6 +6,7 @@ interface HeaderProps {
   userName?: string;
   userAvatar?: string;
   onSyncClick?: () => void;
+  onProfileClick?: () => void;
 }
 
 export const Header = ({
@@ -13,6 +14,7 @@ export const Header = ({
   userName = "Don Psone",
   userAvatar = profileAvatar,
   onSyncClick,
+  onProfileClick,
 }: HeaderProps) => {
   return (
     <header className="flex h-[60px] w-full shrink-0 items-center justify-between px-[75px] pl-[85px] max-[760px]:h-[69px] max-[760px]:px-2">
@@ -29,6 +31,7 @@ export const Header = ({
       {/* Профіль користувача через NavLink (перекидує на /profile) */}
       <NavLink
         to="/profile"
+        onClick={onProfileClick}
         className={({ isActive }) =>
           `flex h-[60px] cursor-pointer items-center gap-[10px] rounded-[50px] border-0 bg-white py-2 pr-[27px] pl-[10px] transition-colors max-[760px]:h-11 max-[760px]:gap-[7px] max-[760px]:py-1 max-[760px]:pr-[11px] max-[760px]:pl-[5px] ${isActive
             ? "bg-bg-active ring-2 ring-teal-600/20"

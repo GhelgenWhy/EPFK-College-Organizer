@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 
 interface ProfileHeaderProps {
   firstName: string;
@@ -7,8 +7,9 @@ interface ProfileHeaderProps {
   group: string;
   role: string;
   avatarUrl?: string;
-  onAvatarChange: () => void;
+  onAvatarChange: (file: File) => void;
   onAvatarDelete: () => void;
+  disabled?: boolean;
 }
 
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
@@ -20,7 +21,9 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   avatarUrl,
   onAvatarChange,
   onAvatarDelete,
+  disabled = false,
 }) => {
+  const fileInput = useRef<HTMLInputElement>(null);
   const initials = `${firstName[0] || ""}${lastName[0] || ""}`.toUpperCase();
 
   return (
@@ -54,15 +57,31 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       </div>
 
       <div className="flex items-center gap-4">
+        <input
+          ref={fileInput}
+          type="file"
+          accept="image/*"
+          className="sr-only"
+          aria-label="Вибрати фото профілю"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) onAvatarChange(file);
+            event.target.value = "";
+          }}
+        />
         <button
-          onClick={onAvatarChange}
-          className="px-4 py-2 border border-teal-600 text-teal-700 rounded-xl text-sm font-medium hover:bg-teal-50 transition-colors cursor-pointer"
+          type="button"
+          onClick={() => fileInput.current?.click()}
+          disabled={disabled}
+          className="px-4 py-2 border border-teal-600 text-teal-700 rounded-xl text-sm font-medium hover:bg-teal-50 transition-colors cursor-pointer disabled:opacity-50"
         >
           Змінити фото
         </button>
         <button
+          type="button"
           onClick={onAvatarDelete}
-          className="text-sm text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
+          disabled={disabled || !avatarUrl}
+          className="text-sm text-gray-400 hover:text-red-600 transition-colors cursor-pointer disabled:opacity-50"
         >
           Видалити фото
         </button>

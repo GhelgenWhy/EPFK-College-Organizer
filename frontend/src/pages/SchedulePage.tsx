@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
+import { useAuth } from '@clerk/react';
 import type { ScheduleResponse, WeekType } from '../features/schedule/types';
 import { WeekTypeToggle } from '../features/schedule/components/WeekTypeToggle';
 import { TimetableGrid } from '../features/schedule/components/TimetableGrid';
@@ -20,6 +21,7 @@ function isScheduleResponse(value: unknown): value is ScheduleResponse {
 }
 
 export const SchedulePage = () => {
+  const { getToken } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [schedule, setSchedule] = useState<ScheduleResponse | null>(null);
   const [error, setError] = useState(false);
@@ -29,22 +31,26 @@ export const SchedulePage = () => {
   useEffect(() => {
     const controller = new AbortController();
 
-    fetch('/api/schedule', { signal: controller.signal })
-      .then((response) => {
+    async function loadSchedule() {
+      try {
+        const token = await getToken();
+        const response = await fetch('/api/schedule', {
+          signal: controller.signal,
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
         if (!response.ok) throw new Error('Schedule request failed');
-        return response.json() as Promise<unknown>;
-      })
-      .then((data) => {
+        const data = await response.json() as unknown;
         if (!isScheduleResponse(data)) throw new Error('Invalid schedule response');
         setSchedule(data);
-      })
-      .catch((reason: unknown) => {
+      } catch (reason) {
         if (reason instanceof DOMException && reason.name === 'AbortError') return;
         setError(true);
-      });
+      }
+    }
 
+    void loadSchedule();
     return () => controller.abort();
-  }, []);
+  }, [getToken]);
 
   function changeWeek(week: WeekType) {
     setSearchParams((current) => {
