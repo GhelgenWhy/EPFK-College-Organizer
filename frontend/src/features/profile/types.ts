@@ -1,12 +1,22 @@
-export interface UserProfile {
+export type ProfileForm = {
   firstName: string;
   lastName: string;
-  email: string;
   group: string;
-  role: string;
-  syncLink: string;
-  avatarUrl?: string;
-  passwordLastUpdated: string;
+  moodleLogin: string;
+  moodlePassword: string;
   language: "Українська" | "English";
   theme: "Світла" | "Темна";
+};
+
+export interface EducationalInfoCardProps {
+  group: string;
+  role: string;
+  moodleLogin: string;
+  moodlePassword: string;
+  onChange: (
+    field: "group" | "moodleLogin" | "moodlePassword",
+    value: string,
+  ) => void;
+  onSave: () => void;
+  saving: boolean;
 }

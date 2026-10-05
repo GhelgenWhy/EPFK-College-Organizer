@@ -15,3 +15,110 @@
   --radius-pill: 50px;
   --font-inter: "Inter", sans-serif;
 }
+
+.auth-page {
+  align-items: center;
+  background: #eef7f6;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 32px 20px;
+}
+
+.auth-card {
+  background: transparent;
+  max-width: 660px;
+  padding: 0;
+  width: 100%;
+}
+
+.auth-provider,
+.auth-provider-card-box,
+.auth-provider-card {
+  box-sizing: border-box;
+  max-width: 660px;
+  width: 100%;
+}
+
+.auth-provider-card {
+  background: #fff !important;
+  border: 0 !important;
+  border-radius: 22px !important;
+  box-shadow: none !important;
+  padding: 35px 60px !important;
+}
+
+.auth-provider-title {
+  color: #01253b !important;
+  font-size: 30px !important;
+  font-weight: 700 !important;
+  line-height: 1.4 !important;
+}
+
+.auth-provider-subtitle {
+  color: #5b5b5b !important;
+  font-size: 14px !important;
+}
+
+.auth-provider-label {
+  color: #01253b !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.auth-provider-input {
+  border-color: #dde9e8 !important;
+  box-sizing: border-box !important;
+  font-size: 14px !important;
+  height: 46px !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.auth-provider-submit {
+  background: #059492 !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  height: 50px !important;
+}
+
+.auth-provider-link {
+  color: #059492 !important;
+  font-size: 13px !important;
+}
+
+.auth-loading,
+.auth-denied,
+.auth-config-notice {
+  align-content: center;
+  background: #eef7f6;
+  color: #01253b;
+  display: grid;
+  justify-items: center;
+  min-height: 100vh;
+  padding: 24px;
+  text-align: center;
+}
+
+.auth-denied h1,
+.auth-config-notice h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 600px) {
+  .auth-page {
+    padding: 16px;
+  }
+
+  .auth-card {
+    padding: 0;
+  }
+
+  .auth-provider-card {
+    border-radius: 18px !important;
+    padding: 30px 24px !important;
+  }
+}

@@ -28,6 +28,8 @@ backend/                   NestJS
 
 Потрібен Node.js, сумісний із версіями залежностей у `package.json`.
 
+Для локального входу налаштуйте ключі Clerk за інструкцією в [AUTH.md](AUTH.md), скопіювавши `.env.example` у `.env` для frontend і backend.
+
 ```powershell
 cd backend
 npm ci

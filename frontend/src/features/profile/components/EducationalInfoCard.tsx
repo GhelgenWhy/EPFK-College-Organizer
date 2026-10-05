@@ -1,20 +1,46 @@
-import React from "react";
+import { useState, useEffect } from "react";
+import type { ChangeEvent } from "react";
 
 interface EducationalInfoCardProps {
   group: string;
   role: string;
-  syncLink: string;
-  onChange: (field: string, value: string) => void;
+  moodleLogin: string;
+  moodlePassword: string;
+  onSave: (data: {
+    group: string;
+    moodleLogin: string;
+    moodlePassword: string;
+  }) => void;
+  saving: boolean;
 }
 
-export const EducationalInfoCard: React.FC<EducationalInfoCardProps> = ({
-  group,
+const inputClassName =
+  "w-full h-10 px-3 bg-gray-50 border border-gray-200 rounded-[10px] text-sm text-gray-800 focus:outline-teal-600";
+
+export const EducationalInfoCard = ({
+  group: initialGroup,
   role,
-  syncLink,
-  onChange,
-}) => {
+  moodleLogin: initialMoodleLogin,
+  moodlePassword: initialMoodlePassword,
+  onSave,
+  saving,
+}: EducationalInfoCardProps) => {
+  const [group, setGroup] = useState(initialGroup);
+  const [moodleLogin, setMoodleLogin] = useState(initialMoodleLogin);
+  const [moodlePassword, setMoodlePassword] = useState(initialMoodlePassword);
+
+  useEffect(() => {
+    setGroup(initialGroup);
+    setMoodleLogin(initialMoodleLogin);
+    setMoodlePassword(initialMoodlePassword);
+  }, [initialGroup, initialMoodleLogin, initialMoodlePassword]);
+
+  const handleSaveClick = () => {
+    onSave({ group, moodleLogin, moodlePassword });
+  };
+
   return (
-    <div className="bg-white rounded-[20px] p-6 shadow-sm flex flex-col gap-4 flex-1">
+    <section className="bg-white rounded-[20px] p-6 shadow-sm flex flex-col gap-4 flex-1">
       <div>
         <h2 className="text-lg font-bold text-gray-900">
           Навчальна інформація
@@ -25,37 +51,62 @@ export const EducationalInfoCard: React.FC<EducationalInfoCardProps> = ({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-gray-400">Навчальна група</label>
+        <label className="flex flex-col gap-1 text-xs text-gray-500">
+          Навчальна група
           <input
             type="text"
             value={group}
-            onChange={(e) => onChange("group", e.target.value)}
-            className="w-full h-10 px-3 bg-gray-50 border border-gray-200 rounded-[10px] text-sm text-gray-800 focus:outline-teal-600"
+            onChange={(e) => setGroup(e.target.value)}
+            className={inputClassName}
           />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-gray-400">Роль</label>
+        </label>
+        <label className="flex flex-col gap-1 text-xs text-gray-500">
+          Роль
           <input
             type="text"
             value={role}
-            onChange={(e) => onChange("role", e.target.value)}
-            className="w-full h-10 px-3 bg-gray-50 border border-gray-200 rounded-[10px] text-sm text-gray-800 focus:outline-teal-600"
+            readOnly
+            className={`${inputClassName} text-gray-500 cursor-not-allowed`}
           />
-        </div>
+        </label>
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-xs text-gray-400 flex items-center gap-1">
-          Посилання для синхронізації ⓘ
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <label className="flex flex-col gap-1 text-xs text-gray-500">
+          Логін Moodle
+          <input
+            type="text"
+            value={moodleLogin}
+            onChange={(e) => setMoodleLogin(e.target.value)}
+            className={inputClassName}
+            placeholder="Введіть логін"
+          />
         </label>
-        <input
-          type="text"
-          value={syncLink}
-          onChange={(e) => onChange("syncLink", e.target.value)}
-          className="w-full h-10 px-3 bg-gray-50 border border-gray-200 rounded-[10px] text-sm text-teal-700 truncate focus:outline-teal-600"
-        />
+        <label className="flex flex-col gap-1 text-xs text-gray-500">
+          Пароль Moodle
+          <input
+            type="password"
+            value={moodlePassword}
+            onChange={(e) => setMoodlePassword(e.target.value)}
+            className={inputClassName}
+            placeholder="••••••••"
+          />
+        </label>
       </div>
-    </div>
+
+      <p className="text-xs text-gray-400">
+        Роль керується адміністратором і не змінюється зі сторінки профілю.
+      </p>
+      <button
+        type="button"
+        onClick={handleSaveClick}
+        disabled={saving}
+        className="self-start px-4 py-2 bg-teal-700 text-white rounded-xl text-sm font-medium hover:bg-teal-800 disabled:opacity-50"
+      >
+        {saving ? "Збереження…" : "Зберегти навчальні дані"}
+      </button>
+    </section>
   );
 };
+
+export default EducationalInfoCard;
