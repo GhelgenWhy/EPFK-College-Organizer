@@ -4,7 +4,7 @@
   --color-bg-main: var(--background);
   --color-bg-card: var(--lesson-background);
   --color-bg-active: var(--nav-active);
-  --color-bg-day-active: var(--warning-soft);
+  --color-bg-day-active: var(--schedule-today-background);
   --color-calendar-selected: var(--calendar-selected);
   --color-calendar-outside-month: var(--calendar-outside-month);
   --color-on-nav-active: var(--on-nav-active);
