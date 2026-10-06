@@ -33,9 +33,9 @@ export const Header = ({
         to="/profile"
         onClick={onProfileClick}
         className={({ isActive }) =>
-          `flex h-[60px] cursor-pointer items-center gap-[10px] rounded-[50px] border-0 bg-surface py-2 pr-[27px] pl-[10px] transition-colors max-[760px]:h-11 max-[760px]:gap-[7px] max-[760px]:py-1 max-[760px]:pr-[11px] max-[760px]:pl-[5px] ${isActive
-            ? "bg-bg-active ring-2 ring-teal-600/20"
-            : "hover:bg-[var(--surface-hover)]"
+          `flex h-[60px] cursor-pointer items-center gap-[10px] rounded-[50px] border-0 py-2 pr-[27px] pl-[10px] transition-colors max-[760px]:h-11 max-[760px]:gap-[7px] max-[760px]:py-1 max-[760px]:pr-[11px] max-[760px]:pl-[5px] ${isActive
+            ? "bg-bg-active text-on-nav-active ring-2 ring-teal-600/20"
+            : "bg-surface text-primary hover:bg-[var(--surface-hover)]"
           }`
         }
       >
@@ -51,7 +51,7 @@ export const Header = ({
         </div>
 
         {/* Ім'я користувача */}
-        <span className="max-w-[90px] overflow-hidden text-xs font-bold text-primary text-ellipsis whitespace-nowrap min-[761px]:max-w-none min-[761px]:text-base">
+        <span className="max-w-[90px] overflow-hidden text-xs font-bold text-ellipsis whitespace-nowrap min-[761px]:max-w-none min-[761px]:text-base">
           {userName}
         </span>
 
@@ -59,7 +59,7 @@ export const Header = ({
         <svg width="18" height="10" viewBox="0 0 19 10" fill="none">
           <path
             d="M0.29289 0.292874C-0.09763 0.683475 -0.09763 1.31658 0.29289 1.70718L6.93736 8.3516C8.10864 9.52286 10.0074 9.52322 11.1791 8.35242L17.7545 1.78208C18.1451 1.39158 18.1451 0.758375 17.7545 0.367875C17.364 -0.022625 16.7308 -0.022625 16.3403 0.367875L9.76834 6.93992C9.37774 7.33044 8.74464 7.33044 8.35414 6.93992L1.70711 0.292874C1.31658 -0.0976257 0.68342 -0.0976257 0.29289 0.292874Z"
-            fill="var(--text-muted)"
+            fill="currentColor"
           />
         </svg>
       </NavLink>

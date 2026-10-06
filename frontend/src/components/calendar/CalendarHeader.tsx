@@ -60,7 +60,8 @@ export function CalendarHeader({
 
         <button
           type="button"
-          className={`inline-flex h-[30px] box-border cursor-pointer items-center gap-[5px] rounded-[15px] border border-[var(--text-secondary)] bg-[var(--surface-muted)] px-3 py-[6px] text-[13px] font-bold text-[var(--text-secondary)] transition-all max-[420px]:gap-1 max-[420px]:px-2 ${activeFilter === 'DEADLINES_ONLY' ? 'bg-gray-300 text-gray-800' : ''}`}
+          aria-pressed={activeFilter === 'DEADLINES_ONLY'}
+          className={`inline-flex h-[30px] box-border cursor-pointer items-center gap-[5px] rounded-[15px] border px-3 py-[6px] text-[13px] font-bold transition-all max-[420px]:gap-1 max-[420px]:px-2 ${activeFilter === 'DEADLINES_ONLY' ? 'border-bg-active bg-calendar-selected text-primary' : 'border-secondary bg-[var(--surface-muted)] text-secondary'}`}
           onClick={() =>
             onToggleFilter(
               activeFilter === 'DEADLINES_ONLY' ? 'ALL' : 'DEADLINES_ONLY'
@@ -75,7 +76,8 @@ export function CalendarHeader({
 
         <button
           type="button"
-          className={`inline-flex h-[30px] box-border cursor-pointer items-center gap-[5px] rounded-[15px] border border-[var(--text-secondary)] bg-[var(--surface-muted)] px-3 py-[6px] text-[13px] font-bold text-[var(--text-secondary)] transition-all max-[420px]:gap-1 max-[420px]:px-2 ${activeFilter === 'EVENTS_ONLY' ? 'bg-gray-300 text-gray-800' : ''}`}
+          aria-pressed={activeFilter === 'EVENTS_ONLY'}
+          className={`inline-flex h-[30px] box-border cursor-pointer items-center gap-[5px] rounded-[15px] border px-3 py-[6px] text-[13px] font-bold transition-all max-[420px]:gap-1 max-[420px]:px-2 ${activeFilter === 'EVENTS_ONLY' ? 'border-bg-active bg-calendar-selected text-primary' : 'border-secondary bg-[var(--surface-muted)] text-secondary'}`}
           onClick={() =>
             onToggleFilter(
               activeFilter === 'EVENTS_ONLY' ? 'ALL' : 'EVENTS_ONLY'

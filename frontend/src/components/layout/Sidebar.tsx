@@ -15,13 +15,13 @@ function SidebarLink({ to, label, icon }: SidebarLinkProps) {
       to={to}
       end={to === "/"}
       className={({ isActive }) =>
-        `flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full transition-colors hover:bg-[var(--surface-hover)] max-[760px]:h-[46px] max-[760px]:w-[46px] ${isActive ? "bg-bg-active" : ""}`
+        `flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full transition-colors max-[760px]:h-[46px] max-[760px]:w-[46px] ${isActive ? "bg-bg-active" : "hover:bg-[var(--surface-hover)]"}`
       }
       aria-label={label}
       title={label}
     >
       {({ isActive }) => (
-        <span className={isActive ? 'text-primary' : 'text-muted'}><SidebarIcon name={icon} /></span>
+        <span className={isActive ? 'text-on-nav-active' : 'text-muted'}><SidebarIcon name={icon} /></span>
       )}
     </NavLink>
   );

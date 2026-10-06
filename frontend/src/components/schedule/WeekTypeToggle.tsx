@@ -12,7 +12,7 @@ export const WeekTypeToggle = ({ currentWeekType, onChange }: WeekTypeToggleProp
         type="button"
         aria-pressed={currentWeekType === 'NUMERATOR'}
         onClick={() => onChange('NUMERATOR')}
-        className={`h-full whitespace-nowrap rounded-sm border-0 px-7 py-[5px] text-base font-bold text-primary transition-colors focus-visible:outline-2 focus-visible:outline-link focus-visible:outline-offset-2 ${currentWeekType === 'NUMERATOR' ? 'bg-bg-active' : 'bg-transparent hover:bg-bg-main'}`}
+        className={`h-full whitespace-nowrap rounded-sm border-0 px-7 py-[5px] text-base font-bold transition-colors focus-visible:outline-2 focus-visible:outline-link focus-visible:outline-offset-2 ${currentWeekType === 'NUMERATOR' ? 'bg-bg-active text-on-nav-active' : 'bg-transparent text-primary hover:bg-bg-main'}`}
       >
         Чисельник
       </button>
@@ -21,7 +21,7 @@ export const WeekTypeToggle = ({ currentWeekType, onChange }: WeekTypeToggleProp
         type="button"
         aria-pressed={currentWeekType === 'DENOMINATOR'}
         onClick={() => onChange('DENOMINATOR')}
-        className={`h-full whitespace-nowrap rounded-sm border-0 px-7 py-[5px] text-base font-bold text-primary transition-colors focus-visible:outline-2 focus-visible:outline-link focus-visible:outline-offset-2 ${currentWeekType === 'DENOMINATOR' ? 'bg-bg-active' : 'bg-transparent hover:bg-bg-main'}`}
+        className={`h-full whitespace-nowrap rounded-sm border-0 px-7 py-[5px] text-base font-bold transition-colors focus-visible:outline-2 focus-visible:outline-link focus-visible:outline-offset-2 ${currentWeekType === 'DENOMINATOR' ? 'bg-bg-active text-on-nav-active' : 'bg-transparent text-primary hover:bg-bg-main'}`}
       >
         Знаменник
       </button>
