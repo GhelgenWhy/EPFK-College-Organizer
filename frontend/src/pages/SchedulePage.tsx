@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { useAuth } from '@clerk/react';
 import type { ScheduleResponse, WeekType } from '../features/schedule/types';
-import { WeekTypeToggle } from '../features/schedule/components/WeekTypeToggle';
-import { TimetableGrid } from '../features/schedule/components/TimetableGrid';
+import { WeekTypeToggle } from '../components/schedule/WeekTypeToggle';
+import { TimetableGrid } from '../components/schedule/TimetableGrid';
+import { fetchWithClerkAuth } from '../services/api/client';
 
 function isScheduleResponse(value: unknown): value is ScheduleResponse {
   if (!value || typeof value !== 'object') return false;
@@ -21,36 +22,45 @@ function isScheduleResponse(value: unknown): value is ScheduleResponse {
 }
 
 export const SchedulePage = () => {
-  const { getToken } = useAuth();
+  const { getToken, isLoaded, isSignedIn, sessionId, userId } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [schedule, setSchedule] = useState<ScheduleResponse | null>(null);
-  const [error, setError] = useState(false);
+  const [loadedSchedule, setLoadedSchedule] = useState<{ session: string; data: ScheduleResponse } | null>(null);
+  const [errorSession, setErrorSession] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const authSession = sessionId ?? userId ?? (isSignedIn ? 'signed-in' : 'signed-out');
+  const schedule = loadedSchedule?.session === authSession ? loadedSchedule.data : null;
+  const hasError = errorSession === authSession && isSignedIn;
   const requestedWeek = searchParams.get('week');
   const currentWeekType: WeekType = requestedWeek === 'denominator' ? 'DENOMINATOR' : 'NUMERATOR';
 
   useEffect(() => {
     const controller = new AbortController();
+    if (!isLoaded || !isSignedIn) return () => controller.abort();
 
     async function loadSchedule() {
       try {
-        const token = await getToken();
-        const response = await fetch('/api/schedule', {
+        const response = await fetchWithClerkAuth(getToken, '/api/schedule', {
           signal: controller.signal,
-          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });
         if (!response.ok) throw new Error('Schedule request failed');
         const data = await response.json() as unknown;
         if (!isScheduleResponse(data)) throw new Error('Invalid schedule response');
-        setSchedule(data);
+        setLoadedSchedule({ session: authSession, data });
+        setErrorSession(null);
       } catch (reason) {
         if (reason instanceof DOMException && reason.name === 'AbortError') return;
-        setError(true);
+        setErrorSession(authSession);
       }
     }
 
     void loadSchedule();
     return () => controller.abort();
-  }, [getToken]);
+  }, [authSession, getToken, isLoaded, isSignedIn, retryCount]);
+
+  function retrySchedule() {
+    setErrorSession(null);
+    setRetryCount((count) => count + 1);
+  }
 
   function changeWeek(week: WeekType) {
     setSearchParams((current) => {
@@ -66,9 +76,11 @@ export const SchedulePage = () => {
         <WeekTypeToggle currentWeekType={currentWeekType} onChange={changeWeek} />
       </div>
 
-      {error && <p role="alert">Не вдалося завантажити коректний розклад. Спробуйте пізніше.</p>}
-      {!schedule && !error && <p role="status">Завантаження розкладу…</p>}
-      {schedule && (
+      {!isLoaded && <p role="status">Перевіряємо сесію…</p>}
+      {isLoaded && !isSignedIn && <p role="alert">Увійдіть, щоб переглянути розклад.</p>}
+      {hasError && <div role="alert"><p>Не вдалося завантажити коректний розклад.</p><button type="button" onClick={retrySchedule}>Спробувати ще раз</button></div>}
+      {isLoaded && isSignedIn && !schedule && !hasError && <p role="status">Завантаження розкладу…</p>}
+      {isLoaded && isSignedIn && schedule && (
         <TimetableGrid
           days={schedule[currentWeekType === 'NUMERATOR' ? 'numerator' : 'denominator']}
           timeSlots={schedule.timeSlots}

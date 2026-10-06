@@ -1,13 +1,13 @@
 import { useSearchParams } from 'react-router';
 import type { CalendarDay, CalendarFilterType } from '../features/calendar/types';
-import { MOCK_CALENDAR_EVENTS } from '../features/calendar/mockData';
+import { MOCK_CALENDAR_EVENTS } from '../mocks/calendar';
 import {
   generateCalendarMatrix,
   formatDateKey,
 } from '../features/calendar/utils/dateUtils';
-import { CalendarHeader } from '../features/calendar/components/CalendarHeader';
-import { CalendarGrid } from '../features/calendar/components/CalendarGrid';
-import { EventSidebar } from '../features/calendar/components/EventSidebar';
+import { CalendarHeader } from '../components/calendar/CalendarHeader';
+import { CalendarGrid } from '../components/calendar/CalendarGrid';
+import { EventSidebar } from '../components/calendar/EventSidebar';
 
 function parseDate(value: string | null) {
   if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return undefined;
