@@ -1,0 +1,48 @@
+{
+  "timeSlots": [
+    "8:00 - 9:20",
+    "9:35 - 10:55",
+    "11:25 - 12:45",
+    "12:55 - 14:15",
+    "14:30 - 15:50",
+    "16:05 - 17:25"
+  ],
+  "numerator": [
+    {
+      "weekday": 1,
+      "name": "Понеділок",
+      "lessons": [null, null, {"id":"1","disciplineName":"Машинне навчання та штучний інтелект","teacherName":"Котов Р.О.","startsAt":"11:25","endsAt":"12:45","format":"ONLINE","meetingUrl":"https://meet.google.com"}, {"id":"2","disciplineName":"Машинне навчання та штучний інтелект","teacherName":"Котов Р.О.","startsAt":"12:55","endsAt":"14:15","format":"ONLINE","meetingUrl":"https://meet.google.com"}, {"id":"3","disciplineName":"Машинне навчання та штучний інтелект","teacherName":"Котов Р.О.","startsAt":"14:30","endsAt":"15:50","format":"ONLINE","meetingUrl":"https://meet.google.com"}, null]
+    },
+    {
+      "weekday": 2,
+      "name": "Вівторок",
+      "lessons": [null, null, {"id":"4","disciplineName":"Машинне навчання та штучний інтелект","teacherName":"Котов Р.О.","startsAt":"11:25","endsAt":"12:45","format":"ONLINE","meetingUrl":"https://meet.google.com"}, {"id":"5","disciplineName":"Машинне навчання та штучний інтелект","teacherName":"Котов Р.О.","startsAt":"12:55","endsAt":"14:15","format":"ONLINE","meetingUrl":"https://meet.google.com"}, {"id":"6","disciplineName":"Машинне навчання та штучний інтелект","teacherName":"Котов Р.О.","startsAt":"14:30","endsAt":"15:50","format":"ONLINE","meetingUrl":"https://meet.google.com"}, null]
+    },
+    {
+      "weekday": 3,
+      "name": "Середа",
+      "lessons": [null, {"id":"7","disciplineName":"Машинне навчання та штучний інтелект","teacherName":"Котов Р.О.","startsAt":"9:35","endsAt":"10:55","format":"ONLINE","meetingUrl":"https://meet.google.com"}, {"id":"8","disciplineName":"Машинне навчання та штучний інтелект","teacherName":"Котов Р.О.","startsAt":"11:25","endsAt":"12:45","format":"ONLINE","meetingUrl":"https://meet.google.com"}, {"id":"9","disciplineName":"Машинне навчання та штучний інтелект","teacherName":"Котов Р.О.","startsAt":"12:55","endsAt":"14:15","format":"ONLINE","meetingUrl":"https://meet.google.com"}, null, null]
+    },
+    {
+      "weekday": 4,
+      "name": "Четвер",
+      "lessons": [null, {"id":"10","disciplineName":"Машинне навчання та штучний інтелект","teacherName":"Котов Р.О.","startsAt":"9:35","endsAt":"10:55","format":"ONLINE","meetingUrl":"https://meet.google.com"}, {"id":"11","disciplineName":"Машинне навчання та штучний інтелект","teacherName":"Котов Р.О.","startsAt":"11:25","endsAt":"12:45","format":"ONLINE","meetingUrl":"https://meet.google.com"}, {"id":"12","disciplineName":"Машинне навчання та штучний інтелект","teacherName":"Котов Р.О.","startsAt":"12:55","endsAt":"14:15","format":"ONLINE","meetingUrl":"https://meet.google.com"}, null, null]
+    },
+    {
+      "weekday": 5,
+      "name": "П’ятниця",
+      "lessons": [null, {"id":"13","disciplineName":"Машинне навчання та штучний інтелект","teacherName":"Котов Р.О.","startsAt":"9:35","endsAt":"10:55","format":"ONLINE","meetingUrl":"https://meet.google.com"}, {"id":"14","disciplineName":"Машинне навчання та штучний інтелект","teacherName":"Котов Р.О.","startsAt":"11:25","endsAt":"12:45","format":"ONLINE","meetingUrl":"https://meet.google.com"}, null, null, null]
+    }
+  ],
+  "denominator": [
+    {
+      "weekday": 1,
+      "name": "Понеділок",
+      "lessons": [null, null, {"id":"15","disciplineName":"Бази даних","teacherName":"Мельник А.С.","startsAt":"11:25","endsAt":"12:45","room":"Ауд. 318","format":"OFFLINE"}, null, null, null]
+    },
+    {"weekday":2,"name":"Вівторок","lessons":[null,null,null,null,null,null]},
+    {"weekday":3,"name":"Середа","lessons":[null,null,null,null,null,null]},
+    {"weekday":4,"name":"Четвер","lessons":[null,null,null,null,null,null]},
+    {"weekday":5,"name":"П’ятниця","lessons":[null,null,null,null,null,null]}
+  ]
+}
