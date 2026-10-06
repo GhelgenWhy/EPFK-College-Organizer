@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
-import { EventHeader } from "../features/events/components/EventHeader";
-import { EventList } from "../features/events/components/EventList";
-import { MOCK_COLLEGE_EVENTS } from "../features/events/mockData";
+import { EventHeader } from "../components/events/EventHeader";
+import { EventList } from "../components/events/EventList";
+import { MOCK_COLLEGE_EVENTS } from "../mocks/events";
 import type {
   PeriodFilter,
   StatusFilter,

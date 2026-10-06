@@ -1,6 +1,6 @@
 import { useNavigate, useOutlet } from 'react-router';
 import { AppLayout } from './components/layout/AppLayout';
-import { HomePage } from './features/home/components/HomePage';
+import { HomePage } from './pages/HomePage';
 import { formatDateKey } from './features/calendar/utils/dateUtils';
 import type { CalendarFilterType } from './features/calendar/types';
 
