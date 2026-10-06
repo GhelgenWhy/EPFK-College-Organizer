@@ -1,5 +1,6 @@
 export class MoodleCourseDto {
     id: number
-    courseName: string
-    teacher: string | null
+    name: string
+    teacherName: string | null
+    moodleUrl: string
 }

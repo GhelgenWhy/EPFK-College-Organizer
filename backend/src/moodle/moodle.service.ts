@@ -12,7 +12,9 @@ interface MoodleCourse {
 interface MoodleAssignment {
     id: number;
     name: string;
+    intro: string;
     duedate: number;
+    timemodified: number;
 }
 
 interface MoodleSubmissionStatus {
@@ -29,7 +31,7 @@ interface MoodleSubmissionStatus {
 export class MoodleService {
     moodleUrl: string
     constructor() {
-        this.moodleUrl = ''
+        this.moodleUrl = 'https://epkmoodle.znu.edu.ua/'
     }
 
     async getToken(username: string, password: string): Promise<string> {
@@ -50,14 +52,17 @@ export class MoodleService {
         return response.data.token;
     }
 
-    async getCourseAssignments(token: string, courseId: number): Promise<MoodleAssignmentDto[]> {
+    async getCourseAssignments(
+        token: string,
+        courseId: number
+    ): Promise<MoodleAssignmentDto[]> {
         const response = await axios.post(
             `${this.moodleUrl}/webservice/rest/server.php`,
             new URLSearchParams({
                 wstoken: token,
                 wsfunction: 'mod_assign_get_assignments',
                 moodlewsrestformat: 'json',
-                'courseids[0]': courseId.toString()
+                'courseids[0]': String(courseId)
             }),
             {
                 headers: {
@@ -66,43 +71,46 @@ export class MoodleService {
             }
         );
 
-        const assignments: MoodleAssignment[] =
-            response.data.courses?.[0]?.assignments ?? [];
+        const course = response.data.courses?.[0];
 
-        const result = [];
-
-        for (const assignment of assignments) {
-            const statusResponse = await axios.post(
-                `${this.moodleUrl}/webservice/rest/server.php`,
-                new URLSearchParams({
-                    wstoken: token,
-                    wsfunction: 'mod_assign_get_submission_status',
-                    moodlewsrestformat: 'json',
-                    assignmentids: assignment.id.toString()
-                }),
-                {
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    }
-                }
-            );
-
-            const status = statusResponse.data;
-
-            const completed =
-                status.lastattempt?.submissions?.[0]?.status === 'submitted';
-
-            result.push({
-                id: assignment.id,
-                name: assignment.name,
-                deadline: assignment.duedate
-                    ? new Date(assignment.duedate * 1000)
-                    : null,
-                completed
-            });
+        if (!course) {
+            return [];
         }
 
-        return result;
+        const assignments: MoodleAssignment[] = course.assignments ?? [];
+
+        return assignments.map((assignment): MoodleAssignmentDto => {
+            const dueDate = assignment.duedate
+                ? new Date(assignment.duedate * 1000)
+                : null;
+
+            return {
+                id: assignment.id,
+
+                title: assignment.name,
+
+                course: course.fullname,
+
+                description: assignment.intro ?? '',
+
+                dueDate,
+
+                dueTime: dueDate
+                    ? dueDate.toLocaleTimeString('uk-UA', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })
+                    : null,
+
+                source: 'Moodle',
+
+                addedAt: assignment.timemodified
+                    ? new Date(assignment.timemodified * 1000)
+                    : null,
+                
+                moodleUrl: 'https://moodle.org'
+            };
+        });
     }
 
     async getStudentCourses(token: string): Promise<MoodleCourseDto[]> {
@@ -127,8 +135,9 @@ export class MoodleService {
 
         return courses.map((course): MoodleCourseDto => ({
             id: course.id,
-            courseName: course.fullname,
-            teacher: null
+            name: course.fullname,
+            teacherName: null,
+            moodleUrl: 'https://moodle.org'
         }));
     }
 

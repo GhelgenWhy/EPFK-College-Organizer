@@ -1,6 +1,11 @@
 export class MoodleAssignmentDto {
     id: number;
-    name: string;
-    deadline: Date | null;
-    completed: boolean;
+    title: string;
+    course: string;
+    description: string;
+    dueDate: Date | null;
+    dueTime: string | null;
+    source: string;
+    addedAt: Date | null;
+    moodleUrl: string
 }
