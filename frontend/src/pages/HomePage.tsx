@@ -1,11 +1,13 @@
 import type { CalendarFilterType } from '../features/calendar/types';
 import { useTaskCompletion } from '../features/tasks/hooks/useTaskCompletion';
-import { HOME_DEMO_DATE, HOME_DEADLINES, HOME_EVENTS, HOME_LESSONS, HOME_TASKS } from '../mocks/home';
-import type { CollegeEvent, HomeworkTask, HomeLesson } from '../features/home/types';
+import { organizerApi } from '../services/api/organizer';
+import { useApiQuery } from '../services/api/useApiQuery';
+import { ApiQueryStatus } from '../components/ApiQueryStatus';
+import type { CollegeEvent, HomeworkTask, HomeLesson, HomeDeadline, HomeData } from '../features/home/types';
 import { NextLessonCard } from '../components/home/NextLessonCard';
 
 function formatDate(date: Date, options: Intl.DateTimeFormatOptions) {
-  return new Intl.DateTimeFormat('uk-UA', options).format(date);
+  return new Intl.DateTimeFormat('uk-UA', { timeZone: 'Europe/Kyiv', ...options }).format(date);
 }
 
 function parseLocalDate(date: string) {
@@ -22,24 +24,36 @@ interface HomePageProps {
   onOpenSchedule: () => void;
 }
 
-export function HomePage({ onOpenCalendar, onOpenSchedule }: HomePageProps) {
-  const { completedTaskIds, toggleTask } = useTaskCompletion(HOME_TASKS, 'epfk-organizer:home-completed-tasks');
-  const completedTaskCount = HOME_TASKS.filter((task) => completedTaskIds.includes(task.id)).length;
-  const activeTaskCount = HOME_TASKS.length - completedTaskCount;
-  const weekday = titleCase(formatDate(HOME_DEMO_DATE, { weekday: 'long' }));
+export function HomePage(props: HomePageProps) {
+  const query = useApiQuery(organizerApi.getHome);
+  if (!query.data) return (
+    <main className="min-h-0 flex-1 overflow-auto p-6">
+      <h1 className="mb-5 text-3xl font-bold text-primary">Головна</h1>
+      <ApiQueryStatus query={query} />
+    </main>
+  );
+  return <HomeContent key={query.userId} {...props} data={query.data} storageKey={`epfk-organizer:${query.userId}:home-completed-tasks`} />;
+}
+
+function HomeContent({ onOpenCalendar, onOpenSchedule, data, storageKey }: HomePageProps & { data: HomeData; storageKey: string }) {
+  const { date, deadlines, events, lessons, tasks } = data;
+  const { completedTaskIds, toggleTask } = useTaskCompletion(tasks, storageKey);
+  const completedTaskCount = tasks.filter((task) => completedTaskIds.includes(task.id)).length;
+  const activeTaskCount = tasks.length - completedTaskCount;
+  const weekday = titleCase(formatDate(date, { weekday: 'long' }));
 
   return (
     <main className="flex min-h-0 flex-1 flex-col gap-[clamp(8px,1.4vh,14px)] overflow-hidden px-[18px] py-[clamp(12px,2vh,20px)] pr-5 [scrollbar-color:var(--scrollbar)_transparent] [scrollbar-width:thin] max-[1200px]:px-6 max-[960px]:overflow-auto [@media(max-height:700px)]:overflow-auto max-[760px]:gap-[17px] max-[760px]:px-1 max-[760px]:py-4 [&_button:focus-visible]:outline-3 [&_button:focus-visible]:outline-[var(--focus)] [&_button:focus-visible]:outline-offset-[3px] [&_a:focus-visible]:outline-3 [&_a:focus-visible]:outline-[var(--focus)] [&_a:focus-visible]:outline-offset-[3px] [&_input:focus-visible]:outline-3 [&_input:focus-visible]:outline-[var(--focus)] [&_input:focus-visible]:outline-offset-[3px]" aria-labelledby="home-heading">
       <div className="flex min-h-[clamp(48px,7vh,64px)] shrink-0 items-center justify-between gap-5 max-[760px]:min-h-[62px]">
         <div>
           <h1 id="home-heading" className="text-[clamp(30px,1.8vw,34px)] font-bold leading-[1.15] tracking-[-0.045em] text-primary max-[760px]:text-[30px]">
-            {formatDate(HOME_DEMO_DATE, { day: '2-digit', month: '2-digit', year: 'numeric' })}
+            {formatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' })}
           </h1>
           <p className="mt-[7px] text-[15px] text-secondary max-[760px]:mt-[3px] max-[760px]:text-[13px]">{weekday}</p>
         </div>
         <button
           className="mr-[47px] inline-flex min-h-[46px] min-w-[232px] items-center justify-center rounded-xl border border-[var(--border)] bg-surface px-5 text-[13px] font-semibold text-[var(--accent)] transition-colors hover:border-[var(--accent-soft)] hover:bg-[var(--surface-hover)] max-[1200px]:mr-0 max-[760px]:min-h-10 max-[760px]:min-w-0 max-[760px]:px-[11px] max-[760px]:text-[11px]"
-          onClick={() => onOpenCalendar(HOME_DEMO_DATE)}
+          onClick={() => onOpenCalendar(date)}
           type="button"
         >
           Відкрити календар
@@ -47,33 +61,39 @@ export function HomePage({ onOpenCalendar, onOpenSchedule }: HomePageProps) {
       </div>
 
       <div className="grid min-h-0 shrink-0 items-stretch grid-cols-[minmax(0,1.535fr)_minmax(0,1fr)] gap-[clamp(12px,2.5vw,36px)] max-[1200px]:gap-5 max-[760px]:grid-cols-1 max-[760px]:gap-3">
-        <NextLessonCard lesson={HOME_LESSONS[1]} />
-        <FocusCard activeTaskCount={activeTaskCount} onOpenCalendar={onOpenCalendar} onOpenSchedule={onOpenSchedule} />
+        {(lessons[1] ?? lessons[0]) ? <NextLessonCard lesson={lessons[1] ?? lessons[0]} /> : <p className="rounded-[19px] bg-surface p-4 text-secondary">Сьогодні пар немає.</p>}
+        <FocusCard date={date} lessons={lessons} deadlines={deadlines} activeTaskCount={activeTaskCount} onOpenCalendar={onOpenCalendar} onOpenSchedule={onOpenSchedule} />
       </div>
 
       <div className="grid min-h-0 flex-1 items-stretch grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,1fr)] gap-x-[clamp(10px,1.4vw,20px)] gap-y-[clamp(8px,1.4vh,14px)] max-[960px]:flex-none max-[960px]:grid-cols-2 max-[960px]:gap-[18px] [@media(max-height:700px)]:min-h-[420px] [@media(max-height:700px)]:flex-none max-[760px]:grid-cols-1 max-[760px]:gap-3">
-        <ScheduleSection lessons={HOME_LESSONS} />
-        <DeadlinesSection onOpenCalendar={onOpenCalendar} />
+        <ScheduleSection lessons={lessons} date={date} />
+        <DeadlinesSection deadlines={deadlines} onOpenCalendar={onOpenCalendar} />
         <TasksSection
+          tasks={tasks}
           completedTaskIds={completedTaskIds}
           onToggleTask={toggleTask}
         />
       </div>
 
-      <EventsSection onOpenCalendar={onOpenCalendar} />
+      <EventsSection events={events} date={date} onOpenCalendar={onOpenCalendar} />
     </main>
   );
 }
 
-function FocusCard({ activeTaskCount, onOpenCalendar, onOpenSchedule }: {
+function FocusCard({ date, lessons, deadlines, activeTaskCount, onOpenCalendar, onOpenSchedule }: {
+  date: Date;
+  lessons: HomeLesson[];
+  deadlines: HomeDeadline[];
   activeTaskCount: number;
   onOpenCalendar: (date: Date, filter?: CalendarFilterType) => void;
   onOpenSchedule: () => void;
 }) {
+  const dateKey = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Kyiv' }).format(date);
+  const urgentDeadlines = deadlines.filter((deadline) => deadline.urgent || deadline.date === dateKey);
   const metrics = [
-    { value: HOME_LESSONS.length, label: 'пари', detail: 'Сьогодні в розкладі', action: onOpenSchedule },
-    { value: 2, label: 'дедлайни', detail: 'Потребують уваги', action: () => onOpenCalendar(parseLocalDate(HOME_DEADLINES[0].date), 'DEADLINES_ONLY'), urgent: true },
-    { value: activeTaskCount, label: 'завдання', detail: 'Ще не завершені', action: () => onOpenCalendar(HOME_DEMO_DATE, 'DEADLINES_ONLY') },
+    { value: lessons.length, label: 'пари', detail: 'Сьогодні в розкладі', action: onOpenSchedule },
+    { value: urgentDeadlines.length, label: 'дедлайни', detail: 'Потребують уваги', action: () => onOpenCalendar(deadlines[0] ? parseLocalDate(deadlines[0].date) : date, 'DEADLINES_ONLY'), urgent: true },
+    { value: activeTaskCount, label: 'завдання', detail: 'Ще не завершені', action: () => onOpenCalendar(date, 'DEADLINES_ONLY') },
   ];
 
   return (
@@ -119,15 +139,16 @@ function SectionHeading({ id, title, subtitle, action }: {
   );
 }
 
-function ScheduleSection({ lessons }: {
+function ScheduleSection({ lessons, date }: {
   lessons: HomeLesson[];
+  date: Date;
 }) {
   return (
     <section className="col-start-1 flex min-h-0 min-w-0 flex-col rounded-[19px] bg-surface p-3 max-[960px]:col-span-full max-[760px]:col-span-1 max-[760px]:min-h-0 max-[760px]:p-[17px_14px_12px]" aria-labelledby="today-schedule-heading">
       <SectionHeading
         id="today-schedule-heading"
         title="Розклад на сьогодні"
-        subtitle={`${titleCase(formatDate(HOME_DEMO_DATE, { weekday: 'long' }))} · ${lessons.length} пари`}
+        subtitle={`${titleCase(formatDate(date, { weekday: 'long' }))} · ${lessons.length} пари`}
       />
       <ol className="m-0 flex min-h-0 flex-1 list-none flex-col p-0">
         {lessons.map((lesson, index) => (
@@ -152,14 +173,15 @@ function ScheduleSection({ lessons }: {
   );
 }
 
-function DeadlinesSection({ onOpenCalendar }: {
+function DeadlinesSection({ deadlines, onOpenCalendar }: {
+  deadlines: HomeDeadline[];
   onOpenCalendar: (date: Date, filter?: CalendarFilterType) => void;
 }) {
   return (
     <section className="flex min-h-0 min-w-0 flex-col rounded-[19px] bg-surface p-3 max-[760px]:col-start-1 max-[760px]:min-h-0 max-[760px]:p-[17px_14px_12px]" aria-labelledby="deadlines-heading">
       <SectionHeading id="deadlines-heading" title="Найближчі дедлайни" subtitle="Спочатку найтерміновіші" />
       <ul className="m-0 flex min-h-0 flex-1 list-none flex-col gap-2 p-0 pt-2">
-        {HOME_DEADLINES.map((deadline, index) => (
+        {deadlines.map((deadline, index) => (
           <li className="min-h-0 flex-1" key={deadline.id}>
             <button
               className={`flex h-full min-h-0 w-full flex-col items-start rounded-xl border px-3 py-2 text-left text-inherit transition-colors hover:border-[var(--accent-hover)] max-[760px]:min-h-[94px] max-[760px]:px-[11px] ${deadline.urgent ? 'border-[var(--danger)] bg-[var(--danger-soft)]' : 'border-[var(--border)] bg-surface'}`}
@@ -177,21 +199,22 @@ function DeadlinesSection({ onOpenCalendar }: {
   );
 }
 
-function TasksSection({ completedTaskIds, onToggleTask }: {
+function TasksSection({ tasks, completedTaskIds, onToggleTask }: {
+  tasks: HomeworkTask[];
   completedTaskIds: string[];
   onToggleTask: (taskId: string) => void;
 }) {
-  const completedCount = HOME_TASKS.filter((task) => completedTaskIds.includes(task.id)).length;
+  const completedCount = tasks.filter((task) => completedTaskIds.includes(task.id)).length;
 
   return (
     <section className="flex min-h-0 min-w-0 flex-col rounded-[19px] bg-surface p-3 max-[760px]:col-start-1 max-[760px]:min-h-0 max-[760px]:p-[17px_14px_12px]" aria-labelledby="my-tasks-heading">
       <SectionHeading
         id="my-tasks-heading"
         title="Мої завдання"
-        subtitle={`${HOME_TASKS.length - completedCount} активні · ${completedCount + 1} виконане цього тижня`}
+        subtitle={`${tasks.length - completedCount} активні · ${completedCount} виконане цього тижня`}
       />
       <ul className="m-0 flex min-h-0 flex-1 list-none flex-col p-0 pt-0.5">
-        {HOME_TASKS.map((task) => (
+        {tasks.map((task) => (
           <TaskRow
             key={task.id}
             task={task}
@@ -225,7 +248,9 @@ function TaskRow({ task, completed, onToggle }: {
   );
 }
 
-function EventsSection({ onOpenCalendar }: {
+function EventsSection({ events, date, onOpenCalendar }: {
+  events: CollegeEvent[];
+  date: Date;
   onOpenCalendar: (date: Date, filter?: CalendarFilterType) => void;
 }) {
   return (
@@ -234,14 +259,14 @@ function EventsSection({ onOpenCalendar }: {
         <h2 id="events-heading" className="text-lg font-bold text-primary max-[760px]:text-base">Події коледжу</h2>
         <button
           className="mt-2 inline-flex shrink-0 items-center gap-[6px] self-start border-0 bg-transparent py-1 text-xs font-bold text-[var(--accent)] hover:underline hover:underline-offset-[3px] max-[760px]:mt-[3px] max-[760px]:text-[10px]"
-          onClick={() => onOpenCalendar(parseLocalDate(HOME_EVENTS[0].date), 'EVENTS_ONLY')}
+          onClick={() => onOpenCalendar((events[0] ? parseLocalDate(events[0].date) : date), 'EVENTS_ONLY')}
           type="button"
         >
           Переглянути всі <span aria-hidden="true">→</span>
         </button>
       </div>
       <ul className="m-0 grid list-none grid-cols-[minmax(0,0.75fr)_minmax(0,1fr)] p-0 max-[760px]:grid-cols-1">
-        {HOME_EVENTS.map((event) => (
+        {events.map((event) => (
           <EventRow key={event.id} event={event} onClick={() => onOpenCalendar(parseLocalDate(event.date), 'EVENTS_ONLY')} />
         ))}
       </ul>
