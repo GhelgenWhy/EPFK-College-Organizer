@@ -27,6 +27,10 @@ export default defineConfig(({ mode }) => {
           target: backendOrigin,
           changeOrigin: true,
         },
+        '/moodle': {
+          target: backendOrigin,
+          changeOrigin: true,
+        },
       },
     },
   }

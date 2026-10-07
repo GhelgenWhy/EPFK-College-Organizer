@@ -1,7 +1,9 @@
 import { useState, useMemo } from "react";
 import { EventHeader } from "../components/events/EventHeader";
 import { EventList } from "../components/events/EventList";
-import { MOCK_COLLEGE_EVENTS } from "../mocks/events";
+import { organizerApi } from "../services/api/organizer";
+import { useApiQuery } from "../services/api/useApiQuery";
+import { ApiQueryStatus } from "../components/ApiQueryStatus";
 import type {
   PeriodFilter,
   StatusFilter,
@@ -9,6 +11,7 @@ import type {
 } from "../features/events/types";
 
 export const EventPage = () => {
+  const query = useApiQuery(organizerApi.getEvents);
   const [period, setPeriod] = useState<PeriodFilter>("Усі дати");
   const [status, setStatus] = useState<StatusFilter>("Усі статуси");
   const [sort, setSort] = useState<SortOption>("Спочатку найближчі");
@@ -24,7 +27,7 @@ export const EventPage = () => {
     today.setHours(0, 0, 0, 0);
 
     // 1. Фільтрація за періодом
-    const periodFiltered = MOCK_COLLEGE_EVENTS.filter((event) => {
+    const periodFiltered = (query.data ?? []).filter((event) => {
       const eventDate = new Date(event.date);
       eventDate.setHours(0, 0, 0, 0);
 
@@ -72,7 +75,7 @@ export const EventPage = () => {
     });
 
     return sorted;
-  }, [period, status, sort]);
+  }, [query.data, period, status, sort]);
 
   return (
     <div className="flex flex-col w-full h-full overflow-hidden">
@@ -85,7 +88,8 @@ export const EventPage = () => {
         setSort={setSort}
         onReset={handleReset}
       />
-      <EventList events={filteredAndSortedEvents} />
+      <ApiQueryStatus query={query} loadingText="Завантаження подій…" />
+      {query.data && <EventList events={filteredAndSortedEvents} />}
     </div>
   );
 };

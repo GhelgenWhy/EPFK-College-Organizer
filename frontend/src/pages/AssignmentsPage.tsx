@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useTaskCompletion } from '../features/tasks/hooks/useTaskCompletion';
 import { useKyivClock, type KyivTime } from '../features/tasks/hooks/useKyivClock';
-import { ASSIGNMENTS } from '../mocks/assignments';
+import { moodleApi } from '../services/api/moodle';
+import { useApiQuery } from '../services/api/useApiQuery';
+import { ApiQueryStatus } from '../components/ApiQueryStatus';
 import type { Assignment } from '../features/tasks/types';
 import { AssignmentCard } from '../components/assignments/AssignmentCard';
 
@@ -49,6 +51,7 @@ function filterTasks(
 function sortTasks(tasks: Assignment[], sortOrder: SortOrder) {
   return [...tasks].sort((left, right) => {
     if (sortOrder === 'TITLE') return left.title.localeCompare(right.title, 'uk');
+    if (!left.dueDate && !right.dueDate) return 0;
     if (!left.dueDate) return 1;
     if (!right.dueDate) return -1;
 
@@ -60,20 +63,31 @@ function sortTasks(tasks: Assignment[], sortOrder: SortOrder) {
 }
 
 export function AssignmentsPage() {
+  const query = useApiQuery(moodleApi.getAssignments);
+  if (!query.data) return (
+    <main className="min-h-0 flex-1 overflow-auto p-6">
+      <h1 className="mb-5 text-3xl font-bold text-primary">Завдання</h1>
+      <ApiQueryStatus query={query} loadingText="Завантаження завдань з Moodle…" />
+    </main>
+  );
+  return <AssignmentsContent key={query.userId} tasks={query.data} storageKey={`epfk-organizer:${query.userId}:assignment-completed-tasks`} />;
+}
+
+function AssignmentsContent({ tasks, storageKey }: { tasks: Assignment[]; storageKey: string }) {
   const { completedTaskIds, toggleTask } = useTaskCompletion(
-    ASSIGNMENTS,
-    'epfk-organizer:assignment-completed-tasks',
+    tasks,
+    storageKey,
   );
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
   const [discipline, setDiscipline] = useState('ALL');
   const [sortOrder, setSortOrder] = useState<SortOrder>('SOONEST');
   const now = useKyivClock();
   const disciplines = useMemo(
-    () => [...new Set(ASSIGNMENTS.map((task) => task.course))].sort((a, b) => a.localeCompare(b, 'uk')),
-    [],
+    () => [...new Set(tasks.map((task) => task.course))].sort((a, b) => a.localeCompare(b, 'uk')),
+    [tasks],
   );
   const visibleTasks = sortTasks(
-    filterTasks(ASSIGNMENTS, statusFilter, discipline, completedTaskIds, now),
+    filterTasks(tasks, statusFilter, discipline, completedTaskIds, now),
     sortOrder,
   );
 
