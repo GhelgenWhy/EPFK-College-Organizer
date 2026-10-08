@@ -29,6 +29,9 @@ backend/                   NestJS
 
 ## Запуск
 
+PostgreSQL, Prisma та команди міграцій описані в [infrastructure/db/README.md](infrastructure/db/README.md).
+Перед запуском backend підніміть базу та застосуйте міграції за цією інструкцією.
+
 Потрібен Node.js, сумісний із версіями залежностей у `package.json`.
 
 Для локального входу налаштуйте ключі Clerk за інструкцією в [AUTH.md](AUTH.md), скопіювавши `.env.example` у `.env` для frontend і backend.
