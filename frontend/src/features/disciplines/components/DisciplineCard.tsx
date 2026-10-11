@@ -1,4 +1,4 @@
-import type { Discipline } from '../../features/disciplines/types';
+import type { Discipline } from '../types';
 
 export function DisciplineCard({ discipline }: { discipline: Discipline }) {
   return (

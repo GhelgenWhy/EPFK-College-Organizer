@@ -3,9 +3,9 @@ import { useTaskCompletion } from '../features/tasks/hooks/useTaskCompletion';
 import { useKyivClock, type KyivTime } from '../features/tasks/hooks/useKyivClock';
 import { moodleApi } from '../services/api/moodle';
 import { useApiQuery } from '../services/api/useApiQuery';
-import { ApiQueryStatus } from '../components/ApiQueryStatus';
+import { ApiQueryStatus } from '../features/api/components/ApiQueryStatus';
 import type { Assignment } from '../features/tasks/types';
-import { AssignmentCard } from '../components/assignments/AssignmentCard';
+import { AssignmentCard } from '../features/tasks/components/AssignmentCard';
 
 type StatusFilter = 'ALL' | 'COMPLETED' | 'ACTIVE' | 'OVERDUE';
 type SortOrder = 'SOONEST' | 'LATEST' | 'TITLE';

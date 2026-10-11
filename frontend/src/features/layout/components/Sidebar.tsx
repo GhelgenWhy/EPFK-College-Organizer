@@ -1,5 +1,5 @@
 import { NavLink } from "react-router";
-import logoSvg from "../../assets/logo.svg";
+import logoSvg from "../../../assets/logo.svg";
 import { useClerk } from "@clerk/react";
 import { SidebarIcon, type SidebarIconName } from './SidebarIcon';
 

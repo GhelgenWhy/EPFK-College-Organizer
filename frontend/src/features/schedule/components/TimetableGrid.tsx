@@ -1,6 +1,6 @@
-import type { ScheduleDay } from '../../features/schedule/types';
+import type { ScheduleDay } from '../types';
 import { LessonCard } from './LessonCard';
-import { useKyivClock } from '../../features/tasks/hooks/useKyivClock';
+import { useKyivClock } from '../../tasks/hooks/useKyivClock';
 
 interface TimetableGridProps {
   timeSlots: readonly string[];

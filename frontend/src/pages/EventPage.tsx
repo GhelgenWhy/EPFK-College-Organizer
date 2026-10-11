@@ -1,9 +1,9 @@
 import { useState, useMemo } from "react";
-import { EventHeader } from "../components/events/EventHeader";
-import { EventList } from "../components/events/EventList";
+import { EventHeader } from "../features/events/components/EventHeader";
+import { EventList } from "../features/events/components/EventList";
 import { organizerApi } from "../services/api/organizer";
 import { useApiQuery } from "../services/api/useApiQuery";
-import { ApiQueryStatus } from "../components/ApiQueryStatus";
+import { ApiQueryStatus } from "../features/api/components/ApiQueryStatus";
 import type {
   PeriodFilter,
   StatusFilter,
