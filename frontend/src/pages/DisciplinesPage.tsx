@@ -1,7 +1,7 @@
-import { DisciplineGrid } from '../components/disciplines/DisciplineGrid';
+import { DisciplineGrid } from '../features/disciplines/components/DisciplineGrid';
 import { moodleApi } from '../services/api/moodle';
 import { useApiQuery } from '../services/api/useApiQuery';
-import { ApiQueryStatus } from '../components/ApiQueryStatus';
+import { ApiQueryStatus } from '../features/api/components/ApiQueryStatus';
 
 export function DisciplinesPage() {
   const query = useApiQuery(moodleApi.getCourses);

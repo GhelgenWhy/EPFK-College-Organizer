@@ -1,4 +1,4 @@
-import { ApiError } from '../services/api/client';
+import { ApiError } from '../../../services/api/client';
 
 export function ApiQueryStatus({ query, loadingText = 'Завантаження даних…' }: {
   query: { isLoading: boolean; isSignedOut: boolean; error: Error | null; retry: () => void };

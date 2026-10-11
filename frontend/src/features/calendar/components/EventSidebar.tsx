@@ -1,5 +1,5 @@
-import type { CalendarEvent } from '../../features/calendar/types';
-import { formatSelectedDateHeader } from '../../features/calendar/utils/dateUtils';
+import type { CalendarEvent } from '../types';
+import { formatSelectedDateHeader } from '../utils/dateUtils';
 
 interface EventSidebarProps {
   selectedDate: Date;

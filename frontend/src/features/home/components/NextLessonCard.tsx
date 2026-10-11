@@ -1,4 +1,4 @@
-import type { HomeLesson } from '../../features/home/types';
+import type { HomeLesson } from '../types';
 
 export function NextLessonCard({ lesson }: { lesson: HomeLesson }) {
   return (

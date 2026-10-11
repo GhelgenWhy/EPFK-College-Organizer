@@ -1,5 +1,5 @@
-import type { CalendarFilterType } from '../../features/calendar/types';
-import { formatMonthHeader } from '../../features/calendar/utils/dateUtils';
+import type { CalendarFilterType } from '../types';
+import { formatMonthHeader } from '../utils/dateUtils';
 
 interface CalendarHeaderProps {
   viewDate: Date;

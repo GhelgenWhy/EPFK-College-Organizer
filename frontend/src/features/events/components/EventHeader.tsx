@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { PeriodFilter, StatusFilter, SortOption } from "../../features/events/types";
+import type { PeriodFilter, StatusFilter, SortOption } from "../types";
 
 interface EventHeaderProps {
   period: PeriodFilter;

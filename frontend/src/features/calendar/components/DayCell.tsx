@@ -1,4 +1,4 @@
-import type { CalendarDay, CalendarEvent } from '../../features/calendar/types';
+import type { CalendarDay, CalendarEvent } from '../types';
 
 interface DayCellProps {
   day: CalendarDay;

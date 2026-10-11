@@ -1,5 +1,5 @@
-import type { CalendarDay, CalendarEvent, CalendarFilterType } from '../../features/calendar/types';
-import { WEEKDAYS_SHORT } from '../../features/calendar/utils/dateUtils';
+import type { CalendarDay, CalendarEvent, CalendarFilterType } from '../types';
+import { WEEKDAYS_SHORT } from '../utils/dateUtils';
 import { DayCell } from './DayCell';
 
 interface CalendarGridProps {

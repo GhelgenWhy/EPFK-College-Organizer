@@ -1,4 +1,4 @@
-import type { Discipline } from '../../features/disciplines/types';
+import type { Discipline } from '../types';
 import { DisciplineCard } from './DisciplineCard';
 
 export function DisciplineGrid({ disciplines }: { disciplines: Discipline[] }) {
