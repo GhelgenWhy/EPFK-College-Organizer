@@ -26,12 +26,8 @@ model Status {
 }
 
 model User {
-  id          Int               @id @default(autoincrement())
-  userName    String            @map("user_name") @db.Text
-  userSurname String            @map("user_surname") @db.Text
+  id          String            @id
   token       String?           @db.Text
-  email       String            @unique @db.Text
-  password    String            @db.Text
   groupId     Int?              @map("group_id")
   statusId    Int?              @map("status_id")
   lastSync    DateTime?         @map("last_sync") @db.Timestamptz(3)
@@ -73,7 +69,7 @@ model Task {
 
 model UsersDiscipline {
   id           Int        @id @default(autoincrement())
-  userId       Int        @map("user_id")
+  userId       String     @map("user_id")
   disciplineId Int        @map("discipline_id")
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   discipline   Discipline @relation(fields: [disciplineId], references: [id], onDelete: Cascade)
@@ -85,7 +81,7 @@ model UsersDiscipline {
 
 model UsersTask {
   id          Int     @id @default(autoincrement())
-  userId      Int     @map("user_id")
+  userId      String  @map("user_id")
   taskId      Int     @map("task_id")
   isCompleted Boolean @default(false) @map("is_completed")
   user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)

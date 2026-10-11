@@ -1,4 +1,4 @@
-import { Controller, Get, Req, Param } from '@nestjs/common';
+import { Controller, Get, Req, Param, Post, Body } from '@nestjs/common';
 import { ApiService } from './api.service.js';
 import type { Request } from 'express';
 
@@ -18,14 +18,26 @@ export class ApiController {
     return this.apiService.getEvents();
   }
 
+  @Get('courses')
+  async getCourses(@Req() request: Request) {
+        return await this.apiService.getCourses((request as any).authUser.userId);
+    }
+
   @Get('home')
-  getHome(@Req() request: Request) {
-    const token = request.cookies['moodle_token'];
-    return this.apiService.getHome();
+  async getHome(@Req() request: Request) {
+    return await this.apiService.getHome((request as any).authUser.userId);
   }
   @Get('schedule')
   getSchedule(@Req() request: Request) {
-    const token = request.cookies['moodle_token'];
     return this.apiService.getSchedule();
+  }
+  @Post('syncronise')
+  async syncData(@Body() body: {moodle_name: string, moodle_password: string}, @Req() request: Request) {
+    try {
+      await this.apiService.syncData(body.moodle_name, body.moodle_password, (request as any).authUser.userId);
+      return { message: "syncronized" }
+    } catch {
+      return { message: "account not found" }
+    }
   }
 }
