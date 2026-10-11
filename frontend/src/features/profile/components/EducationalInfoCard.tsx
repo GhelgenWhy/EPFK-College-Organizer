@@ -35,8 +35,30 @@ export const EducationalInfoCard = ({
     setMoodlePassword(initialMoodlePassword);
   }, [initialGroup, initialMoodleLogin, initialMoodlePassword]);
 
-  const handleSaveClick = () => {
-    onSave({ group, moodleLogin, moodlePassword });
+  const handleSaveClick = async () => {
+    try {
+      const response = await fetch("/api/getToken", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          moodle_name: moodleLogin,
+          moodle_password: moodlePassword,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Помилка при запиті на /api/getToken");
+      }
+
+      const result = await response.json();
+      console.log("Токен успішно отримано:", result);
+
+      onSave({ group, moodleLogin, moodlePassword });
+    } catch (error) {
+      console.error("Сталася помилка:", error);
+    }
   };
 
   return (
