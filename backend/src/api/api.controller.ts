@@ -32,9 +32,9 @@ export class ApiController {
     return this.apiService.getSchedule();
   }
   @Post('syncronise')
-  async syncData(@Body() body: {moodle_name: string, moodle_password: string}, @Req() request: Request) {
+  async syncData(@Body() body: {username: string, password: string}, @Req() request: Request) {
     try {
-      await this.apiService.syncData(body.moodle_name, body.moodle_password, (request as any).authUser.userId);
+      await this.apiService.syncData(body.username, body.password, (request as any).authUser.userId);
       return { message: "syncronized" }
     } catch {
       return { message: "account not found" }

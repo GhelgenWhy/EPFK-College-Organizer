@@ -37,14 +37,21 @@ export class ApiService {
   }
 
   async getCourses(userId: string) {
-    const user = this.prismaService.user.findUnique({
+    const userDisciplines = await this.prismaService.discipline.findMany({
       where: {
-        id: userId
-      }
+        users: {
+          some: {
+            userId: userId,
+          },
+        },
+      },
     });
-    if (user != undefined) {
-
-    }
+    return userDisciplines.map(course => ({
+        id: course.moodleId,
+        name: course.disciplineName,
+        teacherName: course.teacher,
+        moodleUrl: 'https://moodle.org',
+    }));
   }
 
   async getHome(userId: string) {
