@@ -73,7 +73,7 @@ function plainText(html: string) {
 
 export const moodleApi = {
   getCourses: (options: ApiRequestOptions) =>
-    requestJson("/moodle/courses", options, (value): Discipline[] =>
+    requestJson("/api/courses", options, (value): Discipline[] =>
       validated<MoodleCourse[]>(value, array(course), "Moodle courses").map(
         (item) => ({
           ...item,
@@ -112,7 +112,7 @@ export const moodleApi = {
     credentials: { username: string; password: string },
     { getToken, signal }: ApiRequestOptions,
   ): Promise<void> {
-    const response = await fetchWithClerkAuth(getToken, "/moodle/login", {
+    const response = await fetchWithClerkAuth(getToken, "/api/syncronise", {
       method: "POST",
       signal,
       headers: {
