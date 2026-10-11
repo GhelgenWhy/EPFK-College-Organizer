@@ -7,12 +7,12 @@ import {
   generateCalendarMatrix,
   formatDateKey,
 } from "../features/calendar/utils/dateUtils";
-import { CalendarHeader } from "../components/calendar/CalendarHeader";
-import { CalendarGrid } from "../components/calendar/CalendarGrid";
-import { EventSidebar } from "../components/calendar/EventSidebar";
+import { CalendarHeader } from "../features/calendar/components/CalendarHeader";
+import { CalendarGrid } from "../features/calendar/components/CalendarGrid";
+import { EventSidebar } from "../features/calendar/components/EventSidebar";
 import { organizerApi } from "../services/api/organizer";
 import { useApiQuery } from "../services/api/useApiQuery";
-import { ApiQueryStatus } from "../components/ApiQueryStatus";
+import { ApiQueryStatus } from "../features/api/components/ApiQueryStatus";
 
 function parseDate(value: string | null) {
   if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return undefined;

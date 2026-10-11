@@ -1,5 +1,5 @@
 import React from "react";
-import type { CollegeEvent, EventStatus } from "../../features/events/types";
+import type { CollegeEvent, EventStatus } from "../types";
 
 interface EventListProps {
   events: CollegeEvent[];

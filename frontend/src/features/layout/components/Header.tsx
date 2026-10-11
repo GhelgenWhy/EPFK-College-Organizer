@@ -1,5 +1,5 @@
 import { NavLink } from "react-router";
-import profileAvatar from "../../assets/profile-avatar.png";
+import profileAvatar from "../../../assets/profile-avatar.png";
 
 interface HeaderProps {
   lastSync?: string;

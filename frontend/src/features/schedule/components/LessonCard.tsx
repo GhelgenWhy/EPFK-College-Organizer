@@ -1,4 +1,4 @@
-import type { LessonItem } from '../../features/schedule/types';
+import type { LessonItem } from '../types';
 
 interface LessonCardProps {
   lesson: LessonItem;

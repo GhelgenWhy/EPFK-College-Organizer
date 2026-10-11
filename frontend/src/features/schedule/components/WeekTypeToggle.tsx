@@ -1,4 +1,4 @@
-import type { WeekType } from '../../features/schedule/types';
+import type { WeekType } from '../types';
 
 interface WeekTypeToggleProps {
   currentWeekType: WeekType;

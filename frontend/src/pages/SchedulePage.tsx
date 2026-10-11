@@ -1,10 +1,10 @@
 import { useSearchParams } from 'react-router';
 import type { WeekType } from '../features/schedule/types';
-import { WeekTypeToggle } from '../components/schedule/WeekTypeToggle';
-import { TimetableGrid } from '../components/schedule/TimetableGrid';
+import { WeekTypeToggle } from '../features/schedule/components/WeekTypeToggle';
+import { TimetableGrid } from '../features/schedule/components/TimetableGrid';
 import { organizerApi } from '../services/api/organizer';
 import { useApiQuery } from '../services/api/useApiQuery';
-import { ApiQueryStatus } from '../components/ApiQueryStatus';
+import { ApiQueryStatus } from '../features/api/components/ApiQueryStatus';
 
 export const SchedulePage = () => {
   const query = useApiQuery(organizerApi.getSchedule);

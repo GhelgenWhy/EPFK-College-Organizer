@@ -1,4 +1,4 @@
-import type { Assignment } from '../../features/tasks/types';
+import type { Assignment } from '../types';
 
 function formatDateOnly(date: string) {
   return new Intl.DateTimeFormat('uk-UA', {

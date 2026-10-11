@@ -2,9 +2,9 @@ import type { CalendarFilterType } from '../features/calendar/types';
 import { useTaskCompletion } from '../features/tasks/hooks/useTaskCompletion';
 import { organizerApi } from '../services/api/organizer';
 import { useApiQuery } from '../services/api/useApiQuery';
-import { ApiQueryStatus } from '../components/ApiQueryStatus';
+import { ApiQueryStatus } from '../features/api/components/ApiQueryStatus';
 import type { CollegeEvent, HomeworkTask, HomeLesson, HomeDeadline, HomeData } from '../features/home/types';
-import { NextLessonCard } from '../components/home/NextLessonCard';
+import { NextLessonCard } from '../features/home/components/NextLessonCard';
 
 function formatDate(date: Date, options: Intl.DateTimeFormatOptions) {
   return new Intl.DateTimeFormat('uk-UA', { timeZone: 'Europe/Kyiv', ...options }).format(date);
