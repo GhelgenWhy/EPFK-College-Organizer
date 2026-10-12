@@ -1,12 +1,15 @@
 import { ClerkProvider } from "@clerk/react";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { HomeRoute, NotFoundRoute, RootLayout } from "./App";
-import { AuthPage, RequireRole } from "./features/auth/Auth";
-import { AssignmentsPage } from "./features/tasks/components/AssignmentsPage";
+import { RequireRole } from "./features/auth/guards";
+import { AuthPage } from "./pages/AuthPage";
+import { AssignmentsPage } from "./pages/AssignmentsPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { EventPage } from "./pages/EventPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { SchedulePage } from "./pages/SchedulePage";
+import { DisciplinesPage } from "./pages/DisciplinesPage";
+import { ThemeProvider } from "./features/theme/ThemeProvider";
 
 const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -31,8 +34,9 @@ export default function Application() {
       signInFallbackRedirectUrl="/"
       signUpFallbackRedirectUrl="/"
     >
-      <BrowserRouter>
-        <Routes>
+      <ThemeProvider>
+        <BrowserRouter>
+          <Routes>
           <Route path="sign-in" element={<AuthPage mode="sign-in" />} />
           <Route path="sign-up" element={<AuthPage mode="sign-up" />} />
           <Route
@@ -45,13 +49,15 @@ export default function Application() {
             <Route index element={<HomeRoute />} />
             <Route path="assignments" element={<AssignmentsPage />} />
             <Route path="schedule" element={<SchedulePage />} />
+            <Route path="disciplines" element={<DisciplinesPage />} />
             <Route path="calendar" element={<CalendarPage />} />
             <Route path="events" element={<EventPage />} />
             <Route path="profile" element={<ProfilePage />} />
           </Route>
           <Route path="*" element={<NotFoundRoute />} />
-        </Routes>
-      </BrowserRouter>
+          </Routes>
+        </BrowserRouter>
+      </ThemeProvider>
     </ClerkProvider>
   );
 }

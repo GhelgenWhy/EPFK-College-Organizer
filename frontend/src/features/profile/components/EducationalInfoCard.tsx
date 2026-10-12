@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import type { ChangeEvent } from "react";
 
 interface EducationalInfoCardProps {
   group: string;
@@ -62,7 +61,7 @@ export const EducationalInfoCard = ({
   };
 
   return (
-    <section className="bg-white rounded-[20px] p-6 shadow-sm flex flex-col gap-4 flex-1">
+    <section className="bg-surface rounded-[20px] p-6 shadow-sm flex flex-col gap-4 flex-1">
       <div>
         <h2 className="text-lg font-bold text-gray-900">
           Навчальна інформація
@@ -123,7 +122,7 @@ export const EducationalInfoCard = ({
         type="button"
         onClick={handleSaveClick}
         disabled={saving}
-        className="self-start px-4 py-2 bg-teal-700 text-white rounded-xl text-sm font-medium hover:bg-teal-800 disabled:opacity-50"
+        className="self-start px-4 py-2 bg-teal-700 text-on-accent rounded-xl text-sm font-medium hover:bg-teal-800 disabled:opacity-50"
       >
         {saving ? "Збереження…" : "Зберегти навчальні дані"}
       </button>

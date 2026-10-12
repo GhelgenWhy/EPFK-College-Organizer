@@ -17,13 +17,13 @@ export function CalendarHeader({
   onToggleFilter,
 }: CalendarHeaderProps) {
   return (
-    <div className="flex h-[76px] shrink-0 flex-col justify-center gap-[6px] rounded-[20px] bg-white px-6 py-2 max-[760px]:h-auto max-[760px]:gap-2 max-[760px]:py-3">
+    <div className="flex h-[76px] shrink-0 flex-col justify-center gap-[6px] rounded-[20px] bg-surface px-6 py-2 max-[760px]:h-auto max-[760px]:gap-2 max-[760px]:py-3">
 
       {/* Навігація по місяцях */}
       <div className="flex items-center gap-[10px]">
         <button
           type="button"
-          className="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-[10px] border border-[#9a9a9a] bg-transparent p-0 text-[#4d4d4d] transition-colors hover:bg-slate-100"
+          className="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--text-muted)] bg-transparent p-0 text-[var(--text-secondary)] transition-colors hover:bg-slate-100"
           onClick={onPrevMonth}
           aria-label="Попередній місяць"
         >
@@ -35,13 +35,13 @@ export function CalendarHeader({
           </svg>
         </button>
 
-        <h2 className="m-0 text-xl font-bold text-black">
+        <h2 className="m-0 text-xl font-bold text-primary">
           {formatMonthHeader(viewDate)}
         </h2>
 
         <button
           type="button"
-          className="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-[10px] border border-[#9a9a9a] bg-transparent p-0 text-[#4d4d4d] transition-colors hover:bg-slate-100"
+          className="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-[10px] border border-[var(--text-muted)] bg-transparent p-0 text-[var(--text-secondary)] transition-colors hover:bg-slate-100"
           onClick={onNextMonth}
           aria-label="Наступний місяць"
         >
@@ -56,34 +56,36 @@ export function CalendarHeader({
 
       {/* Фільтри календаря */}
       <div className="flex h-8 items-center gap-[10px] max-[420px]:gap-1">
-        <span className="text-[13px] font-bold tracking-[0.02em] text-[#626262]">ПОКАЗАТИ</span>
+        <span className="text-[13px] font-bold tracking-[0.02em] text-[var(--text-secondary)]">ПОКАЗАТИ</span>
 
         <button
           type="button"
-          className={`inline-flex h-[30px] box-border cursor-pointer items-center gap-[5px] rounded-[15px] border border-[#6f6f6f] bg-[#e3e3e3] px-3 py-[6px] text-[13px] font-bold text-[#6f6f6f] transition-all max-[420px]:gap-1 max-[420px]:px-2 ${activeFilter === 'DEADLINES_ONLY' ? 'bg-gray-300 text-gray-800' : ''}`}
+          aria-pressed={activeFilter === 'DEADLINES_ONLY'}
+          className={`inline-flex h-[30px] box-border cursor-pointer items-center gap-[5px] rounded-[15px] border px-3 py-[6px] text-[13px] font-bold transition-all max-[420px]:gap-1 max-[420px]:px-2 ${activeFilter === 'DEADLINES_ONLY' ? 'border-bg-active bg-calendar-selected text-primary' : 'border-secondary bg-[var(--surface-muted)] text-secondary'}`}
           onClick={() =>
             onToggleFilter(
               activeFilter === 'DEADLINES_ONLY' ? 'ALL' : 'DEADLINES_ONLY'
             )
           }
         >
-          <div className="flex h-[15px] w-[15px] items-center justify-center rounded-[10px] bg-[#ffe4e4]">
-            <div className="h-[10px] w-[10px] rounded-[10px] bg-[#ffd5d5]" />
+          <div className="flex h-[15px] w-[15px] items-center justify-center rounded-[10px] bg-[var(--danger-soft)]">
+            <div className="h-[10px] w-[10px] rounded-[10px] bg-[var(--deadline-bg)]" />
           </div>
           <span>Дедлайни</span>
         </button>
 
         <button
           type="button"
-          className={`inline-flex h-[30px] box-border cursor-pointer items-center gap-[5px] rounded-[15px] border border-[#6f6f6f] bg-[#e3e3e3] px-3 py-[6px] text-[13px] font-bold text-[#6f6f6f] transition-all max-[420px]:gap-1 max-[420px]:px-2 ${activeFilter === 'EVENTS_ONLY' ? 'bg-gray-300 text-gray-800' : ''}`}
+          aria-pressed={activeFilter === 'EVENTS_ONLY'}
+          className={`inline-flex h-[30px] box-border cursor-pointer items-center gap-[5px] rounded-[15px] border px-3 py-[6px] text-[13px] font-bold transition-all max-[420px]:gap-1 max-[420px]:px-2 ${activeFilter === 'EVENTS_ONLY' ? 'border-bg-active bg-calendar-selected text-primary' : 'border-secondary bg-[var(--surface-muted)] text-secondary'}`}
           onClick={() =>
             onToggleFilter(
               activeFilter === 'EVENTS_ONLY' ? 'ALL' : 'EVENTS_ONLY'
             )
           }
         >
-          <div className="flex h-[15px] w-[15px] items-center justify-center rounded-[10px] bg-[#e48cff]">
-            <div className="h-[10px] w-[10px] rounded-[10px] bg-[#d54bff]" />
+          <div className="flex h-[15px] w-[15px] items-center justify-center rounded-[10px] bg-[var(--calendar-highlight)]">
+            <div className="h-[10px] w-[10px] rounded-[10px] bg-[var(--calendar-highlight-strong)]" />
           </div>
           <span>Події</span>
         </button>

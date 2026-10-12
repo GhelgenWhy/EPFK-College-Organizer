@@ -26,3 +26,11 @@ export interface HomeDeadline {
   course: string;
   urgent?: boolean;
 }
+
+export interface HomeData {
+  date: Date;
+  lessons: HomeLesson[];
+  deadlines: HomeDeadline[];
+  events: CollegeEvent[];
+  tasks: import('../tasks/types').HomeworkTask[];
+}

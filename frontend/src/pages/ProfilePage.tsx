@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useUser } from "@clerk/react";
+import { useUser, useAuth } from "@clerk/react";
+import { moodleApi } from "../services/api/moodle";
 import { ProfileHeader } from "../features/profile/components/ProfileHeader.tsx";
 import { PersonalDataCard } from "../features/profile/components/PersonalDataCard";
 import { EducationalInfoCard } from "../features/profile/components/EducationalInfoCard";
@@ -7,6 +8,7 @@ import { SecurityCard } from "../features/profile/components/SecurityCard";
 import { SettingsCard } from "../features/profile/components/SettingsCard";
 import { resolveAppRole } from "../features/auth/roles";
 import type { ProfileForm } from "../features/profile/types";
+import { useTheme } from "../features/theme/useTheme";
 
 const readMetadataString = (value: unknown, fallback = "") =>
   typeof value === "string" ? value : fallback;
@@ -32,6 +34,8 @@ export const ProfilePage = () => {
 type ClerkUser = NonNullable<ReturnType<typeof useUser>["user"]>;
 
 const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
+  const { setTheme } = useTheme();
+  const { getToken } = useAuth();
   const [form, setForm] = useState<ProfileForm>(() => ({
     firstName: user.firstName ?? "",
     lastName: user.lastName ?? "",
@@ -86,6 +90,17 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
     moodlePassword: string;
   }) =>
     save(async () => {
+      const controller = new AbortController();
+      await moodleApi.postCredentials(
+        {
+          username: data.moodleLogin.trim(),
+          password: data.moodlePassword,
+        },
+        {
+          getToken,
+          signal: controller.signal,
+        },
+      );
       await user.updateMetadata({
         unsafeMetadata: {
           group: data.group.trim(),
@@ -112,6 +127,7 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
   ) => {
     const updated = { ...form, ...next };
     setForm(updated);
+    if (next.theme) setTheme(next.theme === "Темна" ? "dark" : "light");
     void save(
       () => user.updateMetadata({ unsafeMetadata: next }),
       "Налаштування збережено в обліковому записі.",
@@ -120,7 +136,7 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
 
   return (
     <main
-      className="flex min-h-0 min-w-0 flex-1 flex-col gap-6 overflow-y-auto px-7.5 py-7.5 [scrollbar-color:#c4d8d4_transparent] scrollbar-thin max-[760px]:px-4 max-[760px]:py-4"
+      className="flex min-h-0 min-w-0 flex-1 flex-col gap-6 overflow-y-auto px-7.5 py-7.5 [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin max-[760px]:px-4 max-[760px]:py-4"
       aria-labelledby="profile-heading"
       tabIndex={0}
     >

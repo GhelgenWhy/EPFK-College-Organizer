@@ -9,12 +9,12 @@ const getStatusStyles = (status: EventStatus) => {
   switch (status) {
     case "Заплановано":
       return {
-        statusBg: "bg-[#E0F2FE] text-[#0369A1]",
-        border: "border-[#BAE6FD]",
+        statusBg: "bg-[var(--info-soft)] text-[var(--info)]",
+        border: "border-[var(--info-soft)]",
       };
     case "Перенесено":
       return {
-        statusBg: "bg-[#FEF3C7] text-[#B45309]",
+        statusBg: "bg-[var(--warning-soft)] text-[var(--warning)]",
         border: "border-gray-200/80",
       };
     case "Завершено":
@@ -47,7 +47,7 @@ export const EventList: React.FC<EventListProps> = ({ events }) => {
         return (
           <div
             key={event.id}
-            className={`flex flex-col justify-between h-[180px] max-h-[180px] bg-white border ${styles.border} rounded-[16px] px-5 py-3.5 shadow-sm relative transition-all hover:shadow-md overflow-hidden shrink-0`}
+            className={`flex flex-col justify-between h-[180px] max-h-[180px] bg-surface border ${styles.border} rounded-[16px] px-5 py-3.5 shadow-sm relative transition-all hover:shadow-md overflow-hidden shrink-0`}
           >
             {/* Заголовок і Статус */}
             <div className="flex items-start justify-between gap-4">
@@ -85,7 +85,7 @@ export const EventList: React.FC<EventListProps> = ({ events }) => {
                 <svg
                   className="w-4 h-4 shrink-0"
                   fill="none"
-                  stroke="#03314D"
+                  stroke="var(--text-primary)"
                   viewBox="0 0 24 24"
                 >
                   <path
@@ -101,7 +101,7 @@ export const EventList: React.FC<EventListProps> = ({ events }) => {
                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                <span className="truncate text-[#03314D]">
+                <span className="truncate text-[var(--text-primary)]">
                   {event.location}
                 </span>
               </div>

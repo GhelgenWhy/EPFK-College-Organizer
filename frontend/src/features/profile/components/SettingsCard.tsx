@@ -15,7 +15,7 @@ export const SettingsCard: React.FC<SettingsCardProps> = ({
   onToggleTheme,
   saving,
 }) => (
-  <section className="bg-white rounded-[20px] p-6 shadow-sm flex flex-col justify-between flex-1">
+  <section className="bg-surface rounded-[20px] p-6 shadow-sm flex flex-col justify-between flex-1">
     <div className="flex flex-col gap-1">
       <h2 className="text-lg font-bold text-gray-900">Налаштування</h2>
       <p className="text-xs text-gray-400">Параметри застосунку</p>

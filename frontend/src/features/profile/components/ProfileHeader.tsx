@@ -27,9 +27,9 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   const initials = `${firstName[0] || ""}${lastName[0] || ""}`.toUpperCase();
 
   return (
-    <div className="bg-white rounded-[20px] p-6 shadow-sm flex flex-wrap items-center justify-between gap-4 w-full">
+    <div className="bg-surface rounded-[20px] p-6 shadow-sm flex flex-wrap items-center justify-between gap-4 w-full">
       <div className="flex items-center gap-4">
-        <div className="w-16 h-16 rounded-full bg-[#00796B] text-white flex items-center justify-center text-xl font-bold overflow-hidden shrink-0">
+        <div className="w-16 h-16 rounded-full bg-[var(--accent)] text-on-accent flex items-center justify-center text-xl font-bold overflow-hidden shrink-0">
           {avatarUrl ? (
             <img
               src={avatarUrl}
@@ -46,7 +46,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           </h1>
           <span className="text-sm text-gray-500">{email}</span>
           <div className="flex items-center gap-2 mt-1">
-            <span className="px-2.5 py-0.5 bg-[#E6F4F1] text-[#00796B] rounded-md text-xs font-medium">
+            <span className="px-2.5 py-0.5 bg-[var(--accent-soft)] text-[var(--accent)] rounded-md text-xs font-medium">
               {group}
             </span>
             <span className="px-2.5 py-0.5 bg-amber-50 text-amber-700 rounded-md text-xs font-medium">

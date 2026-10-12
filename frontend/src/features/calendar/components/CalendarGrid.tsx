@@ -26,9 +26,9 @@ export function CalendarGrid({
   return (
     <>
       {/* Дні тижня */}
-      <div className="grid h-9 grid-cols-7 items-center rounded-[20px] bg-[#f5faf9]">
+      <div className="grid h-9 grid-cols-7 items-center rounded-[20px] bg-[var(--surface-muted)]">
         {WEEKDAYS_SHORT.map((wd) => (
-          <div key={wd} className="text-center text-[13px] font-bold text-[#819b9b]">
+          <div key={wd} className="text-center text-[13px] font-bold text-[var(--text-muted)]">
             {wd}
           </div>
         ))}

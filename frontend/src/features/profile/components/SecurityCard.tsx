@@ -43,7 +43,7 @@ export const SecurityCard = ({ hasPassword }: SecurityCardProps) => {
   };
 
   return (
-    <section className="bg-white rounded-[20px] p-6 shadow-sm flex flex-col gap-4 flex-1">
+    <section className="bg-surface rounded-[20px] p-6 shadow-sm flex flex-col gap-4 flex-1">
       <div>
         <h2 className="text-lg font-bold text-gray-900">Безпека й обліковий запис</h2>
         <p className="text-xs text-gray-400">Пароль та активні дані облікового запису захищені Clerk</p>
@@ -81,7 +81,7 @@ export const SecurityCard = ({ hasPassword }: SecurityCardProps) => {
             Повторіть новий пароль
             <input required minLength={8} type="password" autoComplete="new-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} className="w-full h-10 px-3 bg-gray-50 border border-gray-200 rounded-[10px] text-sm text-gray-800 focus:outline-teal-600" />
           </label>
-          <button type="submit" disabled={busy} className="self-start px-4 py-2 bg-teal-700 text-white rounded-xl text-sm font-medium hover:bg-teal-800 disabled:opacity-50">
+          <button type="submit" disabled={busy} className="self-start px-4 py-2 bg-teal-700 text-on-accent rounded-xl text-sm font-medium hover:bg-teal-800 disabled:opacity-50">
             {busy ? "Оновлення…" : "Оновити пароль"}
           </button>
         </form>

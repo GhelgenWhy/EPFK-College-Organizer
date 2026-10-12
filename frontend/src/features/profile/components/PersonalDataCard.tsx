@@ -96,7 +96,7 @@ export const PersonalDataCard = ({
   };
 
   return (
-    <section className="bg-white rounded-[20px] p-6 shadow-sm flex flex-col gap-4 flex-1">
+    <section className="bg-surface rounded-[20px] p-6 shadow-sm flex flex-col gap-4 flex-1">
       <div>
         <h2 className="text-lg font-bold text-gray-900">Особисті дані</h2>
         <p className="text-xs text-gray-400 mt-0.5">Дані профілю</p>
@@ -129,7 +129,7 @@ export const PersonalDataCard = ({
         type="button"
         onClick={onSave}
         disabled={saving}
-        className="self-start px-4 py-2 bg-teal-700 text-white rounded-xl text-sm font-medium hover:bg-teal-800 disabled:opacity-50"
+        className="self-start px-4 py-2 bg-teal-700 text-on-accent rounded-xl text-sm font-medium hover:bg-teal-800 disabled:opacity-50"
       >
         {saving ? "Збереження…" : "Зберегти ім’я"}
       </button>
@@ -177,7 +177,7 @@ export const PersonalDataCard = ({
               <button
                 type="submit"
                 disabled={emailBusy}
-                className="px-4 py-2 bg-teal-700 text-white rounded-xl text-sm disabled:opacity-50"
+                className="px-4 py-2 bg-teal-700 text-on-accent rounded-xl text-sm disabled:opacity-50"
               >
                 {emailBusy ? "Надсилаємо…" : "Надіслати код"}
               </button>
@@ -213,7 +213,7 @@ export const PersonalDataCard = ({
               <button
                 type="submit"
                 disabled={emailBusy}
-                className="px-4 py-2 bg-teal-700 text-white rounded-xl text-sm disabled:opacity-50"
+                className="px-4 py-2 bg-teal-700 text-on-accent rounded-xl text-sm disabled:opacity-50"
               >
                 {emailBusy ? "Перевіряємо…" : "Підтвердити пошту"}
               </button>

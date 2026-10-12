@@ -1,56 +1,17 @@
-import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
-import { useAuth } from '@clerk/react';
-import type { ScheduleResponse, WeekType } from '../features/schedule/types';
+import type { WeekType } from '../features/schedule/types';
 import { WeekTypeToggle } from '../features/schedule/components/WeekTypeToggle';
 import { TimetableGrid } from '../features/schedule/components/TimetableGrid';
-
-function isScheduleResponse(value: unknown): value is ScheduleResponse {
-  if (!value || typeof value !== 'object') return false;
-  const schedule = value as Record<string, unknown>;
-  if (!Array.isArray(schedule.timeSlots) || schedule.timeSlots.length !== 6) return false;
-
-  return ['numerator', 'denominator'].every((week) => {
-    const days = schedule[week];
-    return Array.isArray(days) && days.every((day) => (
-      day && typeof day === 'object'
-      && Array.isArray(day.lessons)
-      && day.lessons.length === 6
-    ));
-  });
-}
+import { organizerApi } from '../services/api/organizer';
+import { useApiQuery } from '../services/api/useApiQuery';
+import { ApiQueryStatus } from '../features/api/components/ApiQueryStatus';
 
 export const SchedulePage = () => {
-  const { getToken } = useAuth();
+  const query = useApiQuery(organizerApi.getSchedule);
+  const schedule = query.data;
   const [searchParams, setSearchParams] = useSearchParams();
-  const [schedule, setSchedule] = useState<ScheduleResponse | null>(null);
-  const [error, setError] = useState(false);
   const requestedWeek = searchParams.get('week');
   const currentWeekType: WeekType = requestedWeek === 'denominator' ? 'DENOMINATOR' : 'NUMERATOR';
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    async function loadSchedule() {
-      try {
-        const token = await getToken();
-        const response = await fetch('/api/schedule', {
-          signal: controller.signal,
-          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-        });
-        if (!response.ok) throw new Error('Schedule request failed');
-        const data = await response.json() as unknown;
-        if (!isScheduleResponse(data)) throw new Error('Invalid schedule response');
-        setSchedule(data);
-      } catch (reason) {
-        if (reason instanceof DOMException && reason.name === 'AbortError') return;
-        setError(true);
-      }
-    }
-
-    void loadSchedule();
-    return () => controller.abort();
-  }, [getToken]);
 
   function changeWeek(week: WeekType) {
     setSearchParams((current) => {
@@ -66,8 +27,7 @@ export const SchedulePage = () => {
         <WeekTypeToggle currentWeekType={currentWeekType} onChange={changeWeek} />
       </div>
 
-      {error && <p role="alert">Не вдалося завантажити коректний розклад. Спробуйте пізніше.</p>}
-      {!schedule && !error && <p role="status">Завантаження розкладу…</p>}
+      <ApiQueryStatus query={query} loadingText="Завантаження розкладу…" />
       {schedule && (
         <TimetableGrid
           days={schedule[currentWeekType === 'NUMERATOR' ? 'numerator' : 'denominator']}
