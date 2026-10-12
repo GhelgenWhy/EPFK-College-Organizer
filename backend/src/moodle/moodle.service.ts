@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { MoodleUserDto } from './dto/moodle-user.dto.js'
-import { MoodleCourseDto } from './dto/moodle-course.dto.js'
-import { MoodleAssignmentDto } from './dto/moodle-assignment.dto.js'
-import axios from 'axios';
+import { Injectable } from "@nestjs/common";
+import { MoodleUserDto } from "./dto/moodle-user.dto.js";
+import { MoodleCourseDto } from "./dto/moodle-course.dto.js";
+import { MoodleAssignmentDto } from "./dto/moodle-assignment.dto.js";
+import axios from "axios";
 
 interface MoodleCourse {
     id: number;
@@ -29,9 +29,9 @@ interface MoodleSubmissionStatus {
 
 @Injectable()
 export class MoodleService {
-    moodleUrl: string
+    moodleUrl: string;
     constructor() {
-        this.moodleUrl = 'https://epkmoodle.znu.edu.ua/'
+        this.moodleUrl = "https://epkmoodle.znu.edu.ua/";
     }
 
     async getToken(username: string, password: string): Promise<string> {
@@ -40,13 +40,13 @@ export class MoodleService {
             new URLSearchParams({
                 username,
                 password,
-                service: 'moodle_mobile_app'
+                service: "moodle_mobile_app",
             }),
             {
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            }
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+            },
         );
 
         return response.data.token;
@@ -54,21 +54,21 @@ export class MoodleService {
 
     async getCourseAssignments(
         token: string,
-        courseId: number
+        courseId: number,
     ): Promise<MoodleAssignmentDto[]> {
         const response = await axios.post(
             `${this.moodleUrl}/webservice/rest/server.php`,
             new URLSearchParams({
                 wstoken: token,
-                wsfunction: 'mod_assign_get_assignments',
-                moodlewsrestformat: 'json',
-                'courseids[0]': String(courseId)
+                wsfunction: "mod_assign_get_assignments",
+                moodlewsrestformat: "json",
+                "courseids[0]": String(courseId),
             }),
             {
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            }
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+            },
         );
 
         const course = response.data.courses?.[0];
@@ -91,24 +91,24 @@ export class MoodleService {
 
                 course: course.fullname,
 
-                description: assignment.intro ?? '',
+                description: assignment.intro ?? "",
 
                 dueDate,
 
                 dueTime: dueDate
-                    ? dueDate.toLocaleTimeString('uk-UA', {
-                        hour: '2-digit',
-                        minute: '2-digit'
+                    ? dueDate.toLocaleTimeString("uk-UA", {
+                        hour: "2-digit",
+                        minute: "2-digit",
                     })
                     : null,
 
-                source: 'Moodle',
+                source: "Moodle",
 
                 addedAt: assignment.timemodified
                     ? new Date(assignment.timemodified * 1000)
                     : null,
-                
-                moodleUrl: 'https://moodle.org'
+
+                moodleUrl: `${this.moodleUrl}/mod/assign/view.php?id=${(assignment as any).cmid}`,
             };
         });
     }
@@ -118,27 +118,31 @@ export class MoodleService {
             `${this.moodleUrl}/webservice/rest/server.php`,
             new URLSearchParams({
                 wstoken: token,
-                wsfunction: 'core_course_get_enrolled_courses_by_timeline_classification',
-                moodlewsrestformat: 'json',
-                classification: 'all',
-                limit: '0',
-                offset: '0'
+                wsfunction:
+                    "core_course_get_enrolled_courses_by_timeline_classification",
+                moodlewsrestformat: "json",
+                classification: "all",
+                limit: "0",
+                offset: "0",
             }),
             {
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            }
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+            },
         );
 
         const courses: MoodleCourse[] = response.data.courses;
 
-        return courses.map((course): MoodleCourseDto => ({
-            id: course.id,
-            name: course.fullname,
-            teacherName: null,
-            moodleUrl: 'https://moodle.org'
-        }));
+        return courses.map(
+            (course): MoodleCourseDto => ({
+                id: course.id,
+                name: course.fullname,
+                teacherName: null,
+                moodleUrl:
+                    "https://epkmoodle.znu.edu.ua/course/view.php?id=" + course.id,
+            }),
+        );
     }
 
     async getUser(token: string): Promise<MoodleUserDto> {
@@ -146,14 +150,14 @@ export class MoodleService {
             `${this.moodleUrl}/webservice/rest/server.php`,
             new URLSearchParams({
                 wstoken: token,
-                wsfunction: 'core_webservice_get_site_info',
-                moodlewsrestformat: 'json'
+                wsfunction: "core_webservice_get_site_info",
+                moodlewsrestformat: "json",
             }),
             {
                 headers: {
-                    'Content-Type': 'application/x-ww-form-urlencoded'
-                }
-            }
+                    "Content-Type": "application/x-ww-form-urlencoded",
+                },
+            },
         );
         const user = userResponse.data;
 
@@ -166,23 +170,20 @@ export class MoodleService {
                     `${this.moodleUrl}/webservice/rest/server.php`,
                     new URLSearchParams({
                         wstoken: token,
-                        wsfunction: 'core_group_get_course_user_groups',
-                        moodlewsrestformat: 'json',
-                        courseid: course.id.toString()
+                        wsfunction: "core_group_get_course_user_groups",
+                        moodlewsrestformat: "json",
+                        courseid: course.id.toString(),
                     }),
                     {
                         headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        }
-                    }
+                            "Content-Type": "application/x-www-form-urlencoded",
+                        },
+                    },
                 );
                 const groups = response.data.groups ?? [];
 
                 for (const group of groups) {
-                    groupCounts.set(
-                        group.name,
-                        (groupCounts.get(group.name) ?? 0) + 1,
-                    );
+                    groupCounts.set(group.name, (groupCounts.get(group.name) ?? 0) + 1);
                 }
             } catch {
                 continue;
@@ -204,7 +205,7 @@ export class MoodleService {
             firstName: user.firstname,
             lastName: user.lastname,
             email: user.email,
-            group: mostFrequentGroup
-        }
+            group: mostFrequentGroup,
+        };
     }
 }

@@ -22,20 +22,25 @@ export const Header = ({
       <button
         type="button"
         onClick={onSyncClick}
-        className="flex h-[34px] cursor-pointer items-center gap-1 whitespace-nowrap rounded-[50px] border-0 bg-surface px-5 py-[10px] text-base font-semibold text-muted max-[760px]:max-w-[52%] max-[760px]:overflow-hidden max-[760px]:px-3 max-[760px]:py-2 max-[760px]:text-[9px] max-[760px]:text-ellipsis"
+        className="flex h-[34px] items-center gap-1 whitespace-nowrap rounded-[50px] border-0 bg-surface px-5 py-[10px] text-base font-semibold text-muted max-[760px]:max-w-[52%] max-[760px]:overflow-hidden max-[760px]:px-3 max-[760px]:py-2 max-[760px]:text-[9px] max-[760px]:text-ellipsis"
       >
-        <span className="font-bold text-[var(--text-secondary)]">Остання синхронізація:</span>
-        <span className="font-semibold text-[var(--text-muted)]">{lastSync}</span>
+        <span className="font-bold text-[var(--text-secondary)]">
+          Остання синхронізація:
+        </span>
+        <span className="font-semibold text-[var(--text-muted)]">
+          {lastSync}
+        </span>
       </button>
 
       {/* Профіль користувача через NavLink (перекидує на /profile) */}
       <NavLink
         to="/profile"
+        end
         onClick={onProfileClick}
         className={({ isActive }) =>
           `flex h-[60px] cursor-pointer items-center gap-[10px] rounded-[50px] border-0 py-2 pr-[27px] pl-[10px] transition-colors max-[760px]:h-11 max-[760px]:gap-[7px] max-[760px]:py-1 max-[760px]:pr-[11px] max-[760px]:pl-[5px] ${isActive
-            ? "bg-bg-active text-on-nav-active ring-2 ring-teal-600/20"
-            : "bg-surface text-primary hover:bg-[var(--surface-hover)]"
+            ? "bg-(--nav-active) ring-0 text-on-nav-active"
+            : "bg-surface text-primary hover:ring-2 ring-surface hover:bg-[var(--surface-hover)]"
           }`
         }
       >
