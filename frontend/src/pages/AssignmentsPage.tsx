@@ -141,7 +141,7 @@ function AssignmentsContent({
         {STATUS_TABS.map((tab) => (
           <button
             aria-pressed={statusFilter === tab.id}
-            className={`inline-flex min-h-[38px] flex-[0_0_auto] items-center justify-center rounded-[10px] border-0 px-[8.5px] text-[13px] font-semibold transition-colors focus-visible:outline-3 focus-visible:outline-[var(--focus)] focus-visible:outline-offset-[3px] max-[760px]:min-h-[35px] max-[760px]:px-[9px] max-[760px]:text-[10px] max-[380px]:px-[7px] max-[380px]:text-[9px] ${statusFilter === tab.id ? "bg-[var(--accent)] text-on-accent hover:bg-[var(--accent-hover)]" : "bg-transparent text-[var(--text-secondary)] hover:bg-[var(--background)] hover:text-primary"}`}
+            className={`inline-flex min-h-[38px] flex-[0_0_auto] cursor-pointer items-center justify-center rounded-[10px] border-0 px-[8.5px] text-[13px] font-semibold transition-colors focus-visible:outline-3 focus-visible:outline-[var(--focus)] focus-visible:outline-offset-[3px] max-[760px]:min-h-[35px] max-[760px]:px-[9px] max-[760px]:text-[10px] max-[380px]:px-[7px] max-[380px]:text-[9px] ${statusFilter === tab.id ? "bg-[var(--accent)] text-on-accent hover:bg-[var(--accent-hover)]" : "bg-transparent text-[var(--text-secondary)] hover:bg-[var(--background)] hover:text-primary"}`}
             key={tab.id}
             onClick={() => setStatusFilter(tab.id)}
             type="button"

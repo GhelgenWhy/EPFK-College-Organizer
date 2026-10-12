@@ -108,7 +108,7 @@ export class MoodleService {
                     ? new Date(assignment.timemodified * 1000)
                     : null,
 
-                moodleUrl: "https://moodle.org",
+                moodleUrl: `${this.moodleUrl}/mod/assign/view.php?id=${(assignment as any).cmid}`,
             };
         });
     }
@@ -139,7 +139,8 @@ export class MoodleService {
                 id: course.id,
                 name: course.fullname,
                 teacherName: null,
-                moodleUrl: "https://moodle.org",
+                moodleUrl:
+                    "https://epkmoodle.znu.edu.ua/course/view.php?id=" + course.id,
             }),
         );
     }
