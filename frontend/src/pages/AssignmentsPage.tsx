@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useTaskCompletion } from "../features/tasks/hooks/useTaskCompletion";
 import {
   useKyivClock,
@@ -13,6 +13,8 @@ import { AssignmentCard } from "../features/tasks/components/AssignmentCard";
 type StatusFilter = "ALL" | "COMPLETED" | "ACTIVE" | "OVERDUE";
 type SortOrder = "SOONEST" | "LATEST" | "TITLE";
 
+const ASSIGNMENTS_CACHE_KEY = "epfk-organizer:assignments-data-cache";
+
 const STATUS_TABS: { id: StatusFilter; label: string }[] = [
   { id: "ALL", label: "Всі" },
   { id: "COMPLETED", label: "Виконані" },
@@ -22,14 +24,20 @@ const STATUS_TABS: { id: StatusFilter; label: string }[] = [
 
 function isOverdue(task: Assignment, completed: boolean, now: KyivTime) {
   if (completed || !task.dueDate) return false;
-  if (task.dueDate < now.date) return true;
-  if (task.dueDate > now.date || !task.dueTime) return false;
 
-  return `${now.date}T${now.time}` >= `${task.dueDate}T${task.dueTime}:00`;
+  const dueDateStr = String(task.dueDate);
+  if (!dueDateStr || dueDateStr === "0" || dueDateStr === "null") return false;
+
+  if (dueDateStr < now.date) return true;
+  if (dueDateStr > now.date || !task.dueTime) return false;
+
+  return `${now.date}T${now.time}` >= `${dueDateStr}T${task.dueTime}:00`;
 }
 
 function isDueToday(task: Assignment, now: KyivTime) {
-  return task.dueDate === now.date;
+  if (!task.dueDate) return false;
+  const dueDateStr = String(task.dueDate);
+  return dueDateStr === now.date;
 }
 
 function filterTasks(
@@ -62,8 +70,11 @@ function sortTasks(tasks: Assignment[], sortOrder: SortOrder) {
     if (!left.dueDate) return 1;
     if (!right.dueDate) return -1;
 
-    const leftDeadline = `${left.dueDate}T${left.dueTime ?? "23:59"}`;
-    const rightDeadline = `${right.dueDate}T${right.dueTime ?? "23:59"}`;
+    const leftDateStr = String(left.dueDate);
+    const rightDateStr = String(right.dueDate);
+
+    const leftDeadline = `${leftDateStr}T${left.dueTime ?? "23:59"}`;
+    const rightDeadline = `${rightDateStr}T${right.dueTime ?? "23:59"}`;
     const comparison = leftDeadline.localeCompare(rightDeadline);
     return sortOrder === "LATEST" ? -comparison : comparison;
   });
@@ -71,7 +82,39 @@ function sortTasks(tasks: Assignment[], sortOrder: SortOrder) {
 
 export function AssignmentsPage() {
   const query = useApiQuery(moodleApi.getAssignments);
-  if (!query.data)
+
+  const [cachedData, setCachedData] = useState<Assignment[] | null>(() => {
+    try {
+      const item = localStorage.getItem(ASSIGNMENTS_CACHE_KEY);
+      if (!item) return null;
+      const parsed = JSON.parse(item);
+
+      if (!Array.isArray(parsed)) {
+        localStorage.removeItem(ASSIGNMENTS_CACHE_KEY);
+        return null;
+      }
+
+      return parsed;
+    } catch {
+      localStorage.removeItem(ASSIGNMENTS_CACHE_KEY);
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    if (query.data) {
+      setCachedData(query.data);
+      try {
+        localStorage.setItem(ASSIGNMENTS_CACHE_KEY, JSON.stringify(query.data));
+      } catch (e) {
+        console.error("Не вдалося зберегти кеш завдань:", e);
+      }
+    }
+  }, [query.data]);
+
+  const tasksToRender = query.data ?? cachedData;
+
+  if (!tasksToRender)
     return (
       <main className="flex min-h-0 flex-1 flex-col p-6">
         <h1 className="mb-5 text-3xl font-bold text-primary">Завдання</h1>
@@ -81,11 +124,12 @@ export function AssignmentsPage() {
         />
       </main>
     );
+
   return (
     <AssignmentsContent
-      key={query.userId}
-      tasks={query.data}
-      storageKey={`epfk-organizer:${query.userId}:assignment-completed-tasks`}
+      key={query.userId ?? "cached"}
+      tasks={tasksToRender}
+      storageKey={`epfk-organizer:${query.userId ?? "local"}:assignment-completed-tasks`}
     />
   );
 }
@@ -121,7 +165,6 @@ function AssignmentsContent({
   }
 
   return (
-    // Забрали overflow-auto звідси, щоб сторінка не скролилась загалом
     <main
       className="flex h-full min-h-0 flex-1 flex-col gap-[13px] px-[40px] pt-[29px] pr-[40px] pb-6 max-[1250px]:px-6 max-[760px]:gap-[14px] max-[760px]:px-1 max-[760px]:py-4"
       aria-labelledby="assignments-title"
@@ -188,7 +231,8 @@ function AssignmentsContent({
                 Спробуйте вибрати іншу вкладку або змінити фільтри.
               </p>
               <button
-                className="mt-[7px] inline-flex min-h-[34px] items-center justify-center rounded-lg border-0 bg-transparent font-bold text-[var(--accent)] hover:underline hover:underline-offset-[3px] focus-visible:outline-3 focus-visible:outline-[var(--focus)] focus-visible:outline-offset-[3px]"
+                style={{ cursor: "pointer" }}
+                className="relative z-10 mt-[7px] inline-flex w-fit min-h-[34px] items-center justify-center rounded-lg border-0 bg-transparent font-bold text-[var(--accent)] hover:underline hover:underline-offset-[3px] focus-visible:outline-3 focus-visible:outline-[var(--focus)] focus-visible:outline-offset-[3px]"
                 onClick={resetFilters}
                 type="button"
               >
@@ -198,7 +242,7 @@ function AssignmentsContent({
           )}
         </section>
 
-        {/* Панель фільтрів залишається фіксованою праворуч */}
+        {/* Панель фільтрів */}
         <aside
           className="[grid-area:filters] flex min-h-[306px] min-w-0 flex-col items-start gap-4 rounded-[19px] bg-surface px-[22px] py-[21px] max-[1250px]:min-w-0 max-[760px]:order-1 max-[760px]:grid max-[760px]:min-h-0 max-[760px]:grid-cols-2 max-[760px]:items-end max-[760px]:gap-3 max-[760px]:p-[14px] max-[380px]:grid-cols-1"
           aria-labelledby="assignment-filters-title"
@@ -242,7 +286,8 @@ function AssignmentsContent({
           </label>
 
           <button
-            className="ml-[10px] inline-flex min-h-[34px] items-center justify-center rounded-lg border-0 bg-transparent font-bold text-[13px] text-[var(--accent)] hover:underline hover:underline-offset-[3px] focus-visible:outline-3 focus-visible:outline-[var(--focus)] focus-visible:outline-offset-[3px] max-[760px]:col-span-full max-[760px]:min-h-[28px] max-[760px]:justify-self-start max-[760px]:ml-0 max-[760px]:text-[10px] max-[380px]:col-span-1"
+            style={{ cursor: "pointer" }}
+            className="relative z-10 ml-[10px] inline-flex w-fit min-h-[34px] items-center justify-center rounded-lg border-0 bg-transparent font-bold text-[13px] text-[var(--accent)] hover:underline hover:underline-offset-[3px] focus-visible:outline-3 focus-visible:outline-[var(--focus)] focus-visible:outline-offset-[3px] max-[760px]:col-span-full max-[760px]:min-h-[28px] max-[760px]:justify-self-start max-[760px]:ml-0 max-[760px]:text-[10px] max-[380px]:col-span-1"
             onClick={resetFilters}
             type="button"
           >

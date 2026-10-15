@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import type { CalendarFilterType } from "../features/calendar/types";
 import { useTaskCompletion } from "../features/tasks/hooks/useTaskCompletion";
 import { organizerApi } from "../services/api/organizer";
@@ -11,6 +12,8 @@ import type {
   HomeData,
 } from "../features/home/types";
 import { NextLessonCard } from "../features/home/components/NextLessonCard";
+
+const HOME_CACHE_KEY = "epfk-organizer:home-data-cache";
 
 function formatDate(date: Date, options: Intl.DateTimeFormatOptions) {
   return new Intl.DateTimeFormat("uk-UA", {
@@ -35,19 +38,49 @@ interface HomePageProps {
 
 export function HomePage(props: HomePageProps) {
   const query = useApiQuery(organizerApi.getHome);
-  if (!query.data)
+
+  const [cachedData, setCachedData] = useState<HomeData | null>(() => {
+    try {
+      const item = localStorage.getItem(HOME_CACHE_KEY);
+      if (!item) return null;
+      const parsed = JSON.parse(item);
+      if (parsed && parsed.date) {
+        parsed.date = new Date(parsed.date);
+      }
+      return parsed;
+    } catch {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    if (query.data) {
+      setCachedData(query.data);
+      try {
+        localStorage.setItem(HOME_CACHE_KEY, JSON.stringify(query.data));
+      } catch (e) {
+        console.error("Не вдалося зберегти кеш Головної:", e);
+      }
+    }
+  }, [query.data]);
+
+  const dataToRender = query.data ?? cachedData;
+
+  if (!dataToRender) {
     return (
       <main className="min-h-0 flex-1 overflow-auto p-6">
         <h1 className="mb-5 text-3xl font-bold text-primary">Головна</h1>
         <ApiQueryStatus query={query} />
       </main>
     );
+  }
+
   return (
     <HomeContent
-      key={query.userId}
+      key={query.userId ?? "cached"}
       {...props}
-      data={query.data}
-      storageKey={`epfk-organizer:${query.userId}:home-completed-tasks`}
+      data={dataToRender}
+      storageKey={`epfk-organizer:${query.userId ?? "local"}:home-completed-tasks`}
     />
   );
 }
@@ -88,7 +121,7 @@ function HomeContent({
           </p>
         </div>
         <button
-          className="mr-[47px] inline-flex min-h-[46px] min-w-[232px] items-center justify-center rounded-xl border border-[var(--border)] bg-surface px-5 text-[13px] font-semibold text-[var(--accent)] transition-colors hover:border-[var(--accent-soft)] hover:bg-[var(--surface-hover)] max-[1200px]:mr-0 max-[760px]:min-h-10 max-[760px]:min-w-0 max-[760px]:px-[11px] max-[760px]:text-[11px]"
+          className="mr-[47px] inline-flex min-h-[46px] min-w-[232px] cursor-pointer items-center justify-center rounded-xl border border-[var(--border)] bg-surface px-5 text-[13px] font-semibold text-[var(--accent)] transition-colors hover:border-[var(--accent-soft)] hover:bg-[var(--surface-hover)] max-[1200px]:mr-0 max-[760px]:min-h-10 max-[760px]:min-w-0 max-[760px]:px-[11px] max-[760px]:text-[11px]"
           onClick={() => onOpenCalendar(date)}
           type="button"
         >
@@ -247,7 +280,7 @@ function SectionHeading({
       </div>
       {action && (
         <button
-          className="inline-flex shrink-0 items-center gap-[6px] border-0 bg-transparent py-1 text-xs font-bold text-[var(--accent)] hover:underline hover:underline-offset-[3px] max-[760px]:text-[10px]"
+          className="inline-flex shrink-0 items-center gap-[6px] cursor-pointer border-0 bg-transparent py-1 text-xs font-bold text-[var(--accent)] hover:underline hover:underline-offset-[3px] max-[760px]:text-[10px]"
           onClick={action.onClick}
           type="button"
         >
@@ -470,7 +503,7 @@ function EventsSection({
           Події коледжу
         </h2>
         <button
-          className="mt-2 inline-flex shrink-0 items-center gap-[6px] self-start border-0 bg-transparent py-1 text-xs font-bold text-[var(--accent)] hover:underline hover:underline-offset-[3px] max-[760px]:mt-[3px] max-[760px]:text-[10px]"
+          className="mt-2 inline-flex shrink-0 items-center gap-[6px] cursor-pointer self-start border-0 bg-transparent py-1 text-xs font-bold text-[var(--accent)] hover:underline hover:underline-offset-[3px] max-[760px]:mt-[3px] max-[760px]:text-[10px]"
           onClick={() =>
             onOpenCalendar(
               events[0] ? parseLocalDate(events[0].date) : date,
