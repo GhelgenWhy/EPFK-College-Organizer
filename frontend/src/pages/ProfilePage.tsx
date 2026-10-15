@@ -6,6 +6,7 @@ import { PersonalDataCard } from "../features/profile/components/PersonalDataCar
 import { EducationalInfoCard } from "../features/profile/components/EducationalInfoCard";
 import { SecurityCard } from "../features/profile/components/SecurityCard";
 import { SettingsCard } from "../features/profile/components/SettingsCard";
+import { Toast } from "../features/profile/components/Toast";
 import { resolveAppRole } from "../features/auth/roles";
 import type { ProfileForm } from "../features/profile/types";
 import { useTheme } from "../features/theme/useTheme";
@@ -81,7 +82,7 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
           firstName: form.firstName.trim(),
           lastName: form.lastName.trim(),
         }),
-      "Особисті дані збережено в Clerk.",
+      "Особисті дані успішно оновлено.",
     );
 
   const saveEducation = (data: {
@@ -114,10 +115,10 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
         moodleLogin: data.moodleLogin.trim(),
         moodlePassword: data.moodlePassword.trim(),
       }));
-    }, "Навчальну інформацію збережено.");
+    }, "Навчальну інформацію та дані Moodle збережено.");
 
   const changeAvatar = (file: File) =>
-    save(() => user.setProfileImage({ file }), "Фото профілю оновлено.");
+    save(() => user.setProfileImage({ file }), "Фото профілю успішно змінено.");
 
   const removeAvatar = () =>
     save(() => user.setProfileImage({ file: null }), "Фото профілю видалено.");
@@ -128,32 +129,38 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
     const updated = { ...form, ...next };
     setForm(updated);
     if (next.theme) setTheme(next.theme === "Темна" ? "dark" : "light");
-    void save(
-      () => user.updateMetadata({ unsafeMetadata: next }),
-      "Налаштування збережено в обліковому записі.",
-    );
+
+    const message = next.language
+      ? `Мову інтерфейсу змінено на ${next.language}.`
+      : next.theme
+        ? `Активовано ${next.theme.toLowerCase()} тему оформлення.`
+        : "Налаштування збережено.";
+
+    void save(() => user.updateMetadata({ unsafeMetadata: next }), message);
   };
 
   return (
     <main
-      className="flex min-h-0 min-w-0 flex-1 flex-col gap-6 overflow-y-auto px-7.5 py-7.5 [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin max-[760px]:px-4 max-[760px]:py-4"
+      className="relative flex min-h-0 min-w-0 flex-1 flex-col gap-6 overflow-y-auto px-7.5 py-7.5 [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin max-[760px]:px-4 max-[760px]:py-4"
       aria-labelledby="profile-heading"
       tabIndex={0}
     >
+      {(notice || error) && (
+        <Toast
+          message={error || notice}
+          type={error ? "error" : "success"}
+          onClose={() => {
+            setNotice("");
+            setError("");
+          }}
+        />
+      )}
+
       <div>
         <h1 id="profile-heading" className="text-2xl font-bold text-gray-900">
           Мій профіль
         </h1>
       </div>
-
-      {(notice || error) && (
-        <div
-          className={`rounded-xl px-4 py-3 text-sm ${error ? "bg-red-50 text-red-700" : "bg-teal-50 text-teal-800"}`}
-          role={error ? "alert" : "status"}
-        >
-          {error || notice}
-        </div>
-      )}
 
       <ProfileHeader
         firstName={user.firstName ?? ""}
@@ -171,25 +178,12 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
         <PersonalDataCard
           firstName={form.firstName}
           lastName={form.lastName}
-          email={user.primaryEmailAddress?.emailAddress ?? ""}
           onChange={(field, value) =>
             setForm((current) => ({ ...current, [field]: value }))
           }
           onSave={savePersonalData}
           saving={busy}
         />
-        <EducationalInfoCard
-          group={form.group}
-          role={roleLabel}
-          moodleLogin={form.moodleLogin}
-          moodlePassword={form.moodlePassword}
-          onSave={saveEducation}
-          saving={busy}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <SecurityCard hasPassword={user.passwordEnabled} />
         <SettingsCard
           language={form.language}
           theme={form.theme}
@@ -204,6 +198,21 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
               theme: form.theme === "Світла" ? "Темна" : "Світла",
             })
           }
+          saving={busy}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <SecurityCard
+          hasPassword={user.passwordEnabled}
+          email={user.primaryEmailAddress?.emailAddress ?? ""}
+        />
+        <EducationalInfoCard
+          group={form.group}
+          role={roleLabel}
+          moodleLogin={form.moodleLogin}
+          moodlePassword={form.moodlePassword}
+          onSave={saveEducation}
           saving={busy}
         />
       </div>
