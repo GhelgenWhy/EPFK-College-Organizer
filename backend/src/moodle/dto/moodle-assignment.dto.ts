@@ -1,5 +1,6 @@
 export class MoodleAssignmentDto {
     id: number;
+    cmid: number;
     title: string;
     course: string;
     description: string;

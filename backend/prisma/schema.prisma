@@ -54,6 +54,7 @@ model Discipline {
 
 model Task {
   id           Int         @id @default(autoincrement())
+  cmid         Int         @unique
   moodleId     Int         @unique @map("moodle_id")
   taskName     String      @map("task_name") @db.Text
   deadline     DateTime?   @db.Timestamptz(3)

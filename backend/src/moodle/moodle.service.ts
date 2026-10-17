@@ -15,6 +15,7 @@ interface MoodleAssignment {
     intro: string;
     duedate: number;
     timemodified: number;
+    cmid: number;
 }
 
 interface MoodleSubmissionStatus {
@@ -108,9 +109,35 @@ export class MoodleService {
                     ? new Date(assignment.timemodified * 1000)
                     : null,
                 
-                moodleUrl: 'https://moodle.org'
+                moodleUrl: 'https://moodle.org',
+
+                cmid: assignment.cmid
             };
         });
+    }
+
+    async isAssignmentCompleted(
+        token: string,
+        assignmentId: number
+    ): Promise<boolean> {
+        const response = await axios.post(
+            `${this.moodleUrl}/webservice/rest/server.php`,
+            new URLSearchParams({
+                wstoken: token,
+                wsfunction: 'mod_assign_get_submission_status',
+                moodlewsrestformat: 'json',
+                assignid: String(assignmentId)
+            }),
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            }
+        );
+
+        const submission = response.data.lastattempt;
+
+        return submission?.submission?.status === 'submitted';
     }
 
     async getStudentCourses(token: string): Promise<MoodleCourseDto[]> {

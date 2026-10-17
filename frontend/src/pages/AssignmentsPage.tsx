@@ -64,6 +64,7 @@ function sortTasks(tasks: Assignment[], sortOrder: SortOrder) {
 
 export function AssignmentsPage() {
   const query = useApiQuery(moodleApi.getAssignments);
+  console.log(query);
   if (!query.data) return (
     <main className="min-h-0 flex-1 overflow-auto p-6">
       <h1 className="mb-5 text-3xl font-bold text-primary">Завдання</h1>

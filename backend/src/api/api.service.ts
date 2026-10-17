@@ -50,12 +50,60 @@ export class ApiService {
         id: course.moodleId,
         name: course.disciplineName,
         teacherName: course.teacher,
-        moodleUrl: 'https://moodle.org',
+        moodleUrl: `https://epkmoodle.znu.edu.ua/course/view.php?id=${course.moodleId}`,
     }));
   }
 
+  async getCourseAssignments(userId: string, courseId: number | string) {
+    const parsedCourseId = typeof courseId === 'string' ? parseInt(courseId, 10) : courseId;
+    const userTasks = await this.prismaService.task.findMany({
+      where: {
+        discipline: { 
+          moodleId: parsedCourseId,
+          users: {
+            some: { userId }
+          }
+        }
+      },
+      select: {
+        id: true,
+        moodleId: true,
+        description: true,
+        taskName: true,
+        deadline: true,
+        addedAt: true,
+        cmid: true,
+        discipline: { 
+          select: { disciplineName: true } 
+        },
+        users: {
+          where: { userId: userId },
+          select: { isCompleted: true }
+        }
+      }
+    });
+
+    return userTasks.map(task => {
+      const isCompleted = task.users[0]?.isCompleted ?? false;
+
+      return {
+        id: task.moodleId,
+        title: task.taskName,
+        course: task.discipline.disciplineName,
+        description: task.description || '',
+        dueDate: task.deadline ? task.deadline.toISOString() : null,
+        dueTime: task.deadline 
+          ? task.deadline.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' }) 
+          : null,
+        source: 'Moodle',
+        addedAt: task.addedAt ? task.addedAt.toISOString() : undefined,
+        moodleUrl: `https://epkmoodle.znu.edu.ua/mod/assign/view.php?id=${task.cmid}`,
+        isCompleted: isCompleted
+      };
+    });
+  }
+
   async getHome(userId: string) {
-    console.log(userId);
     return {
       HOME_DEMO_DATE: HOME_DEMO_DATE,
       HOME_DEADLINES: HOME_DEADLINES,
@@ -70,7 +118,7 @@ export class ApiService {
   async syncData(username: string, password: string, userId: string) {
     const token = await this.moodleService.getToken(username, password);
     if (token != null) {
-      const user = this.prismaService.user.upsert({
+      const user = await this.prismaService.user.upsert({
         where: {
           id: userId,
         },
@@ -83,37 +131,69 @@ export class ApiService {
         }
       })
       const courses = await this.moodleService.getStudentCourses(token);
-      for (const course of courses) {
+      await Promise.all(courses.map(async (course) => {
         const discipline = await this.prismaService.discipline.upsert({
-            where: {
-                moodleId: course.id,
-            },
+          where: { moodleId: course.id },
+          create: {
+            moodleId: course.id,
+            disciplineName: course.name,
+            teacher: course.teacherName ?? 'Невідомо',
+          },
+          update: {
+            disciplineName: course.name,
+            teacher: course.teacherName ?? 'Невідомо',
+          }
+        });
+
+        await this.prismaService.usersDiscipline.upsert({
+          where: {
+            userId_disciplineId: { userId, disciplineId: discipline.id },
+          },
+          create: { userId, disciplineId: discipline.id },
+          update: {}
+        });
+
+        const assignments = await this.moodleService.getCourseAssignments(token, discipline.moodleId);
+
+        await Promise.all(assignments.map(async (assignment) => {
+          const isCompleted = await this.moodleService.isAssignmentCompleted(token, assignment.id);
+
+          console.log(assignment)
+
+          const task = await this.prismaService.task.upsert({
+            where: { moodleId: assignment.id },
             create: {
-                moodleId: course.id,
-                disciplineName: course.name,
-                teacher: course.teacherName ?? 'Невідомо',
+              moodleId: assignment.id,
+              taskName: assignment.title,
+              deadline: assignment.dueDate,
+              description: assignment.description,
+              disciplineId: discipline.id,
+              addedAt: assignment.addedAt ?? new Date(),
+              cmid: assignment.cmid
             },
             update: {
-                disciplineName: course.name,
-                teacher: course.teacherName ?? 'Невідомо',
-            },
-        });
-        await this.prismaService.usersDiscipline.upsert({
+              taskName: assignment.title,
+              deadline: assignment.dueDate,
+              description: assignment.description,
+              disciplineId: discipline.id,
+              cmid: assignment.cmid
+            }
+          });
+
+          console.log(task)
+
+          await this.prismaService.usersTask.upsert({
             where: {
-                userId_disciplineId: {
-                    userId,
-                    disciplineId: discipline.id,
-                },
+              userId_taskId: { userId, taskId: task.id }
             },
-            create: {
-                userId,
-                disciplineId: discipline.id,
-            },
-            update: {},
-        });
-    }
+            create: { userId: userId, taskId: task.id, isCompleted: isCompleted },
+            update: { isCompleted: isCompleted }
+          });
+        })); 
+      }));
+
     } else {
-      throw new BadRequestException('account not found')
+      throw new BadRequestException('account not found');
     }
   }
 }

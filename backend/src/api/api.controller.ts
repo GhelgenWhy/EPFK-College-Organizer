@@ -20,8 +20,15 @@ export class ApiController {
 
   @Get('courses')
   async getCourses(@Req() request: Request) {
-        return await this.apiService.getCourses((request as any).authUser.userId);
-    }
+    return await this.apiService.getCourses((request as any).authUser.userId);
+  }
+
+  @Get('assignments/:courseId')
+  async getAssignments(@Req() request: Request, @Param('courseId') courseId: number) {
+    const tasks = await this.apiService.getCourseAssignments((request as any).authUser.userId, courseId);
+    console.log(tasks)
+    return tasks;
+  }
 
   @Get('home')
   async getHome(@Req() request: Request) {
