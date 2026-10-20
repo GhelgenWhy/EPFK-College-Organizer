@@ -11,9 +11,60 @@ import {
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { ScheduleResponse } from './types/schedule.ts';
+import type { HomeDeadline } from './types/home.ts';
+import type { HomeworkTask } from './types/tasks.ts';
 import axios from 'axios';
 import { MoodleService } from '../moodle/moodle.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+
+function getAcademicWeekType(targetDate: Date = new Date()): "numerator" | "denominator" {
+  const currentYear: number = targetDate.getFullYear();
+  const currentMonth: number = targetDate.getMonth();
+
+  const startYear: number = currentMonth < 8 ? currentYear - 1 : currentYear;
+  const sep1: Date = new Date(startYear, 8, 1);
+
+  const getMonday = (date: Date): Date => {
+      const day: number = date.getDay();
+      const diff: number = date.getDate() - day + (day === 0 ? -6 : 1);
+      const monday: Date = new Date(date);
+      monday.setDate(diff);
+      monday.setHours(0, 0, 0, 0);
+      return monday;
+  };
+
+  const sep1Monday: Date = getMonday(sep1);
+  const targetMonday: Date = getMonday(targetDate);
+
+  const msInWeek: number = 1000 * 60 * 60 * 24 * 7;
+  
+  const weekNumber: number = Math.round((targetMonday.getTime() - sep1Monday.getTime()) / msInWeek) + 1;
+
+  const weekType: "numerator" | "denominator" = weekNumber % 2 !== 0 ? "numerator" : "denominator";
+
+  return weekType;
+}
+export interface Lesson {
+  id: string
+  disciplineName: string
+  teacherName: string
+  startsAt: string
+  endsAt: string
+  location: string
+  meetingUrl: string
+}
+
+export interface Day {
+  weekday: number
+  name: string
+  lessons: Lesson[]
+}
+
+export interface Schedule {
+  timeSlots: string[]
+  numerator: Day[]
+  denominator: Day[]
+}
 
 @Injectable()
 export class ApiService {
@@ -104,12 +155,137 @@ export class ApiService {
   }
 
   async getHome(userId: string) {
+    
+    // HOME_DEADLINES ------------------------------------------------
+    const homeDeadlinesDB = await this.prismaService.task.findMany({
+        where: {
+          deadline: {
+            gt: new Date()
+          }
+        },
+        take: 3,
+        orderBy: {
+          deadline: 'asc'
+        },
+        select: {
+          id: true,
+          taskName: true,
+          deadline: true,
+          discipline: { 
+            select: { disciplineName: true } 
+          },
+        }
+      });
+    const safeDeadlines = homeDeadlinesDB.filter(
+      (task): task is typeof task & { deadline: Date } => task.deadline !== null
+    );
+    const homeDeadlines: HomeDeadline[] = safeDeadlines.map(deadline => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const tomorrow = new Date();
+      tomorrow.setDate(today.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+
+      const deadlineDateForLabel = new Date(deadline.deadline);
+      deadlineDateForLabel.setHours(0, 0, 0, 0);
+
+      const timeString = deadline.deadline.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      let urgent = false;
+
+      let label = '';
+      if (deadlineDateForLabel.getDate() === today.getDate()) {
+        label = `СЬОГОДНІ · ${timeString}`;
+        urgent = true;
+      } else if (deadlineDateForLabel.getDate() === tomorrow.getDate()) {
+        label = `ЗАВТРА · ${timeString}`;
+      } else {
+        label = `${deadline.deadline.toISOString().split('T')[0]} · ${timeString}`;
+      }
+
+      return {
+        id: deadline.id.toString(),
+        date: deadline.deadline.toISOString().split('T')[0], 
+        label: label,
+        title: deadline.taskName,
+        course: deadline.discipline.disciplineName,
+        urgent: urgent
+      };
+    });
+    // ------------------------------------------------ HOME_DEADLINES
+
+    // HOME_TASKS ----------------------------------------------------
+
+    const homeTasksDB = await this.prismaService.task.findMany({
+      where: {
+        deadline: {
+          gt: new Date()
+        }
+      },
+      take: 3,
+      orderBy: {
+        deadline: 'asc'
+      },
+      select: {
+        id: true,
+        taskName: true,
+        deadline: true,
+        discipline: { 
+          select: { disciplineName: true } 
+        },
+      }
+    });
+
+    const safeHomeTasks = homeTasksDB.filter(
+      (task): task is typeof task & { deadline: Date } => task.deadline !== null
+    );
+
+    const homeTasks: HomeworkTask[] = safeHomeTasks.map(task => {
+      return {
+        id: task.id.toString(),
+        course: task.discipline.disciplineName,
+        dueDate: task.deadline.toISOString().split('T')[0],
+        title: task.taskName
+      }
+    })
+
+    // ---------------------------------------------------- HOME_TASKS
+
+    // HOME_LESSONS --------------------------------------------------
+    const today = new Date();
+    const mondayBasedIndex = (today.getDay() + 6) % 7;
+
+    let homeLessons: Lesson[] | null[] = [null,null,null,null,null,null];
+
+    if (mondayBasedIndex < 5) {
+
+      const scheduleDB =  await this.prismaService.schedule.findFirst({
+        where: {
+          group: {
+            users: {
+              some: {
+                id: userId,
+              },
+            },
+          },
+        },
+      });
+
+      const weekType = getAcademicWeekType();
+
+      const schedule = scheduleDB?.schedule as unknown as Schedule;
+
+      homeLessons = schedule[weekType][mondayBasedIndex].lessons;
+    }
+    // -------------------------------------------------- HOME_LESSONS
+
     return {
-      HOME_DEMO_DATE: HOME_DEMO_DATE,
-      HOME_DEADLINES: HOME_DEADLINES,
+      HOME_DEMO_DATE: new Date(),
+      HOME_DEADLINES: homeDeadlines,
       HOME_EVENTS: HOME_EVENTS,
-      HOME_LESSONS: HOME_LESSONS,
-      HOME_TASKS: HOME_TASKS,
+      HOME_LESSONS: homeLessons,
+      HOME_TASKS: homeTasks
     };
   }
   getSchedule() {
@@ -118,6 +294,18 @@ export class ApiService {
   async syncData(username: string, password: string, userId: string) {
     const token = await this.moodleService.getToken(username, password);
     if (token != null) {
+      const moodleUser = await this.moodleService.getUser(token);
+      const group = await this.prismaService.group.upsert({
+        where: {
+          groupName: moodleUser.group
+        },
+        create: {
+          groupName: moodleUser.group
+        },
+        update: {
+
+        }
+      })
       const user = await this.prismaService.user.upsert({
         where: {
           id: userId,
@@ -125,9 +313,11 @@ export class ApiService {
         create: {
           id: userId,
           token: token,
+          groupId: group.id
         },
         update: {
           token: token,
+          groupId: group.id
         }
       })
       const courses = await this.moodleService.getStudentCourses(token);
@@ -142,7 +332,7 @@ export class ApiService {
           update: {
             disciplineName: course.name,
             teacher: course.teacherName ?? 'Невідомо',
-          }
+          },
         });
 
         await this.prismaService.usersDiscipline.upsert({
@@ -150,15 +340,13 @@ export class ApiService {
             userId_disciplineId: { userId, disciplineId: discipline.id },
           },
           create: { userId, disciplineId: discipline.id },
-          update: {}
+          update: {},
         });
 
         const assignments = await this.moodleService.getCourseAssignments(token, discipline.moodleId);
 
         await Promise.all(assignments.map(async (assignment) => {
           const isCompleted = await this.moodleService.isAssignmentCompleted(token, assignment.id);
-
-          console.log(assignment)
 
           const task = await this.prismaService.task.upsert({
             where: { moodleId: assignment.id },
@@ -179,8 +367,6 @@ export class ApiService {
               cmid: assignment.cmid
             }
           });
-
-          console.log(task)
 
           await this.prismaService.usersTask.upsert({
             where: {

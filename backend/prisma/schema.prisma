@@ -95,9 +95,10 @@ model UsersTask {
 
 /// Lesson lists are stored separately in a file named after this schedule's id.
 model Schedule {
-  id      Int   @id @default(autoincrement())
-  groupId Int   @map("group_id")
-  group   Group @relation(fields: [groupId], references: [id])
+  id       Int   @id @default(autoincrement())
+  groupId  Int   @map("group_id")
+  group    Group @relation(fields: [groupId], references: [id])
+  schedule Json
 
   @@index([groupId])
   @@map("schedule")

@@ -216,7 +216,7 @@ export class MoodleService {
             }
         }
 
-        let mostFrequentGroup: string | null = null;
+        let mostFrequentGroup: string = "К121-23";
         let maxCount = 0;
 
         for (const [groupName, count] of groupCounts) {

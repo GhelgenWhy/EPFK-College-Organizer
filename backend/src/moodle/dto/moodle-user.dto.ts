@@ -3,5 +3,5 @@ export class MoodleUserDto {
     firstName: string
     lastName: string
     email: string | null
-    group: string | null
+    group: string
 }
