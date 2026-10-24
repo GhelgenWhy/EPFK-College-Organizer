@@ -94,8 +94,20 @@ body {
 .auth-provider-subtitle { color: var(--text-secondary) !important; font-size: 14px !important; }
 .auth-provider-label { color: var(--text-primary) !important; font-size: 13px !important; font-weight: 600 !important; }
 .auth-provider-input { background: var(--input-background) !important; border-color: var(--border) !important; box-sizing: border-box !important; color: var(--text-primary) !important; font-size: 14px !important; height: 46px !important; max-width: 100% !important; width: 100% !important; }
-.auth-provider-submit { background: var(--accent) !important; border-radius: 8px !important; color: var(--on-accent) !important; font-size: 14px !important; font-weight: 600 !important; height: 50px !important; }
+.auth-provider-submit { background-color: var(--accent) !important; border-radius: 8px !important; color: var(--on-accent) !important; font-size: 14px !important; font-weight: 600 !important; height: 50px !important; }
+/* Secondary Clerk actions (social/alternative sign-in) must not inherit a transparent background. */
+.cl-socialButtonsBlockButton, .cl-socialButtonsIconButton { background-color: var(--surface-muted) !important; border: 1px solid var(--border) !important; }
+.cl-socialButtonsBlockButtonText { color: var(--text-primary) !important; }
+.cl-alternativeMethodsBlockButton { background-color: transparent !important; border: 1px solid var(--border) !important; color: var(--text-primary) !important; }
+.cl-alternativeMethodsBlockButton:hover { background-color: var(--surface-muted) !important; }
+.cl-formButtonReset, .cl-formButtonReset:hover { background-color: transparent !important; color: var(--accent) !important; }
+.cl-footerActionLink, .cl-identityPreviewEditButton { color: var(--accent) !important; }
 .auth-provider-link { color: var(--accent) !important; font-size: 13px !important; }
+.auth-provider-social-button, .auth-provider-alt-button { background-color: var(--surface-muted) !important; border: 1px solid var(--border) !important; color: var(--text-primary) !important; }
+.auth-provider-social-button:hover, .auth-provider-alt-button:hover { background-color: var(--border) !important; }
+.auth-provider-social-text, .auth-provider-footer-text { color: var(--text-primary) !important; }
+/* Primary action styling lives in auth.css: cascade layers in this file would
+   otherwise drop the !important override below Clerk's `.cl-button`. */
 .auth-loading, .auth-denied, .auth-config-notice { align-content: center; background: var(--background); color: var(--text-primary); display: grid; justify-items: center; min-height: 100vh; padding: 24px; text-align: center; }
 .auth-denied h1, .auth-config-notice h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
 
