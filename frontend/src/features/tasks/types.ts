@@ -13,3 +13,7 @@ export interface Assignment extends Omit<HomeworkTask, 'dueDate'> {
   addedAt: string;
   moodleUrl?: string;
 }
+
+export type StatusFilter = 'ALL' | 'COMPLETED' | 'ACTIVE' | 'OVERDUE';
+
+export type SortOrder = 'SOONEST' | 'LATEST' | 'TITLE';
