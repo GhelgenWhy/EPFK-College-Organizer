@@ -1,6 +1,7 @@
 import { NavLink } from "react-router";
 import logoSvg from "../../../assets/logo.svg";
-import { useClerk } from "@clerk/react";
+import { useClerk, useUser } from "@clerk/react";
+import { isManager, resolveAppRole } from "../../auth/roles";
 import { SidebarIcon, type SidebarIconName } from './SidebarIcon';
 
 interface SidebarLinkProps {
@@ -29,6 +30,9 @@ function SidebarLink({ to, label, icon }: SidebarLinkProps) {
 
 export const Sidebar = () => {
   const { signOut } = useClerk();
+  const { user } = useUser();
+  // The sidebar mirrors Clerk metadata; the route guards re-check the server role.
+  const role = resolveAppRole(user?.publicMetadata.role);
 
   return (
     <aside className="flex min-h-[calc(100vh-20px)] w-[80px] shrink-0 flex-col items-center justify-between px-[10px] py-0 max-[760px]:fixed max-[760px]:right-3 max-[760px]:bottom-3 max-[760px]:left-3 max-[760px]:z-50 max-[760px]:min-h-0 max-[760px]:w-auto max-[760px]:rounded-[50px] max-[760px]:border max-[760px]:border-border max-[760px]:bg-surface/95 max-[760px]:p-[6px] max-[760px]:shadow-[0_8px_30px_var(--shadow-color)] max-[760px]:backdrop-blur-[12px]">
@@ -48,6 +52,14 @@ export const Sidebar = () => {
           <SidebarLink to="/disciplines" label="Дисципліни" icon="disciplines" />
           <SidebarLink to="/assignments" label="Завдання" icon="tasks" />
           <SidebarLink to="/events" label="Події" icon="events" />
+          {isManager(role) && (
+            <SidebarLink
+              to="/manage"
+              label={role === 'admin' ? 'Керування' : 'Моя група'}
+              icon="manage"
+            />
+          )}
+          {role === 'admin' && <SidebarLink to="/students" label="Студенти" icon="students" />}
         </nav>
       </div>
 

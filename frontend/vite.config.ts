@@ -27,7 +27,19 @@ export default defineConfig(({ mode }) => {
           target: backendOrigin,
           changeOrigin: true,
         },
+        '/manage': {
+          target: backendOrigin,
+          changeOrigin: true,
+          // `/manage` is also a client-side route: browser navigations ask for
+          // text/html and must reach the SPA shell, while API calls (fetch,
+          // Accept: */* or application/json) go to the NestJS controller.
+          bypass: (req) => (req.headers.accept?.includes('text/html') ? '/index.html' : undefined),
+        },
         '/moodle': {
+          target: backendOrigin,
+          changeOrigin: true,
+        },
+        '/health': {
           target: backendOrigin,
           changeOrigin: true,
         },

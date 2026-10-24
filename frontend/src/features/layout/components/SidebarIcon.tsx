@@ -1,4 +1,4 @@
-export type SidebarIconName = 'home' | 'calendar' | 'schedule' | 'disciplines' | 'tasks' | 'events';
+export type SidebarIconName = 'home' | 'calendar' | 'schedule' | 'disciplines' | 'tasks' | 'events' | 'students' | 'manage';
 
 export function SidebarIcon({ name }: { name: SidebarIconName }) {
   const shared = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
@@ -11,6 +11,8 @@ export function SidebarIcon({ name }: { name: SidebarIconName }) {
       {name === 'disciplines' && <><path d="m2.5 8.2 9.5-5 9.5 5-9.5 5-9.5-5Z" /><path d="M6 10.2v5.1c0 1.2 2.7 3.2 6 3.2s6-2 6-3.2v-5.1M21.5 8.2v6" /></>}
       {name === 'tasks' && <><path d="M10 5h10M10 12h10M10 19h10M3 5l1.5 1.5L7 3.5M3 12l1.5 1.5L7 10.5M3 19l1.5 1.5L7 17.5" /></>}
       {name === 'events' && <><path d="m4 20 3.5-10.6L14.6 17 4 20ZM10 7c1.8-2.2 4.8-2.5 7-1M13 3c2.8-.4 5.4 1.1 6.5 3.7M18 12c1.6 1 2.4 2.6 2.5 4.5" /><path d="M7 4v.01M20 9v.01" /></>}
+      {name === 'students' && <><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20c0-3.3 2.9-6 6.5-6s6.5 2.7 6.5 6M16 4.5a3.5 3.5 0 0 1 0 7M17.5 14.2c2.3.7 4 2.8 4 5.8" /></>}
+      {name === 'manage' && <><path d="M12 3 4 7v5c0 4.4 3.4 8.3 8 9 4.6-.7 8-4.6 8-9V7l-8-4Z" /><path d="m8.5 12 2.5 2.5 4.5-4.5" /></>}
     </svg>
   );
 }

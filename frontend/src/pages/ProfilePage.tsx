@@ -7,7 +7,7 @@ import { EducationalInfoCard } from "../features/profile/components/EducationalI
 import { SecurityCard } from "../features/profile/components/SecurityCard";
 import { SettingsCard } from "../features/profile/components/SettingsCard";
 import { Toast } from "../features/profile/components/Toast";
-import { resolveAppRole } from "../features/auth/roles";
+import { resolveAppRole, ROLE_LABELS } from "../features/auth/roles";
 import type { ProfileForm } from "../features/profile/types";
 import { useTheme } from "../features/theme/useTheme";
 
@@ -52,11 +52,7 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
   const [error, setError] = useState("");
 
   const role = resolveAppRole(user.publicMetadata.role);
-  const roleLabel = {
-    user: "Користувач",
-    admin: "Адміністратор",
-    supervisor: "Куратор",
-  }[role];
+  const roleLabel = ROLE_LABELS[role];
 
   const save = async (
     action: () => Promise<unknown>,
