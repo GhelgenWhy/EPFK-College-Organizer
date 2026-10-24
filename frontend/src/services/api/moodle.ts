@@ -73,7 +73,7 @@ function plainText(html: string) {
 
 export const moodleApi = {
   getCourses: (options: ApiRequestOptions) =>
-    requestJson("/moodle/courses", options, (value): Discipline[] =>
+    requestJson("/api/courses", options, (value): Discipline[] =>
       validated<MoodleCourse[]>(value, array(course), "Moodle courses").map(
         (item) => ({
           ...item,
@@ -84,7 +84,7 @@ export const moodleApi = {
     ),
   getCourseAssignments: (courseId: string, options: ApiRequestOptions) =>
     requestJson(
-      `/moodle/assignments/${encodeURIComponent(courseId)}`,
+      `/api/assignments/${encodeURIComponent(courseId)}`,
       options,
       (value): Assignment[] =>
         validated<MoodleAssignment[]>(
@@ -112,7 +112,7 @@ export const moodleApi = {
     credentials: { username: string; password: string },
     { getToken, signal }: ApiRequestOptions,
   ): Promise<void> {
-    const response = await fetchWithClerkAuth(getToken, "/moodle/login", {
+    const response = await fetchWithClerkAuth(getToken, "/api/syncronise", {
       method: "POST",
       signal,
       headers: {
@@ -125,21 +125,24 @@ export const moodleApi = {
       throw new ApiError(response.status, "Не удалось подключить Moodle");
     }
   },
-  // The backend exposes assignments per course, so collect all enrolled courses.
-  // Reject the entire load if a course fails instead of showing an incomplete list.
   async getAssignments(options: ApiRequestOptions): Promise<Assignment[]> {
     const courses = await moodleApi.getCourses(options);
-    const assignments: Assignment[] = [];
-    // Limit concurrent requests so a large course list doesn't flood Moodle.
-    for (let index = 0; index < courses.length; index += 4) {
-      options.signal.throwIfAborted();
-      const batch = await Promise.all(
-        courses
-          .slice(index, index + 4)
-          .map((course) => moodleApi.getCourseAssignments(course.id, options)),
-      );
-      assignments.push(...batch.flat());
-    }
+    options.signal.throwIfAborted();
+
+    const allBatches = await Promise.all(
+      courses.map((course) => moodleApi.getCourseAssignments(course.id, options))
+    );
+
+    // const assignments: Assignment[] = [];
+    // for (const course of courses) {
+    //   const courseAssignments = await moodleApi.getCourseAssignments(course.id, options);
+    //   for (const assignment of courseAssignments) {
+    //     assignments.push(assignment);
+    //   } 
+    //
+    // }
+
+    const assignments = allBatches.flat();
     return [...new Map(assignments.map((item) => [item.id, item])).values()];
-  },
+  }
 };

@@ -15,6 +15,7 @@ interface MoodleAssignment {
     intro: string;
     duedate: number;
     timemodified: number;
+    cmid: number;
 }
 
 interface MoodleSubmissionStatus {
@@ -31,7 +32,7 @@ interface MoodleSubmissionStatus {
 export class MoodleService {
     moodleUrl: string;
     constructor() {
-        this.moodleUrl = "https://epkmoodle.znu.edu.ua/";
+        this.moodleUrl = "https://epkmoodle.znu.edu.ua";
     }
 
     async getToken(username: string, password: string): Promise<string> {
@@ -107,10 +108,36 @@ export class MoodleService {
                 addedAt: assignment.timemodified
                     ? new Date(assignment.timemodified * 1000)
                     : null,
+                
+                moodleUrl: `${this.moodleUrl}/mod/assign/view.php?id=${assignment.cmid}`,
 
-                moodleUrl: `${this.moodleUrl}/mod/assign/view.php?id=${(assignment as any).cmid}`,
+                cmid: assignment.cmid
             };
         });
+    }
+
+    async isAssignmentCompleted(
+        token: string,
+        assignmentId: number
+    ): Promise<boolean> {
+        const response = await axios.post(
+            `${this.moodleUrl}/webservice/rest/server.php`,
+            new URLSearchParams({
+                wstoken: token,
+                wsfunction: 'mod_assign_get_submission_status',
+                moodlewsrestformat: 'json',
+                assignid: String(assignmentId)
+            }),
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            }
+        );
+
+        const submission = response.data.lastattempt;
+
+        return submission?.submission?.status === 'submitted';
     }
 
     async getStudentCourses(token: string): Promise<MoodleCourseDto[]> {
@@ -190,7 +217,7 @@ export class MoodleService {
             }
         }
 
-        let mostFrequentGroup: string | null = null;
+        let mostFrequentGroup: string = "К121-23";
         let maxCount = 0;
 
         for (const [groupName, count] of groupCounts) {
