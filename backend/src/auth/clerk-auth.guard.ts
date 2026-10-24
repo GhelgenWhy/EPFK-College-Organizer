@@ -37,7 +37,9 @@ export class ClerkAuthGuard implements CanActivate {
 
     try {
       const claims = await verifyToken(token, { secretKey });
-      const metadata = claims.public_metadata;
+      // The session token can expose the metadata either flattened (`publicMetadata`)
+      // or as the raw session claim `public_metadata`; accept both.
+      const metadata = claims.publicMetadata ?? claims.public_metadata;
       const role = metadata && typeof metadata === 'object'
         ? (metadata as Record<string, unknown>).role
         : undefined;

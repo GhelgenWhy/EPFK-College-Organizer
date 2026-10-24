@@ -1,19 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+﻿import { BadRequestException, Injectable } from '@nestjs/common';
 import { MOCK_CALENDAR_EVENTS } from './mock/calendar.js';
 import { MOCK_COLLEGE_EVENTS } from './mock/events.js';
-import {
-  HOME_DEMO_DATE,
-  HOME_DEADLINES,
-  HOME_EVENTS,
-  HOME_LESSONS,
-  HOME_TASKS,
-} from './mock/home.js';
+import { HOME_EVENTS } from './mock/home.js';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { ScheduleResponse } from './types/schedule.ts';
 import type { HomeDeadline } from './types/home.ts';
 import type { HomeworkTask } from './types/tasks.ts';
-import axios from 'axios';
 import { MoodleService } from '../moodle/moodle.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 
@@ -288,8 +281,32 @@ export class ApiService {
       HOME_TASKS: homeTasks
     };
   }
-  getSchedule() {
-    return this.schedule;
+  getSchedule(user: { userId: string; role: string }) {
+    return this.findUserSchedule(user.userId, user.role === 'admin').then(
+      (schedule) => schedule ?? this.schedule,
+    );
+  }
+
+  /** Schedule stored for the user's group; admins fall back to the first group. */
+  private async findUserSchedule(userId: string, isAdmin: boolean) {
+    const stored = isAdmin
+      ? await this.prismaService.schedule.findFirst()
+      : await this.prismaService.schedule.findFirst({
+          where: { group: { users: { some: { id: userId } } } },
+        });
+    const value = stored?.schedule as unknown as Schedule | undefined;
+    if (!value?.numerator || !value?.denominator) return null;
+    // Stored JSON may miss lessons entries added by newer clients; normalize slots.
+    const normalizeDays = (days: Day[]) =>
+      days.map((day) => ({
+        ...day,
+        lessons: Array.from({ length: 6 }, (_, slot) => day.lessons?.[slot] ?? null),
+      }));
+    return {
+      timeSlots: value.timeSlots,
+      numerator: normalizeDays(value.numerator),
+      denominator: normalizeDays(value.denominator),
+    };
   }
   async syncData(username: string, password: string, userId: string) {
     const token = await this.moodleService.getToken(username, password);
@@ -306,7 +323,7 @@ export class ApiService {
 
         }
       })
-      const user = await this.prismaService.user.upsert({
+      await this.prismaService.user.upsert({
         where: {
           id: userId,
         },

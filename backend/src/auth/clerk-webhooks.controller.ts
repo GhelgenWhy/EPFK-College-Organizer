@@ -1,6 +1,5 @@
-import {
+﻿import {
   Controller,
-  Headers,
   HttpCode,
   Post,
   Req,
@@ -48,8 +47,6 @@ async handleWebhook(
     console.error('Webhook verification/parsing failed:', error);
     throw new UnauthorizedException('Invalid webhook signature or payload');
   }
-
-  console.log('Webhook event type:', event.type);
 
   if (event.type === 'user.created') {
     await this.clerkWebhookService.createUser(event.data);

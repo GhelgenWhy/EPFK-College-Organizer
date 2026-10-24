@@ -6,9 +6,11 @@ import { ClerkAuthGuard } from './auth/clerk-auth.guard.js';
 import { RolesGuard } from './auth/roles.guard.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { AuthModule } from './auth/auth.module.js';
+import { ManagementModule } from './management/management.module.js';
+import { HealthModule } from './health/health.module.js';
 
 @Module({
-  imports: [PrismaModule, MoodleModule, ApiModule, AuthModule],
+  imports: [PrismaModule, MoodleModule, ApiModule, AuthModule, ManagementModule, HealthModule],
   providers: [
     { provide: APP_GUARD, useClass: ClerkAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },

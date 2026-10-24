@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+﻿import { Injectable } from "@nestjs/common";
 import { MoodleUserDto } from "./dto/moodle-user.dto.js";
 import { MoodleCourseDto } from "./dto/moodle-course.dto.js";
 import { MoodleAssignmentDto } from "./dto/moodle-assignment.dto.js";
@@ -16,16 +16,6 @@ interface MoodleAssignment {
     duedate: number;
     timemodified: number;
     cmid: number;
-}
-
-interface MoodleSubmissionStatus {
-    assignmentid: number;
-    lastattempt?: {
-        submissions?: Array<{
-            status: string;
-            gradingstatus?: string;
-        }>;
-    };
 }
 
 @Injectable()
