@@ -48,7 +48,15 @@ export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }:
   const { banner, show } = useBanner();
 
   const data = schedule.schedule;
-  const days = data[weekType];
+  const [saturdayOpen, setSaturdayOpen] = useState(false);
+  const storedDays = data[weekType];
+  // Mon–Fri always; Saturday when it has lessons or the manager opened it for editing.
+  const hasSaturday = storedDays.some((day) => day.weekday === 6);
+  const showSaturday = saturdayOpen || hasSaturday;
+  const days = storedDays.some((day) => day.weekday === 6) || !showSaturday
+    ? storedDays
+    : [...storedDays, { weekday: 6, name: 'Субота', lessons: [null, null, null, null, null, null] }];
+  const visibleDays = days.filter((day) => day.weekday <= 5 || showSaturday);
 
   function openEditor(weekday: number, slot: number, current: LessonSlot | null) {
     if (!canEdit) return;
@@ -123,9 +131,16 @@ export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }:
             </button>
           ))}
         </div>
-        <p className="text-xs text-muted">
-          {canEdit ? 'Натисніть на клітинку, щоб додати або змінити пару' : 'Лише перегляд'}
-        </p>
+        <div className="flex items-center gap-3">
+          {canEdit && !showSaturday && (
+            <button type="button" className={secondaryButtonClass} onClick={() => setSaturdayOpen(true)}>
+              + Субота
+            </button>
+          )}
+          <p className="text-xs text-muted">
+            {canEdit ? 'Натисніть на клітинку, щоб додати або змінити пару' : 'Лише перегляд'}
+          </p>
+        </div>
       </div>
 
       <Banner message={banner?.message ?? null} tone={banner?.tone} />
@@ -135,7 +150,7 @@ export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }:
           <thead>
             <tr>
               <th className="w-[110px] border-b border-border p-2 text-left font-semibold text-secondary">Час</th>
-              {days.map((day) => (
+              {visibleDays.map((day) => (
                 <th key={day.weekday} className="border-b border-border p-2 text-left font-semibold text-secondary">
                   {day.name}
                 </th>
@@ -146,7 +161,7 @@ export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }:
             {data.timeSlots.map((time, slot) => (
               <tr key={time}>
                 <td className="border-b border-border p-2 align-top text-xs text-muted">{time}</td>
-                {days.map((day) => {
+                {visibleDays.map((day) => {
                   const lesson = day.lessons[slot];
                   return (
                     <td key={day.weekday} className="border-b border-border p-1 align-top">

@@ -31,6 +31,10 @@ export interface GroupInfo {
 
 export interface StudentInfo {
   id: string;
+  /** Display name from Clerk; null when it could not be resolved. */
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
   groupId: number | null;
   groupName: string | null;
   lastSync: string | null;
@@ -105,6 +109,9 @@ const groupCheck = object({
 
 const studentCheck = object({
   id: string,
+  firstName: nullable(string),
+  lastName: nullable(string),
+  email: nullable(string),
   groupId: nullable(number),
   groupName: nullable(string),
   lastSync: nullable(string),

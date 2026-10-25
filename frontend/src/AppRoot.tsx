@@ -10,7 +10,6 @@ import { EventPage } from "./pages/EventPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { SchedulePage } from "./pages/SchedulePage";
 import { DisciplinesPage } from "./pages/DisciplinesPage";
-import { StudentsPage } from "./pages/StudentsPage";
 import { ManagementPage } from "./pages/ManagementPage";
 import { ThemeProvider } from "./features/theme/ThemeProvider";
 
@@ -61,14 +60,6 @@ export default function Application() {
               element={
                 <RequireRole roles={MANAGER_ROLES}>
                   <ManagementPage />
-                </RequireRole>
-              }
-            />
-            <Route
-              path="students"
-              element={
-                <RequireRole roles={["admin"]}>
-                  <StudentsPage />
                 </RequireRole>
               }
             />

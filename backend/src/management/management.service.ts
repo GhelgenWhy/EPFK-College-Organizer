@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
+import { createClerkClient } from '@clerk/backend';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { AuthenticatedUser } from '../auth/auth.types.js';
 import type { HomeroomScope } from '../auth/roles.service.js';
@@ -41,8 +42,10 @@ export interface StoredSchedule {
   denominator: StoredDay[];
 }
 
-// The timetable grid shows Monday to Friday only; a Saturday column breaks the layout.
-const DAY_NAMES = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', "П'ятниця"];
+// Default timetable is Monday to Friday. Saturday exists only when it has lessons,
+// so it appears as an extra column on demand.
+const DAY_NAMES = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', "П'ятниця", 'Субота'];
+const WEEKDAYS_DEFAULT = 5;
 const DEFAULT_TIME_SLOTS = [
   '8:00 - 9:20',
   '9:35 - 10:55',
@@ -52,10 +55,21 @@ const DEFAULT_TIME_SLOTS = [
   '16:05 - 17:25',
 ];
 
+const emptyDay = (weekday: number): StoredDay => ({
+  weekday,
+  name: DAY_NAMES[weekday - 1],
+  lessons: [null, null, null, null, null, null],
+});
+
 function emptySchedule(): StoredSchedule {
   const days = (): StoredDay[] =>
-    DAY_NAMES.map((name, index) => ({ weekday: index + 1, name, lessons: [null, null, null, null, null, null] }));
+    Array.from({ length: WEEKDAYS_DEFAULT }, (_, index) => emptyDay(index + 1));
   return { timeSlots: [...DEFAULT_TIME_SLOTS], numerator: days(), denominator: days() };
+}
+
+/** Has at least one lesson in any slot. */
+function hasLessons(day: StoredDay): boolean {
+  return day.lessons.some((lesson) => lesson !== null);
 }
 
 function normalizeSchedule(value: unknown): StoredSchedule {
@@ -66,16 +80,22 @@ function normalizeSchedule(value: unknown): StoredSchedule {
   for (const week of ['numerator', 'denominator'] as const) {
     const days = stored[week];
     if (!Array.isArray(days)) continue;
-    base[week] = base[week].map((day) => {
-      const incoming = days.find((candidate) => candidate?.weekday === day.weekday);
-      if (!incoming || !Array.isArray(incoming.lessons)) return day;
-      const lessons = [...day.lessons];
+    const result = new Map<number, StoredDay>(base[week].map((day) => [day.weekday, day]));
+    for (const incoming of days) {
+      const weekday = Number(incoming?.weekday);
+      if (!Number.isInteger(weekday) || weekday < 1 || weekday > DAY_NAMES.length) continue;
+      if (!Array.isArray(incoming.lessons)) continue;
+      const lessons: (StoredLesson | null)[] = [null, null, null, null, null, null];
       for (let slot = 0; slot < 6; slot += 1) {
         const lesson = incoming.lessons[slot];
         lessons[slot] = lesson && typeof lesson === 'object' ? (lesson as StoredLesson) : null;
       }
-      return { ...day, lessons };
-    });
+      result.set(weekday, { ...emptyDay(weekday), lessons });
+    }
+    // Saturday is kept only while it has lessons; empty Saturday is not shown.
+    base[week] = [...result.values()]
+      .filter((day) => day.weekday <= WEEKDAYS_DEFAULT || hasLessons(day))
+      .sort((a, b) => a.weekday - b.weekday);
   }
   return base;
 }
@@ -147,8 +167,12 @@ export class ManagementService {
         _count: { select: { tasks: true, disciplines: true } },
       },
     });
+    const names = await this.resolveNames(students.map((student) => student.id));
     return students.map((student) => ({
       id: student.id,
+      firstName: names.get(student.id)?.firstName ?? null,
+      lastName: names.get(student.id)?.lastName ?? null,
+      email: names.get(student.id)?.email ?? null,
       groupId: student.group?.id ?? null,
       groupName: student.group?.groupName ?? null,
       lastSync: student.lastSync,
@@ -156,6 +180,31 @@ export class ManagementService {
       taskCount: student._count.tasks,
       disciplineCount: student._count.disciplines,
     }));
+  }
+
+  /**
+   * Looks up the display name and primary email in Clerk in one request.
+   * A Clerk outage must not break the list, so failures return an empty map.
+   */
+  private async resolveNames(userIds: string[]) {
+    const result = new Map<string, { firstName: string | null; lastName: string | null; email: string | null }>();
+    if (userIds.length === 0) return result;
+    const secretKey = process.env.CLERK_SECRET_KEY;
+    if (!secretKey) return result;
+    try {
+      const clerk = createClerkClient({ secretKey });
+      const page = await clerk.users.getUserList({ userId: userIds, limit: userIds.length });
+      for (const user of page.data) {
+        result.set(user.id, {
+          firstName: user.firstName ?? null,
+          lastName: user.lastName ?? null,
+          email: user.primaryEmailAddress?.emailAddress ?? null,
+        });
+      }
+    } catch {
+      // Names are informational; the list still works with ids.
+    }
+    return result;
   }
 
   async assignGroup(scope: HomeroomScope, userId: string, groupId: number | null) {
@@ -199,8 +248,13 @@ export class ManagementService {
   async upsertLesson(groupId: number, dto: UpsertLessonDto) {
     const { scheduleId, data } = await this.loadGroupSchedule(groupId);
     const week = data[dto.weekType];
-    const day = week.find((candidate) => candidate.weekday === dto.weekday);
-    if (!day) throw new BadRequestException('Некоректний день тижня');
+    let day = week.find((candidate) => candidate.weekday === dto.weekday);
+    if (!day) {
+      // Saturday (and any other day) is created on demand when the first lesson is added.
+      day = emptyDay(dto.weekday);
+      week.push(day);
+      week.sort((a, b) => a.weekday - b.weekday);
+    }
 
     const [from, to] = (data.timeSlots[dto.slot] ?? '').split(' - ');
     const lesson: StoredLesson = {

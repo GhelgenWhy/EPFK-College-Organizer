@@ -59,7 +59,6 @@ export const Sidebar = () => {
               icon="manage"
             />
           )}
-          {role === 'admin' && <SidebarLink to="/students" label="Студенти" icon="students" />}
         </nav>
       </div>
 

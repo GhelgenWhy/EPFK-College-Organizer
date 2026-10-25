@@ -298,14 +298,14 @@ export class ApiService {
     const value = stored?.schedule as unknown as Schedule | undefined;
     if (!value?.numerator || !value?.denominator) return null;
     // Stored JSON may miss lessons entries added by newer clients; normalize slots.
-    // The grid shows Monday to Friday only, so older Saturday entries are dropped.
+    // Monday to Friday are always shown; Saturday only when it has at least one lesson.
     const normalizeDays = (days: Day[]) =>
       days
-        .filter((day) => day.weekday >= 1 && day.weekday <= 5)
         .map((day) => ({
           ...day,
           lessons: Array.from({ length: 6 }, (_, slot) => day.lessons?.[slot] ?? null),
-        }));
+        }))
+        .filter((day) => day.weekday <= 5 || day.lessons.some((lesson) => lesson !== null));
     return {
       timeSlots: value.timeSlots,
       numerator: normalizeDays(value.numerator),

@@ -8,12 +8,15 @@ import { TaskManager } from '../features/management/components/TaskManager';
 import { Banner } from '../features/management/components/ManageUi';
 import { useManageAction } from '../features/management/hooks/useManageAction';
 import { useManagementData } from '../features/management/hooks/useManagementData';
+import { StudentsManager } from '../features/management/components/StudentsManager';
 import { manageApi } from '../services/api/management';
 
 export function ManagementPage() {
   const { role, groupId: ownGroupId, groupName } = useAuthz();
   const [tab, setTab] = useState<ManageTab>('schedule');
 
+  // Both roles see students and schedules; only admins get group and event controls
+  // (StudentsManager and EventManager hide them for starostas).
   const isAdmin = role === 'admin';
   const data = useManagementData({ role: isAdmin ? 'admin' : 'starosta', ownGroupId });
   const groupId = data.selectedGroupId ?? ownGroupId;
@@ -73,7 +76,13 @@ export function ManagementPage() {
       )}
 
       {tab === 'students' && (
-        <StudentsTable groupId={groupId} students={data.students} isLoading={data.studentsLoading} />
+        <StudentsManager
+          isAdmin={isAdmin}
+          groups={data.groups}
+          students={data.students}
+          isLoading={data.studentsLoading}
+          onChanged={data.refreshAll}
+        />
       )}
 
       {tab === 'events' && isAdmin && (
@@ -86,46 +95,6 @@ export function ManagementPage() {
         />
       )}
     </main>
-  );
-}
-
-function StudentsTable({
-  groupId,
-  students,
-  isLoading,
-}: {
-  groupId: number | null;
-  students: ReturnType<typeof useManagementData>['students'];
-  isLoading: boolean;
-}) {
-  if (groupId === null) return <p className="text-sm text-muted">Оберіть групу, щоб побачити студентів.</p>;
-  if (isLoading) return <p className="text-sm text-muted">Завантаження студентів…</p>;
-  return (
-    <div className="overflow-auto rounded-[18px] border border-border bg-surface">
-      <table className="w-full min-w-[560px] border-collapse text-sm">
-        <thead>
-          <tr className="text-left text-secondary">
-            <th className="border-b border-border p-3 font-semibold">Студент (ID Clerk)</th>
-            <th className="border-b border-border p-3 font-semibold">Moodle</th>
-            <th className="border-b border-border p-3 font-semibold">Дисциплін</th>
-            <th className="border-b border-border p-3 font-semibold">Завдань</th>
-          </tr>
-        </thead>
-        <tbody>
-          {students.length === 0 && (
-            <tr><td className="p-4 text-muted" colSpan={4}>У цій групі ще немає студентів</td></tr>
-          )}
-          {students.map((student) => (
-            <tr key={student.id}>
-              <td className="border-b border-border p-3 font-mono text-xs text-primary">{student.id}</td>
-              <td className="border-b border-border p-3 text-secondary">{student.moodleLinked ? 'Прив’язано' : 'Не прив’язано'}</td>
-              <td className="border-b border-border p-3 text-secondary">{student.disciplineCount ?? 0}</td>
-              <td className="border-b border-border p-3 text-secondary">{student.taskCount ?? 0}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
   );
 }
 
