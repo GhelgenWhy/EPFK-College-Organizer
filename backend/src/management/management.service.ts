@@ -41,7 +41,8 @@ export interface StoredSchedule {
   denominator: StoredDay[];
 }
 
-const DAY_NAMES = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', "П'ятниця", 'Субота'];
+// The timetable grid shows Monday to Friday only; a Saturday column breaks the layout.
+const DAY_NAMES = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', "П'ятниця"];
 const DEFAULT_TIME_SLOTS = [
   '8:00 - 9:20',
   '9:35 - 10:55',

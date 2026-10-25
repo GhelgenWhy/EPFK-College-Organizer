@@ -30,7 +30,9 @@ export const SchedulePage = () => {
       <ApiQueryStatus query={query} loadingText="Завантаження розкладу…" />
       {schedule && (
         <TimetableGrid
-          days={schedule[currentWeekType === 'NUMERATOR' ? 'numerator' : 'denominator']}
+          // The grid has five weekday columns (Mon–Fri); anything else would break the layout.
+          days={schedule[currentWeekType === 'NUMERATOR' ? 'numerator' : 'denominator']
+            .filter((day) => day.weekday >= 1 && day.weekday <= 5)}
           timeSlots={schedule.timeSlots}
         />
       )}
