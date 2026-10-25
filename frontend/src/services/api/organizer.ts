@@ -6,19 +6,30 @@ import type { ApiRequestOptions } from './client';
 import { requestJson } from './client';
 import { array, boolean, dateKey, dateString, id, nullable, number, object, oneOf, optional, string, validated } from './validation';
 
+// One malformed lesson must not hide the whole timetable: unknown lessons become empty slots.
 const lesson = object({
-  id: string, disciplineName: string, teacherName: string,
+  id: id, disciplineName: string, teacherName: string,
   startsAt: string, endsAt: string, format: oneOf('OFFLINE', 'ONLINE', 'HYBRID'),
   room: optional(nullable(string)), meetingUrl: optional(nullable(string)),
 });
 const day = object({
   weekday: number, name: string,
-  lessons: (value) => Array.isArray(value) && value.length === 6 && value.every(nullable(lesson)),
+  lessons: (value) => Array.isArray(value) && value.length === 6,
 });
 const schedule = object({
-  timeSlots: (value) => Array.isArray(value) && value.length === 6 && value.every(string),
+  timeSlots: (value) => Array.isArray(value) && value.length === 6,
   numerator: array(day), denominator: array(day),
 });
+
+/** Replaces malformed lesson entries with `null` so the grid keeps its six slots. */
+function normalizeSchedule(value: ScheduleResponse): ScheduleResponse {
+  const days = (list: ScheduleResponse['numerator']) =>
+    list.map((item) => ({
+      ...item,
+      lessons: item.lessons.map((entry) => (lesson(entry) ? entry : null)) as ScheduleResponse['numerator'][number]['lessons'],
+    }));
+  return { ...value, numerator: days(value.numerator), denominator: days(value.denominator) };
+}
 const calendarEvent = object({
   id, title: string, date: dateKey, type: oneOf('DEADLINE', 'EVENT'),
   discipline: optional(string), description: optional(string), linkUrl: optional(string), time: optional(string),
@@ -50,7 +61,7 @@ const home = object({
 
 export const organizerApi = {
   getSchedule: (options: ApiRequestOptions) => requestJson('/api/schedule', options,
-    (value) => validated<ScheduleResponse>(value, schedule, 'schedule')),
+    (value) => normalizeSchedule(validated<ScheduleResponse>(value, schedule, 'schedule'))),
   getCalendar: (options: ApiRequestOptions) => requestJson('/api/calendar', options,
     (value) => validated<CalendarEvent[]>(value, array(calendarEvent), 'calendar')),
   getEvents: (options: ApiRequestOptions) => requestJson('/api/events', options,
