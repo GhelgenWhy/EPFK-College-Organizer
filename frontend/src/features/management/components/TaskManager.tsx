@@ -128,7 +128,7 @@ export function TaskManager({ tasks, disciplines, canEdit, onCreate, onDelete }:
         </div>
       )}
 
-      <div className="overflow-auto rounded-[18px] border border-border bg-surface">
+      <div className="overflow-auto rounded-[18px] border border-border bg-surface [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin">
         <table className="w-full min-w-[680px] border-collapse text-sm">
           <thead>
             <tr className="text-left text-secondary">

@@ -134,7 +134,7 @@ export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }:
 
       <Banner message={banner?.message ?? null} tone={banner?.tone} />
 
-      <div className="overflow-auto rounded-[18px] border border-border bg-surface">
+      <div className="overflow-auto rounded-[18px] border border-border bg-surface [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin">
         <table className="w-full min-w-[720px] border-collapse text-sm">
           <thead>
             <tr>

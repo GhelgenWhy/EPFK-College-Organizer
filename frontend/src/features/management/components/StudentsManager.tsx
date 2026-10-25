@@ -176,7 +176,7 @@ export function StudentsManager({ isAdmin, groups, students, isLoading, onChange
         </section>
       )}
 
-      <section className="overflow-auto rounded-[18px] border border-border bg-surface">
+      <section className="overflow-auto rounded-[18px] border border-border bg-surface [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin">
         <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
           <span className="text-sm font-semibold text-primary">Студенти</span>
           <button
@@ -197,7 +197,8 @@ export function StudentsManager({ isAdmin, groups, students, isLoading, onChange
             </button>
           )}
         </div>
-        <table className="w-full min-w-[640px] border-collapse text-sm">
+        {/* Wide screens: table. Narrow screens: one card per student (see below). */}
+        <table className="w-full min-w-[640px] border-collapse text-sm max-[760px]:hidden">
           <thead>
             <tr className="text-left text-secondary">
               <th className="border-b border-border p-3 font-semibold">Студент</th>
@@ -264,6 +265,55 @@ export function StudentsManager({ isAdmin, groups, students, isLoading, onChange
             ))}
           </tbody>
         </table>
+
+        {/* Narrow screens: one card per student instead of a horizontally scrolling table. */}
+        <ul className="hidden flex-col gap-2 p-3 max-[760px]:flex">
+          {visible.length === 0 && !isLoading && (
+            <li className="p-2 text-sm text-muted">Студентів не знайдено</li>
+          )}
+          {visible.map((student) => (
+            <li key={student.id} className="flex flex-col gap-2 rounded-[14px] border border-border bg-[var(--surface-muted)] p-3">
+              <div>
+                <p className="font-semibold text-primary">{studentDisplayName(student)}</p>
+                {student.email && <p className="break-all text-xs text-muted">{student.email}</p>}
+              </div>
+              <p className="text-xs text-secondary">
+                {student.moodleLinked ? 'Moodle: прив’язано' : 'Moodle: не прив’язано'} · {formatSync(student.lastSync)}
+              </p>
+              {isAdmin ? (
+                <div className="flex flex-col gap-2">
+                  <select
+                    className={fieldClass}
+                    value={student.groupId ?? ''}
+                    disabled={busy}
+                    aria-label={`Група студента ${studentDisplayName(student)}`}
+                    onChange={(event) => {
+                      const groupId = event.target.value ? Number(event.target.value) : null;
+                      void run('Групу студента оновлено', () =>
+                        action.run((options) => manageApi.assignGroup(student.id, groupId, options)));
+                    }}
+                  >
+                    <option value="">Без групи</option>
+                    {groups.map((group) => (
+                      <option key={group.id} value={group.id}>{group.groupName}</option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    disabled={busy || !student.moodleLinked}
+                    onClick={() => void run('Синхронізацію запущено', () =>
+                      action.run((options) => manageApi.syncStudent(student.id, options)))}
+                    className="inline-flex min-h-[38px] cursor-pointer items-center justify-center rounded-[10px] border border-border bg-surface text-sm font-semibold text-secondary disabled:opacity-50"
+                  >
+                    Синхронізувати
+                  </button>
+                </div>
+              ) : (
+                <p className="text-sm text-secondary">{student.groupName ?? 'Без групи'}</p>
+              )}
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
   );

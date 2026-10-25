@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 
 /** Name of the system group for students who have no real group. */
 export const UNGROUPED_NAME = 'Без групи';
-import { HOME_EVENTS } from './mock/home.js';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { ScheduleResponse } from './types/schedule.ts';
@@ -95,6 +94,27 @@ export class ApiService {
         createdAt: event.startTime.toISOString(),
       } as const;
     });
+  }
+
+  /** Upcoming college events for the dashboard, in the shape the home page expects. */
+  async getUpcomingHomeEvents() {
+    const events = await this.getEvents();
+    const monthNames = ['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня',
+      'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня'];
+    return events
+      .filter((event) => event.status !== 'Завершено')
+      .slice(0, 5)
+      .map((event) => {
+        const [, month, day] = event.date.split('-').map(Number);
+        const details = [event.location, event.time].filter(Boolean).join(' · ');
+        return {
+          id: event.id,
+          date: event.date,
+          monthLabel: `${day} ${monthNames[month - 1]}`,
+          title: event.title,
+          details,
+        };
+      });
   }
 
   /** Calendar entries: the mock deadlines plus every stored college event as an EVENT. */
@@ -340,7 +360,7 @@ export class ApiService {
     return {
       HOME_DEMO_DATE: new Date(),
       HOME_DEADLINES: homeDeadlines,
-      HOME_EVENTS: HOME_EVENTS,
+      HOME_EVENTS: await this.getUpcomingHomeEvents(),
       HOME_LESSONS: homeLessons,
       HOME_TASKS: homeTasks
     };
