@@ -7,8 +7,9 @@ interface DayCellProps {
 }
 
 export function DayCell({ day, events, onClick }: DayCellProps) {
-  // Відображення перших двох подій
-  const visibleEvents = events.slice(0, 2);
+  // Six week rows happen (e.g. November 2026), and then two pills do not fit a cell.
+  // Show one event and count the rest, so no event is ever clipped.
+  const visibleEvents = events.slice(0, 1);
   const remainingCount = events.length - visibleEvents.length;
 
   return (
