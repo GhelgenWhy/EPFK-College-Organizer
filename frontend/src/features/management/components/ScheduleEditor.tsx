@@ -43,6 +43,8 @@ interface DraftLesson {
 
 export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }: ScheduleEditorProps) {
   const [weekType, setWeekType] = useState<WeekType>('numerator');
+  // Narrow screens show one day at a time; Monday is the default.
+  const [mobileDay, setMobileDay] = useState(1);
   const [draft, setDraft] = useState<DraftLesson | null>(null);
   const [saving, setSaving] = useState(false);
   const { banner, show } = useBanner();
@@ -134,7 +136,54 @@ export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }:
 
       <Banner message={banner?.message ?? null} tone={banner?.tone} />
 
-      <div className="overflow-auto rounded-[18px] border border-border bg-surface [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin">
+      {/* Narrow screens: pick one day, then its six slots (a wide grid would not fit). */}
+      <div className="hidden flex-col gap-3 max-[760px]:flex">
+        <div className="flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]">
+          {visibleDays.map((day) => (
+            <button
+              key={day.weekday}
+              type="button"
+              aria-pressed={mobileDay === day.weekday}
+              onClick={() => setMobileDay(day.weekday)}
+              className={`shrink-0 cursor-pointer rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                mobileDay === day.weekday ? 'border-accent bg-accent text-on-accent' : 'border-border bg-surface text-secondary'
+              }`}
+            >
+              {day.name}
+            </button>
+          ))}
+        </div>
+        <ul className="flex flex-col gap-2">
+          {data.timeSlots.map((time, slot) => {
+            const day = visibleDays.find((candidate) => candidate.weekday === mobileDay) ?? visibleDays[0];
+            const lesson = day?.lessons[slot] ?? null;
+            return (
+              <li key={time}>
+                <button
+                  type="button"
+                  disabled={!canEdit || !day}
+                  onClick={() => day && openEditor(day.weekday, slot, lesson)}
+                  className={`flex w-full min-h-[58px] cursor-pointer flex-col items-start gap-0.5 rounded-[14px] border p-3 text-left disabled:cursor-default ${
+                    lesson ? 'border-transparent bg-[var(--lesson-background)]' : 'border-dashed border-border bg-surface text-muted'
+                  }`}
+                >
+                  <span className="text-[11px] font-semibold text-muted">{time}</span>
+                  {lesson ? (
+                    <>
+                      <span className="break-words text-sm font-semibold text-primary">{lesson.disciplineName}</span>
+                      <span className="text-xs text-secondary">{lesson.teacherName} · {lessonPlace(lesson)}</span>
+                    </>
+                  ) : (
+                    <span className="text-xs">+ додати</span>
+                  )}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      <div className="overflow-auto rounded-[18px] border border-border bg-surface [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin max-[760px]:hidden">
         <table className="w-full min-w-[720px] border-collapse text-sm">
           <thead>
             <tr>

@@ -459,11 +459,13 @@ export class ApiService {
         create: {
           id: userId,
           token: token,
-          groupId: group.id
+          groupId: group.id,
+          lastSync: new Date(),
         },
         update: {
           token: token,
-          groupId: group.id
+          groupId: group.id,
+          lastSync: new Date(),
         }
       })
       const courses = await this.moodleService.getStudentCourses(token);

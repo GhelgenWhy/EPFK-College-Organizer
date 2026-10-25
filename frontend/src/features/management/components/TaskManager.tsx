@@ -72,10 +72,10 @@ export function TaskManager({ tasks, disciplines, canEdit, onCreate, onDelete }:
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <label className="flex items-center gap-2 text-sm text-secondary">
+        <label className="flex min-w-0 max-w-full items-center gap-2 text-sm text-secondary max-[760px]:w-full">
           Дисципліна
           <select
-            className="rounded-lg border border-border bg-input-background px-3 py-2 text-primary"
+            className="min-w-0 max-w-[280px] flex-1 truncate rounded-lg border border-border bg-input-background px-3 py-2 text-primary max-[760px]:max-w-none"
             value={disciplineFilter}
             onChange={(event) =>
               setDisciplineFilter(event.target.value === 'ALL' ? 'ALL' : Number(event.target.value))
@@ -128,7 +128,8 @@ export function TaskManager({ tasks, disciplines, canEdit, onCreate, onDelete }:
         </div>
       )}
 
-      <div className="overflow-auto rounded-[18px] border border-border bg-surface [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin">
+      {/* Wide screens: table. Narrow screens: one card per task (no horizontal scroll). */}
+      <div className="overflow-auto rounded-[18px] border border-border bg-surface [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin max-[760px]:hidden">
         <table className="w-full min-w-[680px] border-collapse text-sm">
           <thead>
             <tr className="text-left text-secondary">
@@ -169,6 +170,32 @@ export function TaskManager({ tasks, disciplines, canEdit, onCreate, onDelete }:
           </tbody>
         </table>
       </div>
+
+      <ul className="hidden flex-col gap-2 max-[760px]:flex">
+        {visible.length === 0 && <li className="p-2 text-sm text-muted">Завдань ще немає</li>}
+        {visible.map((task) => (
+          <li key={task.id} className="flex flex-col gap-2 rounded-[14px] border border-border bg-surface p-3">
+            <div>
+              <p className="break-words font-semibold text-primary">{task.taskName}</p>
+              <p className="text-xs text-secondary">{task.discipline.disciplineName}</p>
+            </div>
+            {task.description && <p className="line-clamp-3 text-xs text-muted">{task.description}</p>}
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs text-secondary">{formatDeadline(task.deadline)}</span>
+              {canEdit && (
+                <button
+                  type="button"
+                  className={dangerButtonClass}
+                  disabled={busyId === task.id}
+                  onClick={() => void remove(task.id)}
+                >
+                  Видалити
+                </button>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

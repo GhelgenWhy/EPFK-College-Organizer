@@ -24,7 +24,7 @@ export function ManagementPage() {
   const action = useManageAction(data.refreshAll);
 
   return (
-    <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-auto px-[30px] pt-2 pr-[40px] pb-5 max-[760px]:px-4">
+    <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-auto px-[30px] pt-2 pr-[40px] pb-5 [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin max-[760px]:px-4 max-[760px]:pb-24">
       <ManageHeader
         title={isAdmin ? 'Керування коледжем' : 'Моя група'}
         subtitle={isAdmin ? `Роль: ${ROLE_LABELS[role]}` : `${groupName ?? 'Група не закріплена'} · ${ROLE_LABELS[role]}`}

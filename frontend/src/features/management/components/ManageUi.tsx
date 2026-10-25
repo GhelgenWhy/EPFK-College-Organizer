@@ -29,7 +29,7 @@ export function ManageHeader({ title, subtitle, tabs, activeTab, onTabChange, ch
         </div>
         {children}
       </div>
-      <nav className="flex flex-wrap gap-4 border-b border-border" role="tablist">
+      <nav className="flex gap-4 overflow-x-auto border-b border-border [scrollbar-width:none] max-[760px]:gap-3" role="tablist">
         {tabs.map((tab) => (
           <button
             key={tab}
