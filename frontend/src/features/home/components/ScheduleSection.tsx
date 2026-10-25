@@ -1,6 +1,7 @@
 import type { HomeLesson } from "../types";
 import { formatDate, titleCase } from "../utils/date";
 import { SectionHeading } from "./SectionHeading";
+import { textOr } from "../../../lib/nullSafe";
 
 export function ScheduleSection({
   lessons,
@@ -19,6 +20,11 @@ export function ScheduleSection({
         title="Розклад на сьогодні"
         subtitle={`${titleCase(formatDate(date, { weekday: "long" }))} · ${lessons.length} пари`}
       />
+      {lessons.length === 0 && (
+        <p className="m-0 flex flex-1 items-center justify-center p-4 text-sm text-muted">
+          На цей день пар немає
+        </p>
+      )}
       <ol className="m-0 flex min-h-0 flex-1 list-none flex-col p-0">
         {lessons.map((lesson, index) => (
           <li
@@ -29,9 +35,9 @@ export function ScheduleSection({
               className={`flex h-[46px] flex-col justify-center gap-1 border-r border-[var(--border)] text-sm leading-[1.1] font-bold tabular-nums text-primary max-[1200px]:text-[11px] max-[760px]:h-12 max-[760px]:text-xs ${index === 1 ? "pl-3" : ""}`}
               dateTime={lesson.startsAt}
             >
-              <span>{lesson.startsAt}</span>
+              <span>{textOr(lesson.startsAt, '—')}</span>
               <span className="text-[11px] font-medium text-[var(--text-muted)] max-[1200px]:text-[9px] max-[760px]:text-[10px]">
-                {lesson.endsAt}
+                {textOr(lesson.endsAt, '')}
               </span>
             </time>
             <div className="min-w-0">
@@ -39,7 +45,7 @@ export function ScheduleSection({
                 {lesson.title}
               </h3>
               <p className="mt-[5px] overflow-hidden text-ellipsis whitespace-nowrap text-[11px] text-[var(--text-muted)] max-[760px]:text-[9px]">
-                {index === 1 ? "Онлайн · Google Meet" : lesson.location}
+                {index === 1 ? "Онлайн · Google Meet" : textOr(lesson.location, "Аудиторію не вказано")}
               </p>
             </div>
             {index === 0 ? (

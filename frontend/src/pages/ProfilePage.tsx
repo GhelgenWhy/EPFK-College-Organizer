@@ -137,7 +137,7 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
 
   return (
     <main
-      className="relative flex min-h-0 min-w-0 flex-1 flex-col gap-6 overflow-y-auto px-7.5 py-7.5 [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin max-[760px]:px-4 max-[760px]:py-4"
+      className="relative flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-y-auto px-7 py-5 [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin max-[1100px]:overflow-y-auto max-[760px]:px-4 max-[760px]:py-4"
       aria-labelledby="profile-heading"
       tabIndex={0}
     >

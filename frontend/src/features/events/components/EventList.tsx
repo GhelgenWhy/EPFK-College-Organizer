@@ -1,5 +1,6 @@
 import React from "react";
 import type { CollegeEvent, EventStatus } from "../types";
+import { textOr } from "../../../lib/nullSafe";
 
 interface EventListProps {
   events: CollegeEvent[];
@@ -109,7 +110,7 @@ export const EventList: React.FC<EventListProps> = ({ events }) => {
 
             {/* Опис */}
             <p className="text-xs text-gray-600 truncate">
-              {event.description}
+              {textOr(event.description, '')}
             </p>
 
             {/* Нижня мета-інформація */}

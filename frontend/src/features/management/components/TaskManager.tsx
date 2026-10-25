@@ -3,6 +3,7 @@ import type { AssignmentRow, DisciplineOption } from '../../../services/api/mana
 import { Banner } from './ManageUi';
 import { dangerButtonClass, fieldClass, primaryButtonClass, secondaryButtonClass } from './styles';
 import { useBanner } from '../hooks/useBanner';
+import { formatKyivDateTime } from '../../../lib/nullSafe';
 
 interface TaskManagerProps {
   groupId: number;
@@ -14,15 +15,13 @@ interface TaskManagerProps {
 }
 
 function formatDeadline(value: string | null) {
-  if (!value) return 'Без дедлайну';
-  return new Intl.DateTimeFormat('uk-UA', {
-    timeZone: 'Europe/Kyiv',
+  return formatKyivDateTime(value, {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  }).format(new Date(value));
+  });
 }
 
 export function TaskManager({ tasks, disciplines, canEdit, onCreate, onDelete }: TaskManagerProps) {

@@ -3,6 +3,7 @@ import type { EventRow } from '../../../services/api/management';
 import { Banner } from './ManageUi';
 import { dangerButtonClass, fieldClass, primaryButtonClass, secondaryButtonClass } from './styles';
 import { useBanner } from '../hooks/useBanner';
+import { formatKyivDateTime } from '../../../lib/nullSafe';
 
 interface EventManagerProps {
   canEdit: boolean;
@@ -15,22 +16,20 @@ interface EventManagerProps {
 
 const EMPTY_FORM = { eventName: '', localTime: '', place: '', description: '' };
 
-/** Value for `<input type="datetime-local">` from an ISO timestamp. */
-function toLocalInput(iso: string) {
+/** Value for `<input type="datetime-local">` from an ISO timestamp; empty when the value is missing. */
+function toLocalInput(iso: string | null) {
+  if (!iso || Number.isNaN(Date.parse(iso))) return '';
   const date = new Date(iso);
   const pad = (value: number) => String(value).padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
-function formatEventTime(iso: string) {
-  return new Intl.DateTimeFormat('uk-UA', {
-    timeZone: 'Europe/Kyiv',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(iso));
+function formatEventTime(iso: string | null) {
+  return formatKyivDateTime(
+    iso,
+    { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' },
+    'Час не вказано',
+  );
 }
 
 export function EventManager({ canEdit, events, onCreate, onUpdate, onDelete }: EventManagerProps) {
