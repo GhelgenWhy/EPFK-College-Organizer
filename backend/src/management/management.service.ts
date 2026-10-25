@@ -131,6 +131,22 @@ export class ManagementService {
     return this.prisma.group.create({ data: { groupName: dto.groupName } });
   }
 
+  /**
+   * Renames a group. Students reference the group by id, so they see the new name at once
+   * and no per-user change is needed.
+   */
+  async renameGroup(groupId: number, dto: CreateGroupDto) {
+    const group = await this.prisma.group.findUnique({ where: { id: groupId } });
+    if (!group) throw new NotFoundException('Групу не знайдено');
+    const taken = await this.prisma.group.findUnique({ where: { groupName: dto.groupName } });
+    if (taken && taken.id !== groupId) throw new ConflictException('Група з такою назвою вже існує');
+    return this.prisma.group.update({
+      where: { id: groupId },
+      data: { groupName: dto.groupName },
+      select: { id: true, groupName: true },
+    });
+  }
+
   async deleteGroup(groupId: number) {
     const group = await this.prisma.group.findUnique({
       where: { id: groupId },

@@ -28,11 +28,26 @@ function formatSync(value: string | null) {
 export function StudentsManager({ isAdmin, groups, students, isLoading, onChanged }: StudentsManagerProps) {
   const [newGroup, setNewGroup] = useState('');
   const [filter, setFilter] = useState<'ALL' | number>('ALL');
+  const [renamingId, setRenamingId] = useState<number | null>(null);
+  const [renameValue, setRenameValue] = useState('');
   const [busy, setBusy] = useState(false);
   const { banner, show } = useBanner();
   const action = useManageAction(onChanged);
 
   const visible = students.filter((student) => filter === 'ALL' || student.groupId === filter);
+
+  /** Saves a new group name; students follow automatically (they reference the group id). */
+  async function saveRename(groupId: number, currentName: string) {
+    const next = renameValue.trim();
+    if (!next || next === currentName) {
+      setRenamingId(null);
+      return;
+    }
+    await run('Назву групи змінено', async () => {
+      await action.run((options) => manageApi.renameGroup(groupId, next, options));
+      setRenamingId(null);
+    });
+  }
 
   async function run(successMessage: string, task: () => Promise<unknown>) {
     setBusy(true);
@@ -82,16 +97,63 @@ export function StudentsManager({ isAdmin, groups, students, isLoading, onChange
                 key={group.id}
                 className="flex items-center gap-2 rounded-xl border border-border bg-[var(--surface-muted)] px-3 py-2"
               >
-                <button
-                  type="button"
-                  className={`cursor-pointer border-0 bg-transparent text-sm font-semibold ${
-                    filter === group.id ? 'text-accent' : 'text-primary'
-                  }`}
-                  onClick={() => setFilter(filter === group.id ? 'ALL' : group.id)}
-                  aria-pressed={filter === group.id}
-                >
-                  {group.groupName}
-                </button>
+                {renamingId === group.id ? (
+                  <>
+                    <input
+                      className={`${fieldClass} h-8 w-40`}
+                      value={renameValue}
+                      autoFocus
+                      onChange={(event) => setRenameValue(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') void saveRename(group.id, group.groupName);
+                        if (event.key === 'Escape') setRenamingId(null);
+                      }}
+                      aria-label="Нова назва групи"
+                    />
+                    <button
+                      type="button"
+                      className="cursor-pointer border-0 bg-transparent text-xs font-semibold text-accent"
+                      disabled={busy || !renameValue.trim()}
+                      onClick={() => void saveRename(group.id, group.groupName)}
+                    >
+                      Зберегти
+                    </button>
+                    <button
+                      type="button"
+                      className="cursor-pointer border-0 bg-transparent text-xs text-secondary"
+                      onClick={() => setRenamingId(null)}
+                    >
+                      Скасувати
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className={`cursor-pointer border-0 bg-transparent text-sm font-semibold ${
+                        filter === group.id ? 'text-accent' : 'text-primary'
+                      }`}
+                      onClick={() => setFilter(filter === group.id ? 'ALL' : group.id)}
+                      aria-pressed={filter === group.id}
+                    >
+                      {group.groupName}
+                    </button>
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        className="cursor-pointer border-0 bg-transparent text-xs text-secondary hover:text-primary"
+                        onClick={() => {
+                          setRenamingId(group.id);
+                          setRenameValue(group.groupName);
+                        }}
+                        aria-label={`Перейменувати групу ${group.groupName}`}
+                        title="Перейменувати"
+                      >
+                        ✎
+                      </button>
+                    )}
+                  </>
+                )}
                 <span className="text-xs text-muted">{group.studentCount} студ.</span>
                 <button
                   type="button"

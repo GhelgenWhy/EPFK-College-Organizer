@@ -75,6 +75,13 @@ export class ManagementController {
     return this.management.createGroup(parseGroup(body));
   }
 
+  /** Renames a group (admin only); members follow automatically because they reference the id. */
+  @Patch('admin/groups/:groupId')
+  @Roles('admin')
+  renameGroup(@Param('groupId', ParseIntPipe) groupId: number, @Body() body: unknown) {
+    return this.management.renameGroup(groupId, parseGroup(body));
+  }
+
   @Delete('admin/groups/:groupId')
   @Roles('admin')
   deleteGroup(@Param('groupId', ParseIntPipe) groupId: number) {

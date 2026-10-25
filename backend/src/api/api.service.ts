@@ -372,17 +372,19 @@ export class ApiService {
     }
     {
       const moodleUser = await this.moodleService.getUser(token);
-      const group = await this.prismaService.group.upsert({
-        where: {
-          groupName: moodleUser.group
-        },
-        create: {
-          groupName: moodleUser.group
-        },
-        update: {
-
-        }
-      })
+      // An admin may have renamed or reassigned the group. Keep the stored assignment when the
+      // user already has one; Moodle only fills the group for users who have none yet.
+      const current = await this.prismaService.user.findUnique({
+        where: { id: userId },
+        select: { groupId: true },
+      });
+      const group = current?.groupId
+        ? { id: current.groupId }
+        : await this.prismaService.group.upsert({
+            where: { groupName: moodleUser.group },
+            create: { groupName: moodleUser.group },
+            update: {},
+          });
       await this.prismaService.user.upsert({
         where: {
           id: userId,

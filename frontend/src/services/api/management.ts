@@ -192,6 +192,9 @@ export const manageApi = {
   createGroup: async (groupName: string, options: ApiRequestOptions) => {
     await send('/manage/admin/groups', 'POST', { groupName }, options);
   },
+  renameGroup: async (groupId: number, groupName: string, options: ApiRequestOptions) => {
+    await send(`/manage/admin/groups/${groupId}`, 'PATCH', { groupName }, options);
+  },
   deleteGroup: async (groupId: number, options: ApiRequestOptions) => {
     await send(`/manage/admin/groups/${groupId}`, 'DELETE', undefined, options);
   },
