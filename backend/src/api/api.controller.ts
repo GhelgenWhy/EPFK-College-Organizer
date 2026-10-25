@@ -8,8 +8,8 @@ export class ApiController {
   constructor(private readonly apiService: ApiService) {}
 
   @Get('calendar')
-  getCalendar() {
-    return this.apiService.getCalendar();
+  getCalendar(@CurrentUser() user: AuthenticatedUser) {
+    return this.apiService.getCalendar(user.userId);
   }
 
   @Get('events')

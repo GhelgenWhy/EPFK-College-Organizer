@@ -204,7 +204,7 @@ export function StudentsManager({ isAdmin, groups, students, isLoading, onChange
               <th className="border-b border-border p-3 font-semibold">Група</th>
               <th className="border-b border-border p-3 font-semibold">Moodle</th>
               <th className="border-b border-border p-3 font-semibold">Остання синхронізація</th>
-              {isAdmin && <th className="border-b border-border p-3 font-semibold">Змінити групу</th>}
+              {isAdmin && <th className="border-b border-border p-3 font-semibold">Дії</th>}
             </tr>
           </thead>
           <tbody>
@@ -220,17 +220,13 @@ export function StudentsManager({ isAdmin, groups, students, isLoading, onChange
                   <p className="font-semibold text-primary">{studentDisplayName(student)}</p>
                   {student.email && <p className="text-xs text-muted">{student.email}</p>}
                 </td>
-                <td className="border-b border-border p-3 text-secondary">{student.groupName ?? 'Без групи'}</td>
-                <td className="border-b border-border p-3 text-secondary">
-                  {student.moodleLinked ? 'Прив’язано' : 'Не прив’язано'}
-                </td>
-                <td className="border-b border-border p-3 text-secondary">{formatSync(student.lastSync)}</td>
-                {isAdmin && (
-                  <td className="border-b border-border p-3">
+                <td className="border-b border-border p-3">
+                  {isAdmin ? (
                     <select
                       className={`${fieldClass} max-w-[220px]`}
                       value={student.groupId ?? ''}
                       disabled={busy}
+                      aria-label={`Група студента ${studentDisplayName(student)}`}
                       onChange={(event) => {
                         const groupId = event.target.value ? Number(event.target.value) : null;
                         void run('Групу студента оновлено', () =>
@@ -242,6 +238,26 @@ export function StudentsManager({ isAdmin, groups, students, isLoading, onChange
                         <option key={group.id} value={group.id}>{group.groupName}</option>
                       ))}
                     </select>
+                  ) : (
+                    <span className="text-secondary">{student.groupName ?? 'Без групи'}</span>
+                  )}
+                </td>
+                <td className="border-b border-border p-3 text-secondary">
+                  {student.moodleLinked ? 'Прив’язано' : 'Не прив’язано'}
+                </td>
+                <td className="border-b border-border p-3 text-secondary">{formatSync(student.lastSync)}</td>
+                {isAdmin && (
+                  <td className="border-b border-border p-3">
+                    <button
+                      type="button"
+                      disabled={busy || !student.moodleLinked}
+                      title={student.moodleLinked ? 'Синхронізувати з Moodle' : 'Студент ще не підключив Moodle'}
+                      onClick={() => void run('Синхронізацію запущено', () =>
+                        action.run((options) => manageApi.syncStudent(student.id, options)))}
+                      className="inline-flex min-h-[34px] cursor-pointer items-center rounded-[10px] border border-border bg-surface px-3 text-sm font-semibold text-secondary transition-colors hover:bg-[var(--surface-hover)] hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Синхронізувати
+                    </button>
                   </td>
                 )}
               </tr>

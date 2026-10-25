@@ -17,6 +17,7 @@ import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Roles } from '../auth/roles.decorator.js';
 import { RolesService } from '../auth/roles.service.js';
 import { ManagementService } from './management.service.js';
+import { ApiService } from '../api/api.service.js';
 import {
   parseAssignGroup,
   parseCreateEvent,
@@ -38,11 +39,21 @@ export class ManagementController {
   constructor(
     private readonly management: ManagementService,
     private readonly roles: RolesService,
+    private readonly api: ApiService,
   ) {}
 
   @Get('me')
   getMe(@CurrentUser() user: AuthenticatedUser) {
     return this.management.getMe(user);
+  }
+
+  /** Admin forces a Moodle sync for one student (uses the token the student already linked). */
+  @Post('admin/students/:userId/sync')
+  @Roles('admin')
+  @HttpCode(200)
+  async syncStudent(@Param('userId') userId: string) {
+    await this.api.syncStudentWithStoredToken(userId);
+    return { synced: true };
   }
 
   /** Existing groups a user may choose from (read-only, any role). */

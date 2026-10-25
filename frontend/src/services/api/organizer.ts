@@ -32,12 +32,12 @@ function normalizeSchedule(value: ScheduleResponse): ScheduleResponse {
 }
 const calendarEvent = object({
   id, title: string, date: dateKey, type: oneOf('DEADLINE', 'EVENT'),
-  discipline: optional(string), description: optional(string), linkUrl: optional(string), time: optional(string),
+  discipline: optional(string), description: optional(string), linkUrl: optional(nullable(string)), time: optional(string),
 });
 const collegeEvent = object({
   id, title: string, date: dateKey, time: string,
   status: oneOf('Заплановано', 'Перенесено', 'Завершено'),
-  location: string, description: string, organizer: string, site: string, createdAt: string,
+  location: string, description: string, organizer: string, detailsUrl: string, site: string, createdAt: string,
 });
 interface HomeResponse {
   HOME_DEMO_DATE: string;

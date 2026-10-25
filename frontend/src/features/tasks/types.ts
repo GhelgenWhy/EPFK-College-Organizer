@@ -12,6 +12,8 @@ export interface Assignment extends Omit<HomeworkTask, 'dueDate'> {
   source: string;
   addedAt: string;
   moodleUrl?: string;
+  /** Completion status from Moodle, as synced by the backend. */
+  isCompleted?: boolean;
 }
 
 export type StatusFilter = 'ALL' | 'COMPLETED' | 'ACTIVE' | 'OVERDUE';

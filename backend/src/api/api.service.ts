@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { createClerkClient } from '@clerk/backend';
-import { MOCK_CALENDAR_EVENTS } from './mock/calendar.js';
+
+/** Name of the system group for students who have no real group. */
+export const UNGROUPED_NAME = 'Без групи';
 import { HOME_EVENTS } from './mock/home.js';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -77,8 +78,6 @@ export class ApiService {
   async getEvents() {
     const rows = await this.prismaService.event.findMany({ orderBy: { startTime: 'asc' } });
     const now = Date.now();
-    // Show the author's name instead of the Clerk id; fall back to "Адміністрація".
-    const ownerNames = await this.resolveOwnerNames([...new Set(rows.map((event) => event.owner))]);
     return rows.map((event) => {
       const start = new Date(event.startTime);
       return {
@@ -89,34 +88,18 @@ export class ApiService {
         status: start.getTime() < now ? 'Завершено' : 'Заплановано',
         location: event.place ?? '',
         description: event.description ?? '',
-        organizer: ownerNames.get(event.owner) ?? 'Адміністрація',
+        // Only what the admin typed; an empty organizer stays empty.
+        organizer: event.organizer ?? '',
+        detailsUrl: event.detailsUrl ?? '',
         site: '',
         createdAt: event.startTime.toISOString(),
       } as const;
     });
   }
 
-  /** Clerk display names for event authors; failures fall back to the neutral label. */
-  private async resolveOwnerNames(userIds: string[]) {
-    const names = new Map<string, string>();
-    const secretKey = process.env.CLERK_SECRET_KEY;
-    if (userIds.length === 0 || !secretKey) return names;
-    try {
-      const clerk = createClerkClient({ secretKey });
-      const page = await clerk.users.getUserList({ userId: userIds, limit: userIds.length });
-      for (const user of page.data) {
-        const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ');
-        if (fullName) names.set(user.id, fullName);
-      }
-    } catch {
-      // Names are informational; the events still render without them.
-    }
-    return names;
-  }
-
   /** Calendar entries: the mock deadlines plus every stored college event as an EVENT. */
-  async getCalendar() {
-    const events = await this.getEvents();
+  async getCalendar(userId: string) {
+    const [events, deadlines] = await Promise.all([this.getEvents(), this.getUserDeadlines(userId)]);
     const storedEvents = events.map((event) => ({
       id: `event-${event.id}`,
       title: event.title,
@@ -124,8 +107,8 @@ export class ApiService {
       type: 'EVENT' as const,
       time: event.time,
       description: event.description,
+      linkUrl: event.detailsUrl || undefined,
     }));
-    const deadlines = MOCK_CALENDAR_EVENTS.filter((event) => event.type === 'DEADLINE');
     return [...deadlines, ...storedEvents];
   }
 
@@ -192,6 +175,38 @@ export class ApiService {
         addedAt: task.addedAt ? task.addedAt.toISOString() : undefined,
         moodleUrl: `https://epkmoodle.znu.edu.ua/mod/assign/view.php?id=${task.cmid}`,
         isCompleted: isCompleted
+      };
+    });
+  }
+
+  /** All of the user's assignments with a deadline, for the calendar (live from the database). */
+  async getUserDeadlines(userId: string) {
+    const tasks = await this.prismaService.task.findMany({
+      where: {
+        deadline: { not: null },
+        discipline: { users: { some: { userId } } },
+      },
+      select: {
+        moodleId: true,
+        taskName: true,
+        deadline: true,
+        cmid: true,
+        discipline: { select: { disciplineName: true } },
+        users: { where: { userId }, select: { isCompleted: true } },
+      },
+      orderBy: { deadline: 'asc' },
+    });
+    return tasks.map((task) => {
+      const due = task.deadline as Date;
+      return {
+        id: `task-${task.moodleId}`,
+        title: task.taskName,
+        date: due.toISOString().slice(0, 10),
+        time: due.toLocaleTimeString('uk-UA', { timeZone: 'Europe/Kyiv', hour: '2-digit', minute: '2-digit' }),
+        type: 'DEADLINE' as const,
+        discipline: task.discipline.disciplineName,
+        linkUrl: `https://epkmoodle.znu.edu.ua/mod/assign/view.php?id=${task.cmid}`,
+        isCompleted: task.users[0]?.isCompleted ?? false,
       };
     });
   }
@@ -360,6 +375,31 @@ export class ApiService {
       denominator: normalizeDays(value.denominator),
     };
   }
+  /**
+   * Admin-triggered sync for one student using the Moodle token already stored for them.
+   * Needs no password; a student without a stored token has to log in through the profile.
+   */
+  async syncStudentWithStoredToken(userId: string) {
+    const stored = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      select: { token: true },
+    });
+    if (!stored?.token) {
+      throw new UnauthorizedException('Студент ще не підключив Moodle');
+    }
+    await this.syncWithToken(stored.token, userId);
+  }
+
+  /** Id of the system group for users without a real group ("Без групи"), created on first use. */
+  async ensureUngroupedGroupId(): Promise<number> {
+    const group = await this.prismaService.group.upsert({
+      where: { groupName: UNGROUPED_NAME },
+      create: { groupName: UNGROUPED_NAME },
+      update: {},
+    });
+    return group.id;
+  }
+
   async syncData(username: string, password: string, userId: string) {
     let token: string;
     try {
@@ -370,6 +410,10 @@ export class ApiService {
       }
       throw new ServiceUnavailableException('Moodle тимчасово недоступний');
     }
+    await this.syncWithToken(token, userId);
+  }
+
+  private async syncWithToken(token: string, userId: string) {
     {
       const moodleUser = await this.moodleService.getUser(token);
       // An admin may have renamed or reassigned the group. Keep the stored assignment when the
@@ -378,13 +422,16 @@ export class ApiService {
         where: { id: userId },
         select: { groupId: true },
       });
-      const group = current?.groupId
-        ? { id: current.groupId }
-        : await this.prismaService.group.upsert({
-            where: { groupName: moodleUser.group },
-            create: { groupName: moodleUser.group },
-            update: {},
-          });
+      // Groups are created by admins only. Moodle may name a group that is not in the system:
+      // such users go to the system group "Без групи" instead of a new group being invented.
+      let groupId = current?.groupId ?? null;
+      if (!groupId) {
+        const matched = moodleUser.group
+          ? await this.prismaService.group.findUnique({ where: { groupName: moodleUser.group } })
+          : null;
+        groupId = matched?.id ?? (await this.ensureUngroupedGroupId());
+      }
+      const group = { id: groupId };
       await this.prismaService.user.upsert({
         where: {
           id: userId,

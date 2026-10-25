@@ -1,5 +1,6 @@
 import type { CalendarEvent } from '../types';
 import { formatSelectedDateHeader } from '../utils/dateUtils';
+import { formatEuropeanDate } from '../../../lib/dates';
 
 interface EventSidebarProps {
   selectedDate: Date;
@@ -40,25 +41,22 @@ export function EventSidebar({ selectedDate, events }: EventSidebarProps) {
                 <p className="m-0 whitespace-pre-line text-base text-primary">{event.description}</p>
               )}
 
-              {event.time && (
-                <p className="m-0 text-xs font-bold text-primary">Дата: {event.time}</p>
+              {(event.date || event.time) && (
+                <p className="m-0 text-xs font-bold text-primary">
+                  {formatEuropeanDate(event.date)}{event.time ? `, ${event.time}` : ''}
+                </p>
               )}
 
-              {event.linkUrl ? (
+              {/* Задание — ссылка на Moodle; событие — «Детальніше», только если задана ссылка */}
+              {event.linkUrl && (
                 <a
                   href={event.linkUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-block cursor-pointer text-xs font-bold text-primary underline"
                 >
-                  {event.type === 'DEADLINE'
-                    ? 'посилання на завдання'
-                    : 'Детальніше'}
+                  {event.type === 'DEADLINE' ? 'Відкрити в Moodle' : 'Детальніше'}
                 </a>
-              ) : (
-                event.type === 'EVENT' && (
-                  <span className="inline-block cursor-pointer text-xs font-bold text-primary underline">Детальніше</span>
-                )
               )}
             </div>
           ))

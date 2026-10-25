@@ -1,6 +1,7 @@
 import type { CalendarFilterType } from "../../calendar/types";
 import type { HomeDeadline } from "../types";
 import { parseLocalDate } from "../utils/date";
+import { formatEuropeanLabel } from "../../../lib/dates";
 import { SectionHeading } from "./SectionHeading";
 
 export function DeadlinesSection({
@@ -33,7 +34,7 @@ export function DeadlinesSection({
               <span
                 className={`inline-flex min-h-[25px] min-w-[140px] items-center rounded-lg px-[10px] text-[10px] font-bold max-[760px]:min-h-[27px] max-[760px]:text-[10px] ${index === 1 ? "bg-[var(--warning-soft)] text-[var(--warning)]" : deadline.urgent ? "bg-[var(--danger)] text-on-accent" : "bg-[var(--accent-soft)] text-[var(--accent)]"}`}
               >
-                {deadline.label}
+                {formatEuropeanLabel(deadline.label)}
               </span>
               <span
                 className="mt-1 line-clamp-1 text-xs leading-[1.25] font-bold text-primary max-[760px]:text-xs"

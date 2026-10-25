@@ -13,7 +13,10 @@ export function AssignmentsContent({
   tasks: Assignment[];
   storageKey: string;
 }) {
-  const { completedTaskIds, toggleTask } = useTaskCompletion(tasks, storageKey);
+  const { completedTaskIds: localCompletedIds, toggleTask } = useTaskCompletion(tasks, storageKey);
+  // Moodle completion (from the server) is the baseline; a local toggle can still mark a task.
+  const serverCompletedIds = tasks.filter((task) => task.isCompleted).map((task) => task.id);
+  const completedTaskIds = [...new Set([...serverCompletedIds, ...localCompletedIds])];
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
   const [discipline, setDiscipline] = useState('ALL');
   const [sortOrder, setSortOrder] = useState<SortOrder>('SOONEST');

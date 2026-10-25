@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { EventRow } from '../../../services/api/management';
+import type { EventPayload, EventRow } from '../../../services/api/management';
 import { Banner } from './ManageUi';
 import { dangerButtonClass, fieldClass, primaryButtonClass, secondaryButtonClass } from './styles';
 import { useBanner } from '../hooks/useBanner';
@@ -7,14 +7,14 @@ import { formatKyivDateTime } from '../../../lib/nullSafe';
 
 interface EventManagerProps {
   canEdit: boolean;
-  onCreate: (payload: { eventName: string; startTime: string; place?: string; description?: string }) => Promise<void>;
-  onUpdate: (eventId: number, payload: { eventName: string; startTime: string; place?: string; description?: string }) => Promise<void>;
+  onCreate: (payload: EventPayload & { eventName: string; startTime: string }) => Promise<void>;
+  onUpdate: (eventId: number, payload: EventPayload) => Promise<void>;
   onDelete: (eventId: number) => Promise<void>;
   /** Rows rendered by the caller after each mutation (the page refetches). */
   events: EventRow[];
 }
 
-const EMPTY_FORM = { eventName: '', localTime: '', place: '', description: '' };
+const EMPTY_FORM = { eventName: '', localTime: '', place: '', description: '', organizer: '', detailsUrl: '' };
 
 /** Value for `<input type="datetime-local">` from an ISO timestamp; empty when the value is missing. */
 function toLocalInput(iso: string | null) {
@@ -45,6 +45,8 @@ export function EventManager({ canEdit, events, onCreate, onUpdate, onDelete }: 
       localTime: toLocalInput(event.startTime),
       place: event.place ?? '',
       description: event.description ?? '',
+      organizer: event.organizer ?? '',
+      detailsUrl: event.detailsUrl ?? '',
     });
   }
 
@@ -58,6 +60,8 @@ export function EventManager({ canEdit, events, onCreate, onUpdate, onDelete }: 
       startTime: new Date(form.localTime).toISOString(),
       place: form.place.trim() || undefined,
       description: form.description.trim() || undefined,
+      organizer: form.organizer.trim() || undefined,
+      detailsUrl: form.detailsUrl.trim() || undefined,
     };
     setBusy(true);
     try {
@@ -111,6 +115,14 @@ export function EventManager({ canEdit, events, onCreate, onUpdate, onDelete }: 
             <label className="flex flex-col gap-1 text-xs font-semibold text-secondary">
               Місце
               <input className={fieldClass} value={form.place} onChange={(event) => setForm({ ...form, place: event.target.value })} />
+            </label>
+            <label className="flex flex-col gap-1 text-xs font-semibold text-secondary">
+              Організатор <span className="font-normal text-muted">(необов’язково)</span>
+              <input className={fieldClass} value={form.organizer} onChange={(event) => setForm({ ...form, organizer: event.target.value })} />
+            </label>
+            <label className="flex flex-col gap-1 text-xs font-semibold text-secondary sm:col-span-2">
+              Посилання на деталі або реєстрацію <span className="font-normal text-muted">(необов’язково)</span>
+              <input className={fieldClass} placeholder="https://" value={form.detailsUrl} onChange={(event) => setForm({ ...form, detailsUrl: event.target.value })} />
             </label>
             <label className="flex flex-col gap-1 text-xs font-semibold text-secondary sm:col-span-2">
               Опис

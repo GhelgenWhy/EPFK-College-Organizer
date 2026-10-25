@@ -65,6 +65,18 @@ export interface EventRow {
   startTime: string;
   place: string | null;
   description: string | null;
+  organizer: string | null;
+  detailsUrl: string | null;
+}
+
+/** Payload for creating or editing a college event. Organizer and details link are optional. */
+export interface EventPayload {
+  eventName?: string;
+  startTime?: string;
+  place?: string;
+  description?: string;
+  organizer?: string;
+  detailsUrl?: string;
 }
 
 export type WeekType = 'numerator' | 'denominator';
@@ -142,6 +154,8 @@ const eventCheck = object({
   startTime: (value) => typeof value === 'string' && !Number.isNaN(Date.parse(value)),
   place: nullable(string),
   description: nullable(string),
+  organizer: optional(nullable(string)),
+  detailsUrl: optional(nullable(string)),
 });
 
 async function send(
@@ -179,6 +193,11 @@ export const manageApi = {
         array(object({ id: number, groupName: string })),
         'group options',
       )),
+
+  /** Admin forces a Moodle sync for one student using the token they already linked. */
+  syncStudent: async (userId: string, options: ApiRequestOptions) => {
+    await send(`/manage/admin/students/${encodeURIComponent(userId)}/sync`, 'POST', undefined, options);
+  },
 
   /** The user selects one of the existing groups for themselves. */
   chooseOwnGroup: async (groupId: number, options: ApiRequestOptions) => {
@@ -280,14 +299,14 @@ export const manageApi = {
     requestJson('/manage/events', options, (value) =>
       validated<EventRow[]>(value, array(eventCheck), 'events')),
   createEvent: async (
-    payload: { eventName: string; startTime: string; place?: string; description?: string },
+    payload: EventPayload & { eventName: string; startTime: string },
     options: ApiRequestOptions,
   ) => {
     await send('/manage/events', 'POST', payload, options);
   },
   updateEvent: async (
     eventId: number,
-    payload: { eventName?: string; startTime?: string; place?: string; description?: string },
+    payload: EventPayload,
     options: ApiRequestOptions,
   ) => {
     await send(`/manage/events/${eventId}`, 'PATCH', payload, options);

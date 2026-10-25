@@ -9,6 +9,8 @@ export interface CollegeEvent {
   location: string;
   description: string;
   organizer: string;
+  /** Optional link to details or a registration form. */
+  detailsUrl?: string;
   site: string;
   createdAt: string;
 }

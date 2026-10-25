@@ -8,10 +8,12 @@ import {
 } from "./client";
 import {
   array,
+  boolean,
   dateString,
   nullable,
   number,
   object,
+  optional,
   string,
   validated,
 } from "./validation";
@@ -32,6 +34,8 @@ interface MoodleAssignment {
   source: string;
   addedAt: string | null;
   moodleUrl: string;
+  /** Completion status from Moodle (kept in sync by the backend). */
+  isCompleted?: boolean;
 }
 const course = object({
   id: number,
@@ -49,6 +53,7 @@ const assignment = object({
   source: string,
   addedAt: nullable(dateString),
   moodleUrl: string,
+  isCompleted: optional(boolean),
 });
 const kyivDate = new Intl.DateTimeFormat("en-CA", {
   timeZone: "Europe/Kyiv",
@@ -94,6 +99,7 @@ export const moodleApi = {
         ).map((item) => ({
           ...item,
           id: String(item.id),
+          isCompleted: item.isCompleted ?? false,
           description: plainText(item.description),
           dueDate: item.dueDate
             ? kyivDate.format(new Date(item.dueDate))

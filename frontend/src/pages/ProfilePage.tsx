@@ -210,7 +210,6 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
         <EducationalInfoCard
           key={serverGroupId ?? "none"}
           groupId={serverGroupId}
-          groupName={serverGroupName}
           groupOptions={groupOptionsQuery.data ?? []}
           role={roleLabel}
           moodleLogin={form.moodleLogin}

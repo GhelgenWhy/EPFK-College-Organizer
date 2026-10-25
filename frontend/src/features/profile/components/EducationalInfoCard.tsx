@@ -8,8 +8,6 @@ export interface GroupOption {
 interface EducationalInfoCardProps {
   /** Current server-side group id (null when the admin has not assigned one). */
   groupId: number | null;
-  /** Current group name for display; the admin assigns it, so it is read-only text here. */
-  groupName: string | null;
   /** Existing groups the user may pick from. The user cannot create groups. */
   groupOptions: GroupOption[];
   role: string;
@@ -25,7 +23,6 @@ const inputClassName =
 
 export const EducationalInfoCard = ({
   groupId,
-  groupName,
   groupOptions,
   role,
   moodleLogin: initialMoodleLogin,
@@ -80,9 +77,6 @@ export const EducationalInfoCard = ({
                     </option>
                   ))}
                 </select>
-                {groupId !== null && groupName && (
-                  <span className="text-[11px] text-(--text-muted)">Обрано: {groupName}</span>
-                )}
                 {groupOptions.length === 0 && (
                   <span className="text-[11px] text-(--text-muted)">Групи ще не створено адміністратором</span>
                 )}

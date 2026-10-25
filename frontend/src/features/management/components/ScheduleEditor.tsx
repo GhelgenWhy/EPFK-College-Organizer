@@ -130,11 +130,6 @@ export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }:
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-3">
-          <p className="text-xs text-muted">
-            {canEdit ? 'Натисніть на клітинку, щоб додати або змінити пару' : 'Лише перегляд'}
-          </p>
-        </div>
       </div>
 
       <Banner message={banner?.message ?? null} tone={banner?.tone} />

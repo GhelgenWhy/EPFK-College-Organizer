@@ -23,7 +23,8 @@ function TaskRow({
         />
         <span className="flex min-w-0 flex-col items-start">
           <span
-            className={`max-w-full overflow-hidden text-ellipsis text-[15px] leading-[1.45] font-bold text-primary max-[760px]:text-xs ${completed ? "text-[var(--text-muted)] line-through decoration-[var(--text-muted)]" : ""}`}
+            title={task.title}
+            className={`line-clamp-2 max-w-full break-words text-[15px] leading-[1.45] font-bold text-primary max-[760px]:text-xs ${completed ? "text-[var(--text-muted)] line-through decoration-[var(--text-muted)]" : ""}`}
           >
             {task.title}
           </span>

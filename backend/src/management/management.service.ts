@@ -7,6 +7,7 @@ import {
 import { randomUUID } from 'node:crypto';
 import { createClerkClient } from '@clerk/backend';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { UNGROUPED_NAME } from '../api/api.service.js';
 import type { AuthenticatedUser } from '../auth/auth.types.js';
 import type { HomeroomScope } from '../auth/roles.service.js';
 import type {
@@ -138,6 +139,7 @@ export class ManagementService {
   async renameGroup(groupId: number, dto: CreateGroupDto) {
     const group = await this.prisma.group.findUnique({ where: { id: groupId } });
     if (!group) throw new NotFoundException('Групу не знайдено');
+    if (group.groupName === UNGROUPED_NAME) throw new BadRequestException('Системну групу не можна перейменувати');
     const taken = await this.prisma.group.findUnique({ where: { groupName: dto.groupName } });
     if (taken && taken.id !== groupId) throw new ConflictException('Група з такою назвою вже існує');
     return this.prisma.group.update({
@@ -153,6 +155,8 @@ export class ManagementService {
       select: { _count: { select: { users: true } } },
     });
     if (!group) throw new NotFoundException('Групу не знайдено');
+    const systemGroup = await this.prisma.group.findUnique({ where: { id: groupId }, select: { groupName: true } });
+    if (systemGroup?.groupName === UNGROUPED_NAME) throw new BadRequestException('Системну групу не можна видалити');
     if (group._count.users > 0) {
       throw new ConflictException('Спочатку переведіть студентів з цієї групи');
     }
@@ -394,6 +398,8 @@ export class ManagementService {
         startTime: new Date(dto.startTime),
         place: dto.place ?? null,
         description: dto.description ?? null,
+        organizer: dto.organizer ?? null,
+        detailsUrl: dto.detailsUrl ?? null,
       },
     });
   }
@@ -408,6 +414,8 @@ export class ManagementService {
         ...(dto.startTime !== undefined ? { startTime: new Date(dto.startTime) } : {}),
         ...(dto.place !== undefined ? { place: dto.place ?? null } : {}),
         ...(dto.description !== undefined ? { description: dto.description ?? null } : {}),
+        ...(dto.organizer !== undefined ? { organizer: dto.organizer ?? null } : {}),
+        ...(dto.detailsUrl !== undefined ? { detailsUrl: dto.detailsUrl ?? null } : {}),
       },
     });
   }

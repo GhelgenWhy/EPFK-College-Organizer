@@ -45,6 +45,10 @@ export interface CreateEventDto {
   startTime: string;
   place?: string;
   description?: string;
+  /** Optional organizer name typed by the admin (not the author's account name). */
+  organizer?: string;
+  /** Optional link to details or a registration form. */
+  detailsUrl?: string;
 }
 
 export interface UpdateEventDto extends Partial<CreateEventDto> {}
@@ -146,6 +150,8 @@ export function parseCreateEvent(body: unknown): CreateEventDto {
     startTime: requiredDate(value.startTime, 'startTime').toISOString(),
     place: optionalString(value.place) ?? undefined,
     description: optionalString(value.description) ?? undefined,
+    organizer: optionalString(value.organizer) ?? undefined,
+    detailsUrl: optionalString(value.detailsUrl) ?? undefined,
   };
 }
 
@@ -156,5 +162,7 @@ export function parseUpdateEvent(body: unknown): UpdateEventDto {
   if (value.startTime !== undefined) result.startTime = requiredDate(value.startTime, 'startTime').toISOString();
   if (value.place !== undefined) result.place = optionalString(value.place) ?? undefined;
   if (value.description !== undefined) result.description = optionalString(value.description) ?? undefined;
+  if (value.organizer !== undefined) result.organizer = optionalString(value.organizer) ?? undefined;
+  if (value.detailsUrl !== undefined) result.detailsUrl = optionalString(value.detailsUrl) ?? undefined;
   return result;
 }

@@ -30,7 +30,13 @@ export function AssignmentCard({ task, completed, urgent, onToggle }: {
         {completed ? 'Виконано' : 'Не виконано'}
       </button>
 
-      <h2 className={`max-w-full overflow-hidden text-ellipsis text-base font-bold leading-[1.35] tracking-[-0.015em] text-primary ${completed ? 'text-secondary' : ''} max-[760px]:text-[13px]`}>{task.title}</h2>
+      {/* Long titles are clamped to two lines so the card keeps its height; full text on hover. */}
+      <h2
+        title={task.title}
+        className={`line-clamp-2 max-w-full break-words text-base font-bold leading-[1.35] tracking-[-0.015em] text-primary ${completed ? 'text-secondary' : ''} max-[760px]:text-[13px]`}
+      >
+        {task.title}
+      </h2>
       <p className="mt-[13px] max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[13px] font-semibold leading-[1.3] text-accent max-[760px]:mt-[10px] max-[760px]:text-[10px]">{task.course}</p>
       <p className="mt-[9px] max-w-full overflow-hidden text-ellipsis text-xs leading-[1.4] text-secondary max-[760px]:mt-[5px] max-[760px]:text-[9px]">{textOr(task.description, '')}</p>
 
