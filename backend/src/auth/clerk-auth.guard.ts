@@ -6,7 +6,8 @@ import {
   type ExecutionContext,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { verifyToken } from '@clerk/backend';
+import { createClerkClient, verifyToken } from '@clerk/backend';
+import { Logger } from '@nestjs/common';
 import type { Request } from 'express';
 import { IS_PUBLIC_KEY, resolveAppRole, type AuthenticatedUser } from './auth.types.js';
 
@@ -16,7 +17,22 @@ interface AuthenticatedRequest extends Request {
 
 @Injectable()
 export class ClerkAuthGuard implements CanActivate {
+  private readonly logger = new Logger(ClerkAuthGuard.name);
+
   constructor(private readonly reflector: Reflector) {}
+
+  /** Reads `publicMetadata.role` from the Clerk user when the session token has no role claim. */
+  private async roleFromClerk(userId: string, secretKey: string) {
+    try {
+      const clerk = createClerkClient({ secretKey });
+      const user = await clerk.users.getUser(userId);
+      const role = (user.publicMetadata as { role?: unknown } | undefined)?.role;
+      return resolveAppRole(role);
+    } catch (error) {
+      this.logger.warn(`Could not read role for ${userId}: ${(error as Error).message}`);
+      return resolveAppRole(undefined);
+    }
+  }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
@@ -40,10 +56,16 @@ export class ClerkAuthGuard implements CanActivate {
       // The session token can expose the metadata either flattened (`publicMetadata`)
       // or as the raw session claim `public_metadata`; accept both.
       const metadata = claims.publicMetadata ?? claims.public_metadata;
-      const role = metadata && typeof metadata === 'object'
-        ? (metadata as Record<string, unknown>).role
-        : undefined;
-      request.authUser = { userId: claims.sub, role: resolveAppRole(role) };
+      const hasRoleClaim = metadata && typeof metadata === 'object' && 'role' in metadata;
+      const role = hasRoleClaim ? (metadata as Record<string, unknown>).role : undefined;
+
+      // Without the session claim the token says nothing about the role; ask Clerk
+      // instead of silently downgrading an admin to a student.
+      const resolvedRole = hasRoleClaim
+        ? resolveAppRole(role)
+        : await this.roleFromClerk(claims.sub, secretKey);
+
+      request.authUser = { userId: claims.sub, role: resolvedRole };
       return true;
     } catch {
       throw new UnauthorizedException('The Clerk session token is invalid or expired');

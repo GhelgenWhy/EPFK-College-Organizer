@@ -49,10 +49,9 @@ export function RequireRole({ roles, children }: { roles: readonly AppRole[]; ch
 
   const fallbackRole = resolveAppRole(user.publicMetadata.role);
 
-  if (isLoading && !profile) {
-    // Show the page immediately for the metadata role, but never for role-mismatch.
-    return roles.includes(fallbackRole) ? <>{children}</> : <LoadingScreen />;
-  }
+  // Children read AuthzContext, which only exists once the server role is known.
+  // Rendering them earlier throws on a direct page load (no cached profile yet).
+  if (isLoading && !profile) return <LoadingScreen />;
 
   if (error && !profile) {
     return (
