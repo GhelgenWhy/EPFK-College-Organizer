@@ -21,7 +21,7 @@ export function DayCell({ day, events, onClick }: DayCellProps) {
 
       {/* Список подій */}
       {visibleEvents.length > 0 && (
-        <div className="flex w-full flex-1 flex-col gap-[2px]">
+        <div className="flex min-h-0 w-full flex-1 flex-col gap-[2px] overflow-hidden">
           {visibleEvents.map((event) => (
             <div
               key={event.id}

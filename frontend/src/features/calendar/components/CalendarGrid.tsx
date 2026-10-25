@@ -35,9 +35,7 @@ export function CalendarGrid({
       </div>
 
       {/* Сітка календаря */}
-      {/* Rows are at least tall enough for the day number plus two task pills, so a day
-          never shows a clipped second task. The grid scrolls if the month needs more room. */}
-      <div className="grid h-full min-h-0 flex-1 auto-rows-[minmax(118px,1fr)] grid-cols-7 gap-[6px] overflow-auto">
+      <div className="grid h-full min-h-0 flex-1 auto-rows-[minmax(0,1fr)] grid-cols-7 gap-[6px]">
         {days.map((day) => {
           const dayEvents = filteredEvents.filter(
             (e) => e.date === day.dateString
