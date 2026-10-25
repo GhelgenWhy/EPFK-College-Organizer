@@ -159,15 +159,38 @@ export class MoodleService {
 
         const courses: MoodleCourse[] = response.data.courses;
 
-        return courses.map(
-            (course): MoodleCourseDto => ({
+        // Teacher = the course contact Moodle shows on the course page (core_course_get_courses_by_field).
+        // One failing course must not break the whole sync, so its teacher just stays unknown.
+        return Promise.all(
+            courses.map(async (course): Promise<MoodleCourseDto> => ({
                 id: course.id,
                 name: course.fullname,
-                teacherName: null,
+                teacherName: await this.getCourseTeacherName(token, course.id),
                 moodleUrl:
                     "https://epkmoodle.znu.edu.ua/course/view.php?id=" + course.id,
-            }),
+            })),
         );
+    }
+
+    private async getCourseTeacherName(token: string, courseId: number): Promise<string | null> {
+        try {
+            const response = await axios.post(
+                `${this.moodleUrl}/webservice/rest/server.php`,
+                new URLSearchParams({
+                    wstoken: token,
+                    wsfunction: "core_course_get_courses_by_field",
+                    moodlewsrestformat: "json",
+                    field: "id",
+                    value: String(courseId),
+                }),
+                { headers: { "Content-Type": "application/x-www-form-urlencoded" } },
+            );
+            const contact = response.data?.courses?.[0]?.contacts?.[0];
+            const fullname = typeof contact?.fullname === "string" ? contact.fullname.trim() : "";
+            return fullname || null;
+        } catch {
+            return null;
+        }
     }
 
     async getUser(token: string): Promise<MoodleUserDto> {
