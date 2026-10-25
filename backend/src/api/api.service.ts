@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { createClerkClient } from '@clerk/backend';
 import { MOCK_CALENDAR_EVENTS } from './mock/calendar.js';
-import { MOCK_COLLEGE_EVENTS } from './mock/events.js';
 import { HOME_EVENTS } from './mock/home.js';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -73,12 +73,60 @@ export class ApiService {
     ),
   ) as ScheduleResponse;
 
-  getCalendar() {
-    return MOCK_CALENDAR_EVENTS;
+  /** College events created in the management page, mapped to the events list shape. */
+  async getEvents() {
+    const rows = await this.prismaService.event.findMany({ orderBy: { startTime: 'asc' } });
+    const now = Date.now();
+    // Show the author's name instead of the Clerk id; fall back to "Адміністрація".
+    const ownerNames = await this.resolveOwnerNames([...new Set(rows.map((event) => event.owner))]);
+    return rows.map((event) => {
+      const start = new Date(event.startTime);
+      return {
+        id: event.id,
+        title: event.eventName,
+        date: start.toISOString().slice(0, 10),
+        time: start.toISOString().slice(11, 16),
+        status: start.getTime() < now ? 'Завершено' : 'Заплановано',
+        location: event.place ?? '',
+        description: event.description ?? '',
+        organizer: ownerNames.get(event.owner) ?? 'Адміністрація',
+        site: '',
+        createdAt: event.startTime.toISOString(),
+      } as const;
+    });
   }
 
-  getEvents() {
-    return MOCK_COLLEGE_EVENTS;
+  /** Clerk display names for event authors; failures fall back to the neutral label. */
+  private async resolveOwnerNames(userIds: string[]) {
+    const names = new Map<string, string>();
+    const secretKey = process.env.CLERK_SECRET_KEY;
+    if (userIds.length === 0 || !secretKey) return names;
+    try {
+      const clerk = createClerkClient({ secretKey });
+      const page = await clerk.users.getUserList({ userId: userIds, limit: userIds.length });
+      for (const user of page.data) {
+        const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ');
+        if (fullName) names.set(user.id, fullName);
+      }
+    } catch {
+      // Names are informational; the events still render without them.
+    }
+    return names;
+  }
+
+  /** Calendar entries: the mock deadlines plus every stored college event as an EVENT. */
+  async getCalendar() {
+    const events = await this.getEvents();
+    const storedEvents = events.map((event) => ({
+      id: `event-${event.id}`,
+      title: event.title,
+      date: event.date,
+      type: 'EVENT' as const,
+      time: event.time,
+      description: event.description,
+    }));
+    const deadlines = MOCK_CALENDAR_EVENTS.filter((event) => event.type === 'DEADLINE');
+    return [...deadlines, ...storedEvents];
   }
 
   async getCourses(userId: string) {

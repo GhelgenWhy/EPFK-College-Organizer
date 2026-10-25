@@ -1,3 +1,4 @@
+import { useUser } from '@clerk/react';
 import { useNavigate, useOutlet } from 'react-router';
 import { AppLayout } from './features/layout/components/AppLayout';
 import { HomePage } from './pages/HomePage';
@@ -6,7 +7,14 @@ import type { CalendarFilterType } from './features/calendar/types';
 
 export function RootLayout() {
   const outlet = useOutlet();
-  return <AppLayout>{outlet}</AppLayout>;
+  const { user } = useUser();
+  // Header shows the real Clerk name and avatar instead of the placeholder.
+  const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ');
+  return (
+    <AppLayout userName={fullName || user?.primaryEmailAddress?.emailAddress || undefined} userAvatar={user?.imageUrl}>
+      {outlet}
+    </AppLayout>
+  );
 }
 
 export function HomeRoute() {

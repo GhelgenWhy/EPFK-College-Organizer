@@ -18,18 +18,30 @@ import type { ApiRequestOptions } from '../../../services/api/client';
 function useResource<T>(load: (options: ApiRequestOptions) => Promise<T>) {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const [attempt, setAttempt] = useState(0);
-  const [state, setState] = useState<{ data: T | null; error: Error | null; attempt: number } | null>(null);
+  // Result is tagged with the loader it came from: a new loader (for example another
+  // selected group) must not show the previous group's data while the request runs.
+  const [state, setState] = useState<{
+    data: T | null;
+    error: Error | null;
+    attempt: number;
+    load: typeof load;
+  } | null>(null);
 
   useEffect(() => {
     if (!isLoaded || !isSignedIn) return;
     const controller = new AbortController();
     load({ getToken, signal: controller.signal }).then(
       (data) => {
-        if (!controller.signal.aborted) setState({ data, error: null, attempt });
+        if (!controller.signal.aborted) setState({ data, error: null, attempt, load });
       },
       (reason: unknown) => {
         if (!controller.signal.aborted) {
-          setState({ data: null, error: reason instanceof Error ? reason : new Error('Request failed'), attempt });
+          setState({
+            data: null,
+            error: reason instanceof Error ? reason : new Error('Request failed'),
+            attempt,
+            load,
+          });
         }
       },
     );
@@ -37,7 +49,7 @@ function useResource<T>(load: (options: ApiRequestOptions) => Promise<T>) {
   }, [getToken, isLoaded, isSignedIn, attempt, load]);
 
   const refresh = useCallback(() => setAttempt((value) => value + 1), []);
-  const current = state?.attempt === attempt ? state : null;
+  const current = state && state.attempt === attempt && state.load === load ? state : null;
   return {
     data: current?.data ?? null,
     error: current?.error ?? null,
@@ -109,16 +121,19 @@ export function useManagementData({ role, ownGroupId }: ManagementDataOptions) {
   );
   const events = useResource(eventsLoad);
 
+  const { refresh: refreshGroups } = groups;
   const { refresh: refreshSchedule } = schedule;
   const { refresh: refreshTasks } = tasks;
   const { refresh: refreshStudents } = students;
   const { refresh: refreshEvents } = events;
+  // Every mutation calls this, so groups, students and schedules update without a page reload.
   const refreshAll = useCallback(() => {
+    refreshGroups();
     refreshSchedule();
     refreshTasks();
     refreshStudents();
     if (isAdmin) refreshEvents();
-  }, [refreshSchedule, refreshTasks, refreshStudents, refreshEvents, isAdmin]);
+  }, [refreshGroups, refreshSchedule, refreshTasks, refreshStudents, refreshEvents, isAdmin]);
 
   const effectiveGroupId = useMemo(
     () => selectedGroupId ?? (isAdmin ? null : ownGroupId),

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { manageApi } from '../../../services/api/management';
 import type { GroupInfo, StudentInfo } from '../../../services/api/management';
 import { Banner } from './ManageUi';
-import { dangerButtonClass, fieldClass, primaryButtonClass } from './styles';
+import { fieldClass, primaryButtonClass } from './styles';
 import { useBanner } from '../hooks/useBanner';
 import { studentDisplayName } from '../utils/studentName';
 import { useManageAction } from '../hooks/useManageAction';
@@ -117,6 +117,18 @@ export function StudentsManager({ isAdmin, groups, students, isLoading, onChange
       <section className="overflow-auto rounded-[18px] border border-border bg-surface">
         <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
           <span className="text-sm font-semibold text-primary">Студенти</span>
+          <button
+            type="button"
+            onClick={onChanged}
+            aria-label="Оновити список"
+            title="Оновити список"
+            className="ml-auto cursor-pointer rounded-full border-0 bg-transparent p-1.5 text-secondary transition-colors hover:bg-[var(--surface-hover)] hover:text-primary"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+              <path d="M21 3v6h-6" />
+            </svg>
+          </button>
           {filter !== 'ALL' && (
             <button type="button" className="text-xs text-accent underline" onClick={() => setFilter('ALL')}>
               Показати всіх
@@ -175,12 +187,6 @@ export function StudentsManager({ isAdmin, groups, students, isLoading, onChange
           </tbody>
         </table>
       </section>
-
-      {isAdmin && (
-        <button type="button" className={dangerButtonClass} onClick={onChanged}>
-          Оновити список
-        </button>
-      )}
     </div>
   );
 }

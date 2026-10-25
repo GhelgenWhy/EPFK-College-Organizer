@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useUser, useAuth } from "@clerk/react";
 import { moodleApi } from "../services/api/moodle";
+import { manageApi } from "../services/api/management";
+import { useApiQuery } from "../services/api/useApiQuery";
+import { useCurrentProfile } from "../features/auth/useCurrentProfile";
 import { ProfileHeader } from "../features/profile/components/ProfileHeader.tsx";
 import { PersonalDataCard } from "../features/profile/components/PersonalDataCard";
 import { EducationalInfoCard } from "../features/profile/components/EducationalInfoCard";
@@ -10,9 +13,6 @@ import { Toast } from "../features/profile/components/Toast";
 import { resolveAppRole, ROLE_LABELS } from "../features/auth/roles";
 import type { ProfileForm } from "../features/profile/types";
 import { useTheme } from "../features/theme/useTheme";
-
-const readMetadataString = (value: unknown, fallback = "") =>
-  typeof value === "string" ? value : fallback;
 
 const getErrorMessage = (error: unknown) =>
   error instanceof Error
@@ -37,10 +37,15 @@ type ClerkUser = NonNullable<ReturnType<typeof useUser>["user"]>;
 const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
   const { setTheme } = useTheme();
   const { getToken } = useAuth();
+  // The group is the server value (admin-assigned), not a Clerk metadata string.
+  const profileQuery = useCurrentProfile();
+  const groupOptionsQuery = useApiQuery(manageApi.getGroupOptions);
+  const serverGroupId = profileQuery.profile?.groupId ?? null;
+  const serverGroupName = profileQuery.profile?.groupName ?? null;
   const [form, setForm] = useState<ProfileForm>(() => ({
     firstName: user.firstName ?? "",
     lastName: user.lastName ?? "",
-    group: readMetadataString(user.unsafeMetadata.group),
+    group: "",
     // Moodle credentials are never stored in Clerk metadata; the token lives on the backend.
     moodleLogin: "",
     moodlePassword: "",
@@ -82,11 +87,9 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
       "Особисті дані успішно оновлено.",
     );
 
-  const saveEducation = (data: {
-    group: string;
-    moodleLogin: string;
-    moodlePassword: string;
-  }) =>
+  // Moodle sync only: the group is not edited here (admin assigns it, the user may pick
+  // from existing groups through chooseGroup).
+  const saveEducation = (data: { moodleLogin: string; moodlePassword: string }) =>
     save(async () => {
       const controller = new AbortController();
       // The backend exchanges the credentials for a Moodle token and stores only that token.
@@ -100,19 +103,19 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
           signal: controller.signal,
         },
       );
-      // Only the non-secret group name is kept in Clerk metadata.
-      await user.updateMetadata({
-        unsafeMetadata: {
-          group: data.group.trim(),
-        },
-      });
       setForm((current) => ({
         ...current,
-        group: data.group.trim(),
         moodleLogin: "",
         moodlePassword: "",
       }));
-    }, "Навчальну інформацію та дані Moodle збережено.");
+    }, "Дані Moodle збережено.");
+
+  const chooseGroup = (groupId: number) =>
+    save(async () => {
+      const controller = new AbortController();
+      await manageApi.chooseOwnGroup(groupId, { getToken, signal: controller.signal });
+      await profileQuery.retry();
+    }, "Групу обрано.");
 
   const changeAvatar = (file: File) =>
     save(() => user.setProfileImage({ file }), "Фото профілю успішно змінено.");
@@ -163,7 +166,7 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
         firstName={user.firstName ?? ""}
         lastName={user.lastName ?? ""}
         email={user.primaryEmailAddress?.emailAddress ?? "Немає основної пошти"}
-        group={form.group || "Групу не вказано"}
+        group={serverGroupName ?? "Групу не вказано"}
         role={roleLabel}
         avatarUrl={user.imageUrl}
         onAvatarChange={changeAvatar}
@@ -205,11 +208,14 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
           email={user.primaryEmailAddress?.emailAddress ?? ""}
         />
         <EducationalInfoCard
-          key={form.group}
-          group={form.group}
+          key={serverGroupId ?? "none"}
+          groupId={serverGroupId}
+          groupName={serverGroupName}
+          groupOptions={groupOptionsQuery.data ?? []}
           role={roleLabel}
           moodleLogin={form.moodleLogin}
           moodlePassword={form.moodlePassword}
+          onChooseGroup={chooseGroup}
           onSave={saveEducation}
           saving={busy}
         />

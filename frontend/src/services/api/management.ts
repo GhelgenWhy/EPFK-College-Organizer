@@ -171,6 +171,20 @@ export const manageApi = {
   getMe: (options: ApiRequestOptions) =>
     requestJson('/manage/me', options, (value) => validated<CurrentUserProfile>(value, meCheck, 'me')),
 
+  /** Existing groups the user may pick from (no creation). */
+  getGroupOptions: (options: ApiRequestOptions) =>
+    requestJson('/manage/group-options', options, (value) =>
+      validated<Array<{ id: number; groupName: string }>>(
+        value,
+        array(object({ id: number, groupName: string })),
+        'group options',
+      )),
+
+  /** The user selects one of the existing groups for themselves. */
+  chooseOwnGroup: async (groupId: number, options: ApiRequestOptions) => {
+    await send('/manage/me/group', 'PUT', { groupId }, options);
+  },
+
   // groups
   getGroups: (options: ApiRequestOptions) =>
     requestJson('/manage/admin/groups', options, (value) =>

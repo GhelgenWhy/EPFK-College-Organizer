@@ -405,6 +405,29 @@ export class ManagementService {
 
   // ------------------------------------------------------------------- me
 
+  /** Groups a student may choose from: names only, created by admins. */
+  async listGroupOptions() {
+    return this.prisma.group.findMany({
+      orderBy: { groupName: 'asc' },
+      select: { id: true, groupName: true },
+    });
+  }
+
+  /**
+   * Lets a user pick their own group, but only one that already exists.
+   * Students cannot create groups; the admin assigns anything else.
+   */
+  async chooseOwnGroup(user: AuthenticatedUser, groupId: number) {
+    const group = await this.prisma.group.findUnique({ where: { id: groupId } });
+    if (!group) throw new NotFoundException('Групу не знайдено');
+    await this.prisma.user.upsert({
+      where: { id: user.userId },
+      create: { id: user.userId, groupId },
+      update: { groupId },
+    });
+    return { groupId: group.id, groupName: group.groupName };
+  }
+
   async getMe(user: AuthenticatedUser) {
     const dbUser = await this.prisma.user.findUnique({
       where: { id: user.userId },

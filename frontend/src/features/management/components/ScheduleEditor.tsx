@@ -48,15 +48,14 @@ export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }:
   const { banner, show } = useBanner();
 
   const data = schedule.schedule;
-  const [saturdayOpen, setSaturdayOpen] = useState(false);
+  // Managers always see Monday to Saturday as columns, like any other day, so a Saturday
+  // lesson can be added without extra clicks. Students see Saturday only when it has lessons.
   const storedDays = data[weekType];
-  // Mon–Fri always; Saturday when it has lessons or the manager opened it for editing.
   const hasSaturday = storedDays.some((day) => day.weekday === 6);
-  const showSaturday = saturdayOpen || hasSaturday;
-  const days = storedDays.some((day) => day.weekday === 6) || !showSaturday
+  const days = hasSaturday
     ? storedDays
     : [...storedDays, { weekday: 6, name: 'Субота', lessons: [null, null, null, null, null, null] }];
-  const visibleDays = days.filter((day) => day.weekday <= 5 || showSaturday);
+  const visibleDays = days.filter((day) => day.weekday <= 6);
 
   function openEditor(weekday: number, slot: number, current: LessonSlot | null) {
     if (!canEdit) return;
@@ -132,11 +131,6 @@ export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }:
           ))}
         </div>
         <div className="flex items-center gap-3">
-          {canEdit && !showSaturday && (
-            <button type="button" className={secondaryButtonClass} onClick={() => setSaturdayOpen(true)}>
-              + Субота
-            </button>
-          )}
           <p className="text-xs text-muted">
             {canEdit ? 'Натисніть на клітинку, щоб додати або змінити пару' : 'Лише перегляд'}
           </p>

@@ -45,6 +45,22 @@ export class ManagementController {
     return this.management.getMe(user);
   }
 
+  /** Existing groups a user may choose from (read-only, any role). */
+  @Get('group-options')
+  listGroupOptions() {
+    return this.management.listGroupOptions();
+  }
+
+  /** The user picks their own group from the existing ones; creating groups is admin-only. */
+  @Put('me/group')
+  chooseOwnGroup(@CurrentUser() user: AuthenticatedUser, @Body() body: unknown) {
+    const groupId = (body as { groupId?: unknown } | null)?.groupId;
+    if (typeof groupId !== 'number' || !Number.isInteger(groupId)) {
+      throw new BadRequestException('Некоректна група');
+    }
+    return this.management.chooseOwnGroup(user, groupId);
+  }
+
   // ----------------------------------------------------------------- groups
 
   @Get('admin/groups')

@@ -1,15 +1,22 @@
 import { useState } from "react";
 
+export interface GroupOption {
+  id: number;
+  groupName: string;
+}
+
 interface EducationalInfoCardProps {
-  group: string;
+  /** Current server-side group id (null when the admin has not assigned one). */
+  groupId: number | null;
+  /** Current group name for display; the admin assigns it, so it is read-only text here. */
+  groupName: string | null;
+  /** Existing groups the user may pick from. The user cannot create groups. */
+  groupOptions: GroupOption[];
   role: string;
   moodleLogin: string;
   moodlePassword: string;
-  onSave: (data: {
-    group: string;
-    moodleLogin: string;
-    moodlePassword: string;
-  }) => void;
+  onChooseGroup: (groupId: number) => void;
+  onSave: (data: { moodleLogin: string; moodlePassword: string }) => void;
   saving: boolean;
 }
 
@@ -17,22 +24,24 @@ const inputClassName =
   "w-full h-10 px-3 bg-[var(--input-background)] border border-[var(--border)] rounded-[10px] text-sm text-primary focus-visible:outline-3 focus-visible:outline-[var(--focus)] focus-visible:outline-offset-[3px]";
 
 export const EducationalInfoCard = ({
-  group: initialGroup,
+  groupId,
+  groupName,
+  groupOptions,
   role,
   moodleLogin: initialMoodleLogin,
   moodlePassword: initialMoodlePassword,
+  onChooseGroup,
   onSave,
   saving,
 }: EducationalInfoCardProps) => {
-  // Parent re-mounts this card (via key) when the stored group changes, so no effect is needed.
-  const [group, setGroup] = useState(initialGroup);
+  // Parent re-mounts this card (via key) when the stored Moodle data changes, so no effect is needed.
   const [moodleLogin, setMoodleLogin] = useState(initialMoodleLogin);
   const [moodlePassword, setMoodlePassword] = useState(initialMoodlePassword);
 
   // The parent performs the Moodle sync (token is exchanged on the backend);
   // this card only collects the values and never calls Moodle or stores the password.
   const handleSaveClick = () => {
-    onSave({ group, moodleLogin, moodlePassword });
+    onSave({ moodleLogin, moodlePassword });
   };
 
   const isBusy = saving;
@@ -56,12 +65,27 @@ export const EducationalInfoCard = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <label className="flex flex-col gap-1 text-xs text-secondary">
                 Навчальна група
-                <input
-                  type="text"
-                  value={group}
-                  onChange={(e) => setGroup(e.target.value)}
+                <select
+                  value={groupId ?? ""}
+                  onChange={(e) => {
+                    if (e.target.value) onChooseGroup(Number(e.target.value));
+                  }}
+                  disabled={isBusy || groupOptions.length === 0}
                   className={inputClassName}
-                />
+                >
+                  {groupId === null && <option value="">Групу не обрано</option>}
+                  {groupOptions.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.groupName}
+                    </option>
+                  ))}
+                </select>
+                {groupId !== null && groupName && (
+                  <span className="text-[11px] text-(--text-muted)">Обрано: {groupName}</span>
+                )}
+                {groupOptions.length === 0 && (
+                  <span className="text-[11px] text-(--text-muted)">Групи ще не створено адміністратором</span>
+                )}
               </label>
               <label className="flex flex-col gap-1 text-xs text-secondary">
                 Роль
