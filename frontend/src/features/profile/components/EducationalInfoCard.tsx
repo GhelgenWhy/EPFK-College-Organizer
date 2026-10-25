@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface EducationalInfoCardProps {
   group: string;
@@ -24,47 +24,18 @@ export const EducationalInfoCard = ({
   onSave,
   saving,
 }: EducationalInfoCardProps) => {
+  // Parent re-mounts this card (via key) when the stored group changes, so no effect is needed.
   const [group, setGroup] = useState(initialGroup);
   const [moodleLogin, setMoodleLogin] = useState(initialMoodleLogin);
   const [moodlePassword, setMoodlePassword] = useState(initialMoodlePassword);
-  const [localSaving, setLocalSaving] = useState(false);
 
-  useEffect(() => {
-    setGroup(initialGroup);
-    setMoodleLogin(initialMoodleLogin);
-    setMoodlePassword(initialMoodlePassword);
-  }, [initialGroup, initialMoodleLogin, initialMoodlePassword]);
-
-  const handleSaveClick = async () => {
-    setLocalSaving(true);
-    try {
-      const response = await fetch("/api/getToken", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          moodle_name: moodleLogin,
-          moodle_password: moodlePassword,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Помилка при запиті на /api/getToken");
-      }
-
-      const result = await response.json();
-      console.log("Токен успішно отримано:", result);
-
-      onSave({ group, moodleLogin, moodlePassword });
-    } catch (error) {
-      console.error("Сталася помилка:", error);
-    } finally {
-      setLocalSaving(false);
-    }
+  // The parent performs the Moodle sync (token is exchanged on the backend);
+  // this card only collects the values and never calls Moodle or stores the password.
+  const handleSaveClick = () => {
+    onSave({ group, moodleLogin, moodlePassword });
   };
 
-  const isBusy = saving || localSaving;
+  const isBusy = saving;
 
   return (
     <section className="bg-surface rounded-[20px] p-6 shadow-sm flex flex-col justify-between h-full flex-1">

@@ -1,4 +1,4 @@
-﻿import { Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { MoodleUserDto } from "./dto/moodle-user.dto.js";
 import { MoodleCourseDto } from "./dto/moodle-course.dto.js";
 import { MoodleAssignmentDto } from "./dto/moodle-assignment.dto.js";
@@ -17,6 +17,8 @@ interface MoodleAssignment {
     timemodified: number;
     cmid: number;
 }
+
+export class MoodleAuthError extends Error {}
 
 @Injectable()
 export class MoodleService {
@@ -40,7 +42,13 @@ export class MoodleService {
             },
         );
 
-        return response.data.token;
+        // Moodle answers 200 with { error, errorcode } for wrong credentials; never return undefined.
+        const token = response.data?.token;
+        if (typeof token !== "string" || token === "") {
+            const reason = response.data?.error ?? "неизвестная ошибка";
+            throw new MoodleAuthError(`Moodle не выдал токен: ${reason}`);
+        }
+        return token;
     }
 
     async getCourseAssignments(

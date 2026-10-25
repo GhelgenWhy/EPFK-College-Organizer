@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { MOCK_CALENDAR_EVENTS } from './mock/calendar.js';
 import { MOCK_COLLEGE_EVENTS } from './mock/events.js';
 import { HOME_EVENTS } from './mock/home.js';
@@ -7,7 +7,8 @@ import { fileURLToPath } from 'node:url';
 import type { ScheduleResponse } from './types/schedule.ts';
 import type { HomeDeadline } from './types/home.ts';
 import type { HomeworkTask } from './types/tasks.ts';
-import { MoodleService } from '../moodle/moodle.service.js';
+import { MoodleAuthError, MoodleService } from '../moodle/moodle.service.js';
+import { ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 function getAcademicWeekType(targetDate: Date = new Date()): "numerator" | "denominator" {
@@ -309,8 +310,16 @@ export class ApiService {
     };
   }
   async syncData(username: string, password: string, userId: string) {
-    const token = await this.moodleService.getToken(username, password);
-    if (token != null) {
+    let token: string;
+    try {
+      token = await this.moodleService.getToken(username, password);
+    } catch (error) {
+      if (error instanceof MoodleAuthError) {
+        throw new UnauthorizedException('Невірний логін або пароль Moodle');
+      }
+      throw new ServiceUnavailableException('Moodle тимчасово недоступний');
+    }
+    {
       const moodleUser = await this.moodleService.getUser(token);
       const group = await this.prismaService.group.upsert({
         where: {
@@ -394,9 +403,6 @@ export class ApiService {
           });
         })); 
       }));
-
-    } else {
-      throw new BadRequestException('account not found');
     }
   }
 }

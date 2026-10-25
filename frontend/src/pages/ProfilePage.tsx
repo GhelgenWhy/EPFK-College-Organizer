@@ -41,8 +41,9 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
     firstName: user.firstName ?? "",
     lastName: user.lastName ?? "",
     group: readMetadataString(user.unsafeMetadata.group),
-    moodleLogin: readMetadataString(user.unsafeMetadata.moodleLogin),
-    moodlePassword: readMetadataString(user.unsafeMetadata.moodlePassword),
+    // Moodle credentials are never stored in Clerk metadata; the token lives on the backend.
+    moodleLogin: "",
+    moodlePassword: "",
     language:
       user.unsafeMetadata.language === "English" ? "English" : "Українська",
     theme: user.unsafeMetadata.theme === "Темна" ? "Темна" : "Світла",
@@ -88,6 +89,7 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
   }) =>
     save(async () => {
       const controller = new AbortController();
+      // The backend exchanges the credentials for a Moodle token and stores only that token.
       await moodleApi.postCredentials(
         {
           username: data.moodleLogin.trim(),
@@ -98,18 +100,17 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
           signal: controller.signal,
         },
       );
+      // Only the non-secret group name is kept in Clerk metadata.
       await user.updateMetadata({
         unsafeMetadata: {
           group: data.group.trim(),
-          moodleLogin: data.moodleLogin.trim(),
-          moodlePassword: data.moodlePassword.trim(),
         },
       });
       setForm((current) => ({
         ...current,
         group: data.group.trim(),
-        moodleLogin: data.moodleLogin.trim(),
-        moodlePassword: data.moodlePassword.trim(),
+        moodleLogin: "",
+        moodlePassword: "",
       }));
     }, "Навчальну інформацію та дані Moodle збережено.");
 
@@ -204,6 +205,7 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
           email={user.primaryEmailAddress?.emailAddress ?? ""}
         />
         <EducationalInfoCard
+          key={form.group}
           group={form.group}
           role={roleLabel}
           moodleLogin={form.moodleLogin}
