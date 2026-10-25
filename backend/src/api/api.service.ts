@@ -1,4 +1,4 @@
-﻿import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { MOCK_CALENDAR_EVENTS } from './mock/calendar.js';
 import { MOCK_COLLEGE_EVENTS } from './mock/events.js';
 import { HOME_EVENTS } from './mock/home.js';
@@ -249,11 +249,11 @@ export class ApiService {
     const today = new Date();
     const mondayBasedIndex = (today.getDay() + 6) % 7;
 
-    let homeLessons: Lesson[] | null[] = [null,null,null,null,null,null];
+    // Weekends and users without a group/schedule get an empty list, never null.
+    let homeLessons: Lesson[] = [];
 
     if (mondayBasedIndex < 5) {
-
-      const scheduleDB =  await this.prismaService.schedule.findFirst({
+      const scheduleDB = await this.prismaService.schedule.findFirst({
         where: {
           group: {
             users: {
@@ -266,10 +266,10 @@ export class ApiService {
       });
 
       const weekType = getAcademicWeekType();
+      const schedule = scheduleDB?.schedule as unknown as Schedule | null | undefined;
+      const lessons = schedule?.[weekType]?.[mondayBasedIndex]?.lessons ?? [];
 
-      const schedule = scheduleDB?.schedule as unknown as Schedule;
-
-      homeLessons = schedule[weekType][mondayBasedIndex].lessons;
+      homeLessons = lessons.filter((lesson): lesson is Lesson => lesson !== null);
     }
     // -------------------------------------------------- HOME_LESSONS
 

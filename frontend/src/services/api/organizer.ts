@@ -30,17 +30,22 @@ const collegeEvent = object({
 });
 interface HomeResponse {
   HOME_DEMO_DATE: string;
-  HOME_DEADLINES: HomeData['deadlines'];
-  HOME_EVENTS: HomeData['events'];
-  HOME_LESSONS: HomeData['lessons'];
-  HOME_TASKS: HomeData['tasks'];
+  HOME_DEADLINES: HomeData['deadlines'] | null;
+  HOME_EVENTS: HomeData['events'] | null;
+  HOME_LESSONS: HomeData['lessons'] | null;
+  HOME_TASKS: HomeData['tasks'] | null;
 }
+const nullableArray = (check: (value: unknown) => boolean) =>
+  (value: unknown): boolean => value === null || value === undefined || array(check)(value);
+
+// Backend may send null for missing lists or fields (weekends, no group, no deadline).
+// Nullable lists are normalised to [] in getHome; nullable fields are rendered as text fallbacks.
 const home = object({
   HOME_DEMO_DATE: dateString,
-  HOME_DEADLINES: array(object({ id: string, date: dateKey, label: string, title: string, course: string, urgent: optional(boolean) })),
-  HOME_EVENTS: array(object({ id: string, date: dateKey, monthLabel: string, title: string, details: string })),
-  HOME_LESSONS: array(object({ id: string, startsAt: string, endsAt: string, title: string, teacher: string, location: string, meetingUrl: optional(string) })),
-  HOME_TASKS: array(object({ id: string, title: string, course: string, dueDate: dateKey })),
+  HOME_DEADLINES: nullableArray(object({ id: string, date: dateKey, label: string, title: string, course: string, urgent: optional(boolean) })),
+  HOME_EVENTS: nullableArray(object({ id: string, date: dateKey, monthLabel: string, title: string, details: string })),
+  HOME_LESSONS: nullableArray(object({ id: string, startsAt: string, endsAt: string, title: string, teacher: string, location: string, meetingUrl: optional(nullable(string)) })),
+  HOME_TASKS: nullableArray(object({ id: string, title: string, course: string, dueDate: dateKey })),
 });
 
 export const organizerApi = {
@@ -53,8 +58,11 @@ export const organizerApi = {
   getHome: (options: ApiRequestOptions) => requestJson('/api/home', options, (value): HomeData => {
     const data = validated<HomeResponse>(value, home, 'home');
     return {
-      date: new Date(data.HOME_DEMO_DATE), deadlines: data.HOME_DEADLINES,
-      events: data.HOME_EVENTS, lessons: data.HOME_LESSONS, tasks: data.HOME_TASKS,
+      date: new Date(data.HOME_DEMO_DATE),
+      deadlines: data.HOME_DEADLINES ?? [],
+      events: data.HOME_EVENTS ?? [],
+      lessons: data.HOME_LESSONS ?? [],
+      tasks: data.HOME_TASKS ?? [],
     };
   }),
 };
