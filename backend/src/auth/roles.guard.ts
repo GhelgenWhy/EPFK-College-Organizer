@@ -7,11 +7,16 @@ import {
 import { Reflector } from "@nestjs/core";
 import type { Request } from "express";
 import { createClerkClient } from "@clerk/backend";
-import { IS_PUBLIC_KEY, ROLES_KEY, type AppRole } from "./auth.types.js";
-import type { AuthenticatedUser } from "./auth.types.js";
+import {
+  IS_PUBLIC_KEY,
+  ROLES_KEY,
+  resolveAppRole,
+  type AppRole,
+  type AuthenticatedUser,
+} from "./auth.types.js";
 
 interface AuthenticatedRequest extends Request {
-  authUser?: AuthenticatedUser & { role?: string };
+  authUser?: Pick<AuthenticatedUser, "userId"> & { role?: AppRole };
 }
 
 @Injectable()
@@ -41,22 +46,20 @@ export class RolesGuard implements CanActivate {
     }
 
     if (!request.authUser.role) {
+      // The session token usually carries the role; fall back to the Clerk API
+      // when the session claim was not customised yet.
       try {
         const user = await this.clerk.users.getUser(request.authUser.userId);
         const publicMetadata = user.publicMetadata as { role?: string };
-        request.authUser.role =
-          publicMetadata?.role === "admin" ? "admin" : "user";
+        request.authUser.role = resolveAppRole(publicMetadata?.role);
       } catch {
-        request.authUser.role = "user";
+        request.authUser.role = "student";
       }
     }
 
     if (!roles || roles.length === 0) return true;
 
-    if (
-      roles.includes("admin" as AppRole) &&
-      request.authUser.role !== "admin"
-    ) {
+    if (!roles.includes(request.authUser.role)) {
       throw new ForbiddenException("Your role cannot access this resource");
     }
 

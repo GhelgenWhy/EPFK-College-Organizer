@@ -1,5 +1,7 @@
 import React from "react";
 import type { CollegeEvent, EventStatus } from "../types";
+import { formatEuropeanDate } from "../../../lib/dates";
+import { textOr } from "../../../lib/nullSafe";
 
 interface EventListProps {
   events: CollegeEvent[];
@@ -78,7 +80,7 @@ export const EventList: React.FC<EventListProps> = ({ events }) => {
                   />
                 </svg>
                 <span>
-                  {event.date} · {event.time}
+                  {formatEuropeanDate(event.date)} · {event.time}
                 </span>
               </div>
               <div className="flex items-center gap-2 truncate">
@@ -109,17 +111,25 @@ export const EventList: React.FC<EventListProps> = ({ events }) => {
 
             {/* Опис */}
             <p className="text-xs text-gray-600 truncate">
-              {event.description}
+              {textOr(event.description, '')}
             </p>
 
-            {/* Нижня мета-інформація */}
-            <div className="flex items-center gap-2 text-xs text-gray-400 pt-2 border-t border-gray-100 truncate">
-              <span>Організатор: {event.organizer}</span>
-              <span>·</span>
-              <span>{event.site}</span>
-              <span>·</span>
-              <span>Додано {event.createdAt}</span>
-            </div>
+            {/* Нижня мета-інформація: організатор і деталі — лише якщо задані */}
+            {(event.organizer || event.detailsUrl) && (
+              <div className="flex items-center justify-between gap-2 text-xs text-gray-400 pt-2 border-t border-gray-100">
+                <span className="truncate">{event.organizer ? `Організатор: ${event.organizer}` : ''}</span>
+                {event.detailsUrl && (
+                  <a
+                    href={event.detailsUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="shrink-0 font-semibold text-link no-underline hover:underline"
+                  >
+                    Детальніше →
+                  </a>
+                )}
+              </div>
+            )}
           </div>
         );
       })}

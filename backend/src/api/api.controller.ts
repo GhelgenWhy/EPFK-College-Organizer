@@ -1,31 +1,50 @@
-import { Controller, Get, Req, Param } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
 import { ApiService } from './api.service.js';
-import type { Request } from 'express';
+import type { AuthenticatedUser } from '../auth/auth.types.js';
+import { CurrentUser } from '../auth/current-user.decorator.js';
 
 @Controller('api')
 export class ApiController {
   constructor(private readonly apiService: ApiService) {}
 
   @Get('calendar')
-  getCalendar(@Req() request: Request) {
-    const token = request.cookies['moodle_token'];
-    return this.apiService.getCalendar();
+  getCalendar(@CurrentUser() user: AuthenticatedUser) {
+    return this.apiService.getCalendar(user.userId);
   }
 
   @Get('events')
-  getEvents(@Req() request: Request) {
-    const token = request.cookies['moodle_token'];
+  getEvents() {
     return this.apiService.getEvents();
   }
 
-  @Get('home')
-  getHome(@Req() request: Request) {
-    const token = request.cookies['moodle_token'];
-    return this.apiService.getHome();
+  @Get('courses')
+  getCourses(@CurrentUser() user: AuthenticatedUser) {
+    return this.apiService.getCourses(user.userId);
   }
+
+  @Get('assignments/:courseId')
+  getAssignments(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('courseId', ParseIntPipe) courseId: number,
+  ) {
+    return this.apiService.getCourseAssignments(user.userId, courseId);
+  }
+
+  @Get('home')
+  getHome(@CurrentUser() user: AuthenticatedUser) {
+    return this.apiService.getHome(user.userId);
+  }
+
   @Get('schedule')
-  getSchedule(@Req() request: Request) {
-    const token = request.cookies['moodle_token'];
-    return this.apiService.getSchedule();
+  getSchedule(@CurrentUser() user: AuthenticatedUser) {
+    return this.apiService.getSchedule(user);
+  }
+
+  @Post('syncronise')
+  syncData(
+    @Body() body: { username: string; password: string },
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.apiService.syncData(body.username, body.password, user.userId);
   }
 }

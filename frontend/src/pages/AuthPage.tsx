@@ -29,6 +29,10 @@ const authAppearance = {
     colorInputText: 'var(--text-primary)',
     colorInputBackground: 'var(--surface)',
     colorInputBorder: 'var(--border)',
+    // Clerk falls back to these when an element has no explicit background.
+    // Mapping them to theme surfaces keeps form buttons from turning transparent.
+    colorBackground: 'var(--surface)',
+    colorNeutral: 'var(--text-primary)',
     borderRadius: '10px',
     fontFamily: 'Inter, sans-serif',
   },
@@ -39,5 +43,10 @@ const authAppearance = {
     formFieldInput: 'auth-provider-input', formButtonPrimary: 'auth-provider-submit',
     footerActionLink: 'auth-provider-link', identityPreviewEditButton: 'auth-provider-link',
     formFieldAction: 'auth-provider-link',
+    socialButtonsBlockButton: 'auth-provider-social-button',
+    socialButtonsBlockButtonText: 'auth-provider-social-text',
+    alternativeMethodsBlockButton: 'auth-provider-alt-button',
+    footerActionText: 'auth-provider-footer-text',
+    internal: 'auth-provider-internal',
   },
 };

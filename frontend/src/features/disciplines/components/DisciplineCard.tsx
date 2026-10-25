@@ -1,4 +1,5 @@
 import type { Discipline } from "../types";
+import { textOr } from "../../../lib/nullSafe";
 
 export function DisciplineCard({ discipline }: { discipline: Discipline }) {
   return (
@@ -7,7 +8,7 @@ export function DisciplineCard({ discipline }: { discipline: Discipline }) {
         {discipline.name}
       </h2>
       <p className="mb-3 mt-3 text-sm font-medium text-link">
-        {discipline.teacherName}
+        {textOr(discipline.teacherName, 'Викладача не вказано')}
       </p>
       {discipline.moodleUrl ? (
         <a

@@ -11,8 +11,8 @@ interface HeaderProps {
 
 export const Header = ({
   lastSync = "Сьогодні 23:01",
-  userName = "Don Psone",
-  userAvatar = profileAvatar,
+  userName = "Профіль",
+  userAvatar,
   onSyncClick,
   onProfileClick,
 }: HeaderProps) => {
@@ -47,7 +47,7 @@ export const Header = ({
         {/* Аватар користувача */}
         <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[20px] bg-[var(--surface-muted)] max-[760px]:h-[34px] max-[760px]:w-[34px]">
           <img
-            src={userAvatar}
+            src={userAvatar ?? profileAvatar}
             alt={userName}
             onError={(e) => {
               e.currentTarget.style.display = "none";

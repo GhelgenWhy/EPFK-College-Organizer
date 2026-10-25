@@ -9,5 +9,7 @@ export default defineConfig({
     globals: true,
     root: './',
     include: ['**/*.spec.ts', '**/*.e2e-spec.ts'],
+    // Loads backend/.env so services such as PrismaService find DATABASE_URL.
+    setupFiles: ['./test/setup.ts'],
   },
 });

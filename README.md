@@ -28,6 +28,31 @@ backend/                   NestJS
 
 ## Запуск
 
+### Однією командою
+
+Запустіть `start-all.bat` з кореня репозиторію (подвійним кліком або з консолі):
+
+```powershell
+.\start-all.bat
+```
+
+Скрипт перевіряє Docker і Node.js, за потреби запускає Docker Desktop, створює
+`.env` з прикладів, піднімає PostgreSQL, встановлює залежності, застосовує
+Prisma-міграції та відкриває backend і frontend у окремих вікнах.
+
+Прапорці:
+
+- `/fresh` — видалити локальний том бази та створити її заново;
+- `/noinstall` — не запускати `npm ci`, навіть якщо `node_modules` відсутній.
+
+```powershell
+.\start-all.bat /fresh
+```
+
+Перед першим запуском заповніть ключі Clerk у `backend/.env` і `frontend/.env`.
+
+### Вручну
+
 PostgreSQL, Prisma та команди міграцій описані в [infrastructure/db/README.md](infrastructure/db/README.md).
 Перед запуском backend підніміть базу та застосуйте міграції за цією інструкцією.
 

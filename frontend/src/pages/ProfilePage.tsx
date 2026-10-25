@@ -1,18 +1,18 @@
 import { useState } from "react";
 import { useUser, useAuth } from "@clerk/react";
 import { moodleApi } from "../services/api/moodle";
+import { manageApi } from "../services/api/management";
+import { useApiQuery } from "../services/api/useApiQuery";
+import { useCurrentProfile } from "../features/auth/useCurrentProfile";
 import { ProfileHeader } from "../features/profile/components/ProfileHeader.tsx";
 import { PersonalDataCard } from "../features/profile/components/PersonalDataCard";
 import { EducationalInfoCard } from "../features/profile/components/EducationalInfoCard";
 import { SecurityCard } from "../features/profile/components/SecurityCard";
 import { SettingsCard } from "../features/profile/components/SettingsCard";
 import { Toast } from "../features/profile/components/Toast";
-import { resolveAppRole } from "../features/auth/roles";
+import { resolveAppRole, ROLE_LABELS } from "../features/auth/roles";
 import type { ProfileForm } from "../features/profile/types";
 import { useTheme } from "../features/theme/useTheme";
-
-const readMetadataString = (value: unknown, fallback = "") =>
-  typeof value === "string" ? value : fallback;
 
 const getErrorMessage = (error: unknown) =>
   error instanceof Error
@@ -37,12 +37,18 @@ type ClerkUser = NonNullable<ReturnType<typeof useUser>["user"]>;
 const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
   const { setTheme } = useTheme();
   const { getToken } = useAuth();
+  // The group is the server value (admin-assigned), not a Clerk metadata string.
+  const profileQuery = useCurrentProfile();
+  const groupOptionsQuery = useApiQuery(manageApi.getGroupOptions);
+  const serverGroupId = profileQuery.profile?.groupId ?? null;
+  const serverGroupName = profileQuery.profile?.groupName ?? null;
   const [form, setForm] = useState<ProfileForm>(() => ({
     firstName: user.firstName ?? "",
     lastName: user.lastName ?? "",
-    group: readMetadataString(user.unsafeMetadata.group),
-    moodleLogin: readMetadataString(user.unsafeMetadata.moodleLogin),
-    moodlePassword: readMetadataString(user.unsafeMetadata.moodlePassword),
+    group: "",
+    // Moodle credentials are never stored in Clerk metadata; the token lives on the backend.
+    moodleLogin: "",
+    moodlePassword: "",
     language:
       user.unsafeMetadata.language === "English" ? "English" : "Українська",
     theme: user.unsafeMetadata.theme === "Темна" ? "Темна" : "Світла",
@@ -52,11 +58,7 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
   const [error, setError] = useState("");
 
   const role = resolveAppRole(user.publicMetadata.role);
-  const roleLabel = {
-    user: "Користувач",
-    admin: "Адміністратор",
-    supervisor: "Куратор",
-  }[role];
+  const roleLabel = ROLE_LABELS[role];
 
   const save = async (
     action: () => Promise<unknown>,
@@ -85,13 +87,12 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
       "Особисті дані успішно оновлено.",
     );
 
-  const saveEducation = (data: {
-    group: string;
-    moodleLogin: string;
-    moodlePassword: string;
-  }) =>
+  // Moodle sync only: the group is not edited here (admin assigns it, the user may pick
+  // from existing groups through chooseGroup).
+  const saveEducation = (data: { moodleLogin: string; moodlePassword: string }) =>
     save(async () => {
       const controller = new AbortController();
+      // The backend exchanges the credentials for a Moodle token and stores only that token.
       await moodleApi.postCredentials(
         {
           username: data.moodleLogin.trim(),
@@ -102,20 +103,19 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
           signal: controller.signal,
         },
       );
-      await user.updateMetadata({
-        unsafeMetadata: {
-          group: data.group.trim(),
-          moodleLogin: data.moodleLogin.trim(),
-          moodlePassword: data.moodlePassword.trim(),
-        },
-      });
       setForm((current) => ({
         ...current,
-        group: data.group.trim(),
-        moodleLogin: data.moodleLogin.trim(),
-        moodlePassword: data.moodlePassword.trim(),
+        moodleLogin: "",
+        moodlePassword: "",
       }));
-    }, "Навчальну інформацію та дані Moodle збережено.");
+    }, "Дані Moodle збережено.");
+
+  const chooseGroup = (groupId: number) =>
+    save(async () => {
+      const controller = new AbortController();
+      await manageApi.chooseOwnGroup(groupId, { getToken, signal: controller.signal });
+      await profileQuery.retry();
+    }, "Групу обрано.");
 
   const changeAvatar = (file: File) =>
     save(() => user.setProfileImage({ file }), "Фото профілю успішно змінено.");
@@ -141,7 +141,7 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
 
   return (
     <main
-      className="relative flex min-h-0 min-w-0 flex-1 flex-col gap-6 overflow-y-auto px-7.5 py-7.5 [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin max-[760px]:px-4 max-[760px]:py-4"
+      className="relative flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-y-auto px-7 py-5 [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin max-[1100px]:overflow-y-auto max-[760px]:px-4 max-[760px]:py-4"
       aria-labelledby="profile-heading"
       tabIndex={0}
     >
@@ -166,7 +166,7 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
         firstName={user.firstName ?? ""}
         lastName={user.lastName ?? ""}
         email={user.primaryEmailAddress?.emailAddress ?? "Немає основної пошти"}
-        group={form.group || "Групу не вказано"}
+        group={serverGroupName ?? "Групу не вказано"}
         role={roleLabel}
         avatarUrl={user.imageUrl}
         onAvatarChange={changeAvatar}
@@ -208,10 +208,13 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
           email={user.primaryEmailAddress?.emailAddress ?? ""}
         />
         <EducationalInfoCard
-          group={form.group}
+          key={serverGroupId ?? "none"}
+          groupId={serverGroupId}
+          groupOptions={groupOptionsQuery.data ?? []}
           role={roleLabel}
           moodleLogin={form.moodleLogin}
           moodlePassword={form.moodlePassword}
+          onChooseGroup={chooseGroup}
           onSave={saveEducation}
           saving={busy}
         />

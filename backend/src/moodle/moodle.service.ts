@@ -15,23 +15,16 @@ interface MoodleAssignment {
     intro: string;
     duedate: number;
     timemodified: number;
+    cmid: number;
 }
 
-interface MoodleSubmissionStatus {
-    assignmentid: number;
-    lastattempt?: {
-        submissions?: Array<{
-            status: string;
-            gradingstatus?: string;
-        }>;
-    };
-}
+export class MoodleAuthError extends Error {}
 
 @Injectable()
 export class MoodleService {
     moodleUrl: string;
     constructor() {
-        this.moodleUrl = "https://epkmoodle.znu.edu.ua/";
+        this.moodleUrl = "https://epkmoodle.znu.edu.ua";
     }
 
     async getToken(username: string, password: string): Promise<string> {
@@ -49,7 +42,13 @@ export class MoodleService {
             },
         );
 
-        return response.data.token;
+        // Moodle answers 200 with { error, errorcode } for wrong credentials; never return undefined.
+        const token = response.data?.token;
+        if (typeof token !== "string" || token === "") {
+            const reason = response.data?.error ?? "неизвестная ошибка";
+            throw new MoodleAuthError(`Moodle не выдал токен: ${reason}`);
+        }
+        return token;
     }
 
     async getCourseAssignments(
@@ -107,10 +106,36 @@ export class MoodleService {
                 addedAt: assignment.timemodified
                     ? new Date(assignment.timemodified * 1000)
                     : null,
+                
+                moodleUrl: `${this.moodleUrl}/mod/assign/view.php?id=${assignment.cmid}`,
 
-                moodleUrl: `${this.moodleUrl}/mod/assign/view.php?id=${(assignment as any).cmid}`,
+                cmid: assignment.cmid
             };
         });
+    }
+
+    async isAssignmentCompleted(
+        token: string,
+        assignmentId: number
+    ): Promise<boolean> {
+        const response = await axios.post(
+            `${this.moodleUrl}/webservice/rest/server.php`,
+            new URLSearchParams({
+                wstoken: token,
+                wsfunction: 'mod_assign_get_submission_status',
+                moodlewsrestformat: 'json',
+                assignid: String(assignmentId)
+            }),
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            }
+        );
+
+        const submission = response.data.lastattempt;
+
+        return submission?.submission?.status === 'submitted';
     }
 
     async getStudentCourses(token: string): Promise<MoodleCourseDto[]> {
@@ -134,15 +159,38 @@ export class MoodleService {
 
         const courses: MoodleCourse[] = response.data.courses;
 
-        return courses.map(
-            (course): MoodleCourseDto => ({
+        // Teacher = the course contact Moodle shows on the course page (core_course_get_courses_by_field).
+        // One failing course must not break the whole sync, so its teacher just stays unknown.
+        return Promise.all(
+            courses.map(async (course): Promise<MoodleCourseDto> => ({
                 id: course.id,
                 name: course.fullname,
-                teacherName: null,
+                teacherName: await this.getCourseTeacherName(token, course.id),
                 moodleUrl:
                     "https://epkmoodle.znu.edu.ua/course/view.php?id=" + course.id,
-            }),
+            })),
         );
+    }
+
+    private async getCourseTeacherName(token: string, courseId: number): Promise<string | null> {
+        try {
+            const response = await axios.post(
+                `${this.moodleUrl}/webservice/rest/server.php`,
+                new URLSearchParams({
+                    wstoken: token,
+                    wsfunction: "core_course_get_courses_by_field",
+                    moodlewsrestformat: "json",
+                    field: "id",
+                    value: String(courseId),
+                }),
+                { headers: { "Content-Type": "application/x-www-form-urlencoded" } },
+            );
+            const contact = response.data?.courses?.[0]?.contacts?.[0];
+            const fullname = typeof contact?.fullname === "string" ? contact.fullname.trim() : "";
+            return fullname || null;
+        } catch {
+            return null;
+        }
     }
 
     async getUser(token: string): Promise<MoodleUserDto> {
@@ -190,7 +238,7 @@ export class MoodleService {
             }
         }
 
-        let mostFrequentGroup: string | null = null;
+        let mostFrequentGroup: string = "К121-23";
         let maxCount = 0;
 
         for (const [groupName, count] of groupCounts) {

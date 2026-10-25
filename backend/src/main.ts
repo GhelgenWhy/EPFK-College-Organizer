@@ -4,9 +4,18 @@ import { AppModule } from './app.module.js';
 import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    rawBody: true
+  });
   app.enableShutdownHooks();
   app.use(cookieParser());
+  // Personal, frequently changing API data: never let the browser reuse a cached body.
+  // Without this Express answers 304 Not Modified and the client keeps an old payload.
+  app.getHttpAdapter().getInstance().set('etag', false);
+  app.use((_req: unknown, res: { setHeader(name: string, value: string): void }, next: () => void) => {
+    res.setHeader('Cache-Control', 'no-store');
+    next();
+  });
   // await app.listen(process.env.PORT ?? 3000);
   const allowedOrigins = (process.env.FRONTEND_ORIGIN || 'http://localhost:5173')
     .split(',')

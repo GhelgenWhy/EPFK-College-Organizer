@@ -6,11 +6,14 @@ export interface LessonItem {
   id: string;
   disciplineName: string;
   teacherName: string;
-  room?: string | null;
+  /** Required: how the lesson is held. */
+  format: LessonFormat;
+  /** Optional classroom (used for OFFLINE and HYBRID). */
+  location?: string | null;
+  /** Optional online meeting link (used for ONLINE and HYBRID). */
+  meetingLink?: string | null;
   startsAt: string;
   endsAt: string;
-  format: LessonFormat;
-  meetingUrl?: string | null;
 }
 
 export interface ScheduleDay {
