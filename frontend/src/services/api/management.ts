@@ -69,11 +69,11 @@ export interface LessonSlot {
   id: string;
   disciplineName: string;
   teacherName: string;
-  room?: string | null;
+  location?: string | null;
   startsAt: string;
   endsAt: string;
   format: 'OFFLINE' | 'ONLINE' | 'HYBRID';
-  meetingUrl?: string | null;
+  meetingLink?: string | null;
 }
 
 export interface StoredSchedule {
@@ -206,7 +206,7 @@ export const manageApi = {
     lesson: {
       weekType: WeekType; weekday: number; slot: number;
       disciplineName: string; teacherName: string;
-      room?: string | null; format?: 'OFFLINE' | 'ONLINE' | 'HYBRID'; meetingUrl?: string | null;
+      location?: string | null; format?: 'OFFLINE' | 'ONLINE' | 'HYBRID'; meetingLink?: string | null;
     },
     options: ApiRequestOptions,
   ) => {

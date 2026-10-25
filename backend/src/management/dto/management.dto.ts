@@ -20,9 +20,9 @@ export interface UpsertLessonDto {
   slot: number;
   disciplineName: string;
   teacherName: string;
-  room?: string | null;
+  location?: string | null;
   format?: LessonFormat;
-  meetingUrl?: string | null;
+  meetingLink?: string | null;
   startsAt?: string;
   endsAt?: string;
 }
@@ -112,9 +112,9 @@ export function parseLesson(body: unknown): UpsertLessonDto {
     slot: integerInRange(value.slot, 'slot', 0, 5),
     disciplineName: requiredString(value.disciplineName, 'disciplineName'),
     teacherName: requiredString(value.teacherName, 'teacherName'),
-    room: optionalString(value.room),
+    location: optionalString(value.location),
     format: (format as LessonFormat | undefined) ?? 'OFFLINE',
-    meetingUrl: optionalString(value.meetingUrl),
+    meetingLink: optionalString(value.meetingLink),
     startsAt: optionalString(value.startsAt) ?? undefined,
     endsAt: optionalString(value.endsAt) ?? undefined,
   };

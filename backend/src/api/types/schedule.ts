@@ -2,11 +2,11 @@ export interface ScheduleLesson {
   id: string;
   disciplineName: string;
   teacherName: string;
-  room?: string | null;
+  location?: string | null;
   startsAt: string;
   endsAt: string;
   format: 'OFFLINE' | 'ONLINE' | 'HYBRID';
-  meetingUrl?: string | null;
+  meetingLink?: string | null;
 }
 
 export interface ScheduleDay {

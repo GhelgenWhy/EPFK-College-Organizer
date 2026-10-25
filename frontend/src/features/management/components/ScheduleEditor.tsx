@@ -14,14 +14,21 @@ interface ScheduleEditorProps {
     slot: number;
     disciplineName: string;
     teacherName: string;
-    room?: string | null;
+    location?: string | null;
     format?: 'OFFLINE' | 'ONLINE' | 'HYBRID';
-    meetingUrl?: string | null;
+    meetingLink?: string | null;
   }) => Promise<void>;
   onDelete: (weekType: WeekType, weekday: number, slot: number) => Promise<void>;
 }
 
 const FORMAT_LABELS = { OFFLINE: 'Офлайн', ONLINE: 'Онлайн', HYBRID: 'Гібрид' } as const;
+
+/** Short place caption for a grid cell: classroom for OFFLINE, both for HYBRID, link state for ONLINE. */
+function lessonPlace(lesson: LessonSlot): string {
+  if (lesson.format === 'ONLINE') return 'Онлайн';
+  if (lesson.format === 'HYBRID') return `${lesson.location || 'Аудиторію не вказано'} · онлайн`;
+  return lesson.location || 'Аудиторію не вказано';
+}
 
 interface DraftLesson {
   weekType: WeekType;
@@ -29,9 +36,9 @@ interface DraftLesson {
   slot: number;
   disciplineName: string;
   teacherName: string;
-  room: string;
+  location: string;
   format: 'OFFLINE' | 'ONLINE' | 'HYBRID';
-  meetingUrl: string;
+  meetingLink: string;
 }
 
 export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }: ScheduleEditorProps) {
@@ -51,9 +58,9 @@ export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }:
       slot,
       disciplineName: current?.disciplineName ?? '',
       teacherName: current?.teacherName ?? '',
-      room: current?.room ?? '',
+      location: current?.location ?? '',
       format: current?.format ?? 'OFFLINE',
-      meetingUrl: current?.meetingUrl ?? '',
+      meetingLink: current?.meetingLink ?? '',
     });
   }
 
@@ -70,9 +77,9 @@ export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }:
         slot: draft.slot,
         disciplineName: draft.disciplineName.trim(),
         teacherName: draft.teacherName.trim(),
-        room: draft.room.trim() || null,
+        location: draft.location.trim() || null,
         format: draft.format,
-        meetingUrl: draft.meetingUrl.trim() || null,
+        meetingLink: draft.meetingLink.trim() || null,
       });
       show('Пару збережено');
       setDraft(null);
@@ -158,7 +165,7 @@ export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }:
                             <span className="text-[13px] font-semibold leading-tight text-primary">{lesson.disciplineName}</span>
                             <span className="text-[11px] text-secondary">{lesson.teacherName}</span>
                             <span className="text-[11px] text-muted">
-                              {lesson.format === 'ONLINE' ? 'Онлайн' : lesson.room || 'Аудиторію не вказано'}
+                              {lessonPlace(lesson)}
                             </span>
                           </span>
                         ) : (
@@ -190,7 +197,7 @@ export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }:
             </label>
             <label className="flex flex-col gap-1 text-xs font-semibold text-secondary">
               Аудиторія
-              <input className={fieldClass} value={draft.room} onChange={(event) => setDraft({ ...draft, room: event.target.value })} placeholder="напр. 214" />
+              <input className={fieldClass} value={draft.location} onChange={(event) => setDraft({ ...draft, location: event.target.value })} placeholder="напр. 214" />
             </label>
             <label className="flex flex-col gap-1 text-xs font-semibold text-secondary">
               Формат
@@ -202,7 +209,7 @@ export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }:
             </label>
             <label className="flex flex-col gap-1 text-xs font-semibold text-secondary sm:col-span-2">
               Посилання на зустріч
-              <input className={fieldClass} value={draft.meetingUrl} onChange={(event) => setDraft({ ...draft, meetingUrl: event.target.value })} placeholder="https://meet.google.com/…" />
+              <input className={fieldClass} value={draft.meetingLink} onChange={(event) => setDraft({ ...draft, meetingLink: event.target.value })} placeholder="https://meet.google.com/…" />
             </label>
           </div>
           <div className="mt-4 flex flex-wrap justify-end gap-2">

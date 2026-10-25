@@ -10,7 +10,7 @@ import { array, boolean, dateKey, dateString, id, nullable, number, object, oneO
 const lesson = object({
   id: id, disciplineName: string, teacherName: string,
   startsAt: string, endsAt: string, format: oneOf('OFFLINE', 'ONLINE', 'HYBRID'),
-  room: optional(nullable(string)), meetingUrl: optional(nullable(string)),
+  location: optional(nullable(string)), meetingLink: optional(nullable(string)),
 });
 const day = object({
   weekday: number, name: string,

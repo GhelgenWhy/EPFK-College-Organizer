@@ -1,4 +1,4 @@
-﻿import {
+import {
   BadRequestException,
   ConflictException,
   Injectable,
@@ -22,11 +22,11 @@ export interface StoredLesson {
   id: string;
   disciplineName: string;
   teacherName: string;
-  room?: string | null;
+  location?: string | null;
   startsAt: string;
   endsAt: string;
   format: 'OFFLINE' | 'ONLINE' | 'HYBRID';
-  meetingUrl?: string | null;
+  meetingLink?: string | null;
 }
 
 export interface StoredDay {
@@ -206,11 +206,11 @@ export class ManagementService {
       id: day.lessons[dto.slot]?.id ?? randomUUID(),
       disciplineName: dto.disciplineName,
       teacherName: dto.teacherName,
-      room: dto.room ?? null,
+      location: dto.location ?? null,
       startsAt: dto.startsAt ?? (from ?? '').trim(),
       endsAt: dto.endsAt ?? (to ?? '').trim(),
       format: dto.format ?? 'OFFLINE',
-      meetingUrl: dto.meetingUrl ?? null,
+      meetingLink: dto.meetingLink ?? null,
     };
     day.lessons[dto.slot] = lesson;
     await this.prisma.schedule.update({
