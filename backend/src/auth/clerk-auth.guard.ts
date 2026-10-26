@@ -10,16 +10,35 @@ import { createClerkClient, verifyToken } from '@clerk/backend';
 import { Logger } from '@nestjs/common';
 import type { Request } from 'express';
 import { IS_PUBLIC_KEY, resolveAppRole, type AuthenticatedUser } from './auth.types.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 
 interface AuthenticatedRequest extends Request {
   authUser?: AuthenticatedUser;
 }
 
+/** Activity is written at most this often per user, so a busy page does not write on every request. */
+const LAST_SEEN_THROTTLE_MS = 10 * 60 * 1000;
+
 @Injectable()
 export class ClerkAuthGuard implements CanActivate {
   private readonly logger = new Logger(ClerkAuthGuard.name);
+  private readonly lastSeenWritten = new Map<string, number>();
 
-  constructor(private readonly reflector: Reflector) {}
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly prisma: PrismaService,
+  ) {}
+
+  /** Records that the user was active; swallows errors so auth never fails because of it. */
+  private touchLastSeen(userId: string) {
+    const now = Date.now();
+    const last = this.lastSeenWritten.get(userId) ?? 0;
+    if (now - last < LAST_SEEN_THROTTLE_MS) return;
+    this.lastSeenWritten.set(userId, now);
+    this.prisma.user
+      .updateMany({ where: { id: userId }, data: { lastSeenAt: new Date(now) } })
+      .catch((error: unknown) => this.logger.warn(`lastSeenAt not stored: ${(error as Error).message}`));
+  }
 
   /** Reads `publicMetadata.role` from the Clerk user when the session token has no role claim. */
   private async roleFromClerk(userId: string, secretKey: string) {
@@ -66,6 +85,7 @@ export class ClerkAuthGuard implements CanActivate {
         : await this.roleFromClerk(claims.sub, secretKey);
 
       request.authUser = { userId: claims.sub, role: resolvedRole };
+      this.touchLastSeen(claims.sub);
       return true;
     } catch {
       throw new UnauthorizedException('The Clerk session token is invalid or expired');

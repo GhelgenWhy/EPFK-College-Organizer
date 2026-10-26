@@ -457,17 +457,29 @@ export class ApiService {
   }
 
   /**
-   * Hourly background sync for every student who linked Moodle. One failing student is logged
-   * and skipped, so the rest still get their update. Returns a short per-run summary.
+   * Per-student sync pass. Only students whose own interval has passed are synced:
+   * active (seen in the last 24 h) every hour, inactive once a day. At most `batchSize`
+   * students per pass, so Moodle never gets a burst. One failing student is logged and skipped.
    */
-  async syncAllLinkedStudents(): Promise<{ total: number; ok: number; failed: number }> {
-    const users = await this.prismaService.user.findMany({
+  async syncDueStudents(batchSize = 10, now = new Date()): Promise<{ due: number; ok: number; failed: number }> {
+    const dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const hourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+    const candidates = await this.prismaService.user.findMany({
       where: { token: { not: null } },
-      select: { id: true },
+      select: { id: true, lastSync: true, lastSeenAt: true },
     });
+    const due = candidates
+      .filter((user) => {
+        const active = user.lastSeenAt !== null && user.lastSeenAt >= dayAgo;
+        const interval = active ? hourAgo : dayAgo;
+        return user.lastSync === null || user.lastSync <= interval;
+      })
+      .sort((a, b) => (a.lastSync?.getTime() ?? 0) - (b.lastSync?.getTime() ?? 0))
+      .slice(0, batchSize);
+
     let ok = 0;
     let failed = 0;
-    for (const user of users) {
+    for (const user of due) {
       try {
         await this.syncStudentWithStoredToken(user.id);
         ok += 1;
@@ -476,7 +488,7 @@ export class ApiService {
         this.logger.warn(`Sync failed for ${user.id}: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
-    return { total: users.length, ok, failed };
+    return { due: due.length, ok, failed };
   }
 
   /** Id of the system group for users without a real group ("Без групи"), created on first use. */

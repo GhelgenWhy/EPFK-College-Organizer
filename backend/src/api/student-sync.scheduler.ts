@@ -3,9 +3,9 @@ import { Interval } from '@nestjs/schedule';
 import { ApiService } from './api.service.js';
 
 /**
- * Keeps Moodle data fresh without the student doing anything: every hour the stored Moodle
- * tokens are used to re-check disciplines, assignments and completion. Unchanged data is not
- * rewritten (see ApiService.syncWithToken). Disabled with MOODLE_AUTO_SYNC=false (e.g. tests).
+ * Keeps Moodle data fresh without a burst: every 5 minutes a small batch of students whose own
+ * interval has passed is re-checked (active hourly, inactive daily; see ApiService.syncDueStudents).
+ * Unchanged data is not rewritten. Disabled with MOODLE_AUTO_SYNC=false (e.g. tests).
  */
 @Injectable()
 export class StudentSyncScheduler {
@@ -14,17 +14,19 @@ export class StudentSyncScheduler {
 
   constructor(private readonly api: ApiService) {}
 
-  @Interval(60 * 60 * 1000)
-  async runHourlySync(): Promise<void> {
+  @Interval(5 * 60 * 1000)
+  async runSyncTick(): Promise<void> {
     if (process.env.MOODLE_AUTO_SYNC === 'false') return;
-    // Never overlap two runs: a slow Moodle must not stack up parallel sync loops.
+    // Never overlap two ticks: a slow Moodle must not stack up parallel sync loops.
     if (this.running) return;
     this.running = true;
     try {
-      const summary = await this.api.syncAllLinkedStudents();
-      this.logger.log(`Hourly Moodle sync: ${summary.ok}/${summary.total} ok, ${summary.failed} failed`);
+      const summary = await this.api.syncDueStudents();
+      if (summary.due > 0) {
+        this.logger.log(`Moodle sync tick: ${summary.ok}/${summary.due} ok, ${summary.failed} failed`);
+      }
     } catch (error) {
-      this.logger.error(`Hourly Moodle sync crashed: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(`Moodle sync tick crashed: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       this.running = false;
     }
