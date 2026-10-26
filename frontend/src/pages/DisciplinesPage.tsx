@@ -10,7 +10,7 @@ const DISCIPLINES_CACHE_KEY = "epfk-organizer:disciplines-data-cache";
 export function DisciplinesPage() {
   const query = useApiQuery(moodleApi.getCourses);
 
-  const [cachedData, setCachedData] = useState<Discipline[] | null>(() => {
+  const [cachedData] = useState<Discipline[] | null>(() => {
     try {
       const item = localStorage.getItem(DISCIPLINES_CACHE_KEY);
       if (!item) return null;
@@ -30,7 +30,7 @@ export function DisciplinesPage() {
 
   useEffect(() => {
     if (query.data) {
-      setCachedData(query.data);
+      // Persist only: the rendered list already uses query.data, so no state update here.
       try {
         localStorage.setItem(DISCIPLINES_CACHE_KEY, JSON.stringify(query.data));
       } catch (e) {

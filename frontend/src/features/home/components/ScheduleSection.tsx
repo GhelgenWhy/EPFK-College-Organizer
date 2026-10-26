@@ -4,17 +4,22 @@ import { SectionHeading } from "./SectionHeading";
 import { textOr } from "../../../lib/nullSafe";
 import { kyivNowMinutes, lessonState, type LessonState } from "../../../lib/dates";
 
-const STATE_LABEL: Record<LessonState, string> = {
+/** Row states: finished, current (yellow), next (cyan) and later. */
+const STATE_LABEL: Record<RowState, string> = {
   done: "Завершено",
-  current: "Зараз",
-  upcoming: "Пізніше",
+  current: "Поточна",
+  next: "Наступна",
+  later: "Пізніше",
 };
 
-const STATE_BADGE: Record<LessonState, string> = {
+const STATE_BADGE: Record<RowState, string> = {
   done: "bg-[var(--surface-muted)] text-[var(--text-muted)]",
   current: "bg-[var(--warning)] text-on-accent",
-  upcoming: "bg-[var(--surface-muted)] text-[var(--text-muted)]",
+  next: "bg-[var(--success-soft)] text-[var(--accent-hover)]",
+  later: "bg-[var(--surface-muted)] text-[var(--text-muted)]",
 };
+
+type RowState = Exclude<LessonState, "upcoming"> | "next" | "later";
 
 export function ScheduleSection({
   lessons,
@@ -23,8 +28,20 @@ export function ScheduleSection({
   lessons: HomeLesson[];
   date: Date;
 }) {
-  // Kyiv clock: states are recomputed on each render of the dashboard.
+  // Kyiv clock: states are recomputed on each render of the dashboard. The first lesson that
+  // has not started yet is "next"; later ones are "later".
   const nowMinutes = kyivNowMinutes();
+  const rowStates: RowState[] = [];
+  let nextAssigned = false;
+  for (const lesson of lessons) {
+    const state = lessonState(lesson.startsAt, lesson.endsAt, nowMinutes);
+    if (state === "upcoming" && !nextAssigned) {
+      rowStates.push("next");
+      nextAssigned = true;
+    } else {
+      rowStates.push(state === "upcoming" ? "later" : state);
+    }
+  }
   return (
     <section
       className="col-start-1 flex min-h-0 min-w-0 flex-col rounded-[19px] bg-surface p-3 max-[960px]:col-span-full max-[760px]:col-span-1 max-[760px]:min-h-0 max-[760px]:p-[17px_14px_12px]"
@@ -41,8 +58,8 @@ export function ScheduleSection({
         </p>
       )}
       <ol className="m-0 flex min-h-0 flex-1 list-none flex-col p-0">
-        {lessons.map((lesson) => {
-          const state = lessonState(lesson.startsAt, lesson.endsAt, nowMinutes);
+        {lessons.map((lesson, index) => {
+          const state = rowStates[index];
           const isCurrent = state === "current";
           return (
             <li

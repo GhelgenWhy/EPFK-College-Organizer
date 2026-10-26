@@ -2,7 +2,7 @@ import type { CalendarFilterType } from "../../calendar/types";
 import { useTaskCompletion } from "../../tasks/hooks/useTaskCompletion";
 import type { HomeData } from "../types";
 import { formatDate, titleCase } from "../utils/date";
-import { NextLessonCard } from "./NextLessonCard";
+import { NextLessonCard, type FeaturedState } from "./NextLessonCard";
 import { FocusCard } from "./FocusCard";
 import { ScheduleSection } from "./ScheduleSection";
 import { DeadlinesSection } from "./DeadlinesSection";
@@ -11,10 +11,16 @@ import { EventsSection } from "./EventsSection";
 import { kyivNowMinutes, lessonState } from "../../../lib/dates";
 import type { HomeLesson } from "../types";
 
-/** The lesson in progress, otherwise the next one not started yet; null when the day is over. */
-function pickFeaturedLesson(lessons: HomeLesson[], nowMinutes: number) {
-  const states = lessons.map((lesson) => ({ lesson, state: lessonState(lesson.startsAt, lesson.endsAt, nowMinutes) }));
-  return states.find((item) => item.state === "current") ?? states.find((item) => item.state === "upcoming") ?? null;
+/**
+ * Big card: the lesson in progress (current), otherwise the next one not started yet (next).
+ * When nothing is left today the card shows the neutral "none" state.
+ */
+function pickFeaturedLesson(lessons: HomeLesson[], nowMinutes: number): { lesson: HomeLesson | null; state: FeaturedState } {
+  const current = lessons.find((lesson) => lessonState(lesson.startsAt, lesson.endsAt, nowMinutes) === "current");
+  if (current) return { lesson: current, state: "current" };
+  const next = lessons.find((lesson) => lessonState(lesson.startsAt, lesson.endsAt, nowMinutes) === "upcoming");
+  if (next) return { lesson: next, state: "next" };
+  return { lesson: null, state: "none" };
 }
 
 export function HomeContent({
@@ -68,14 +74,8 @@ export function HomeContent({
       </div>
 
       <div className="grid min-h-0 shrink-0 items-stretch grid-cols-[minmax(0,1.535fr)_minmax(0,1fr)] gap-[clamp(12px,2.5vw,36px)] max-[1200px]:gap-5 max-[760px]:grid-cols-1 max-[760px]:gap-3">
-        {/* Big card: the lesson in progress, otherwise the next upcoming one. */}
-        {featured ? (
-          <NextLessonCard lesson={featured.lesson} state={featured.state} />
-        ) : (
-          <p className="rounded-[19px] bg-surface p-4 text-secondary">
-            Сьогодні пар немає.
-          </p>
-        )}
+        {/* Big card: current (yellow), next (cyan), or a neutral empty-day card. */}
+        <NextLessonCard lesson={featured.lesson} state={featured.state} />
         <FocusCard
           date={date}
           lessons={lessons}
