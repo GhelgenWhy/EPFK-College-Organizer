@@ -135,13 +135,14 @@ export class ApiService {
       .filter((event) => event.status !== 'Завершено')
       .slice(0, 5)
       .map((event) => {
-        const [, month, day] = event.date.split('-').map(Number);
+        const month = Number(event.date.split('-')[1]);
         const details = [event.location, event.time].filter(Boolean).join(' · ');
         return {
           // The dashboard contract expects a string id (the Prisma id is a number).
           id: String(event.id),
           date: event.date,
-          monthLabel: `${day} ${monthNames[month - 1]}`,
+          // Month name only: the dashboard prints the day number from the date itself.
+          monthLabel: monthNames[month - 1],
           title: event.title,
           details,
         };
