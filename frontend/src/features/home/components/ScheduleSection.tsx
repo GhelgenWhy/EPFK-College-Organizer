@@ -14,7 +14,7 @@ const STATE_LABEL: Record<RowState, string> = {
 
 const STATE_BADGE: Record<RowState, string> = {
   done: "bg-[var(--surface-muted)] text-[var(--text-muted)]",
-  current: "bg-[#4A3500] text-[var(--current-lesson)]",
+  current: "bg-[var(--current-lesson)] text-[#4A3500]",
   next: "bg-[var(--success-soft)] text-[var(--accent-hover)]",
   later: "bg-[var(--surface-muted)] text-[var(--text-muted)]",
 };
@@ -63,7 +63,7 @@ export function ScheduleSection({
           const isCurrent = state === "current";
           return (
             <li
-              className={`relative grid min-h-0 flex-1 grid-cols-[92px_minmax(0,1fr)_118px] items-center gap-2 border-b border-[var(--border)] px-2 py-1 last:border-b-0 max-[1200px]:grid-cols-[66px_minmax(0,1fr)_74px] max-[760px]:min-h-[75px] max-[760px]:grid-cols-[64px_minmax(0,1fr)_78px] max-[760px]:gap-2 max-[760px]:px-1 max-[760px]:py-[6px] ${isCurrent ? "my-1 rounded-[13px] border-0 bg-[var(--warning-soft)] max-[760px]:pl-[14px] max-[760px]:pr-2" : ""} ${state === "next" ? "my-1 rounded-[13px] border-0 bg-[var(--accent-soft)] max-[760px]:pl-[14px] max-[760px]:pr-2" : ""} ${state === "done" ? "opacity-60" : ""}`}
+              className={`relative grid min-h-0 flex-1 grid-cols-[92px_minmax(0,1fr)_118px] items-center gap-2 border-b border-[var(--border)] px-2 py-1 last:border-b-0 max-[1200px]:grid-cols-[66px_minmax(0,1fr)_74px] max-[760px]:min-h-[75px] max-[760px]:grid-cols-[64px_minmax(0,1fr)_78px] max-[760px]:gap-2 max-[760px]:px-1 max-[760px]:py-[6px] ${isCurrent ? "my-1 rounded-[13px] border-0 bg-[var(--current-lesson-soft)] max-[760px]:pl-[14px] max-[760px]:pr-2" : ""} ${state === "next" ? "my-1 rounded-[13px] border-0 bg-[var(--accent-soft)] max-[760px]:pl-[14px] max-[760px]:pr-2" : ""} ${state === "done" ? "opacity-60" : ""}`}
               key={lesson.id}
               aria-current={isCurrent ? "time" : undefined}
             >

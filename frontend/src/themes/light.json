@@ -25,6 +25,7 @@
   "warning": "#9A6500",
   "warningSoft": "#FFF6DD",
   "currentLesson": "#FFD86F",
+  "currentLessonSoft": "#FFF6DC",
   "info": "#0369A1",
   "infoSoft": "#E0F2FE",
   "deadlineBg": "#FFD5D5",

@@ -3,6 +3,27 @@ import { textOr } from '../../../lib/nullSafe';
 
 export type FeaturedState = 'current' | 'next' | 'none';
 
+interface Look { card: string; ink: string; badge: string }
+
+const CURRENT_LOOK: Look = {
+  card: 'bg-[var(--current-lesson)]',
+  ink: 'text-[#4A3500]',
+  badge: 'bg-[var(--current-lesson-soft)] text-[#4A3500]',
+};
+
+// TEMPORARY experiment: ?nextCard=A|B|C|D picks the next-lesson look. Remove after the choice.
+const NEXT_LOOKS: Record<string, Look> = {
+  A: { card: 'bg-accent', ink: 'text-on-accent', badge: 'bg-accent-soft text-accent-hover' },
+  B: { card: 'bg-accent', ink: 'text-on-accent', badge: 'bg-success-soft text-accent-hover' },
+  C: { card: 'bg-accent-soft', ink: 'text-[#0B4F4D]', badge: 'bg-accent text-on-accent' },
+  D: { card: 'bg-success-soft', ink: 'text-[#0B4F4D]', badge: 'bg-accent text-on-accent' },
+};
+
+function nextVariant(): keyof typeof NEXT_LOOKS {
+  const value = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('nextCard') : null;
+  return value && value in NEXT_LOOKS ? (value as keyof typeof NEXT_LOOKS) : 'A';
+}
+
 /**
  * Big card for the dashboard. Three looks: the lesson in progress (yellow), the next lesson
  * (cyan), and an empty day rendered as a neutral card instead of blank space.
@@ -21,14 +42,12 @@ export function NextLessonCard({ lesson, state }: { lesson: HomeLesson | null; s
   }
 
   const isCurrent = state === 'current';
-  // Current lesson: soft yellow card with dark text; next lesson: cyan card with white text.
-  const cardClass = isCurrent
-    ? 'bg-[var(--current-lesson)] text-[#4A3500]'
-    : 'bg-accent text-on-accent';
-  const inkClass = isCurrent ? 'text-[#4A3500]' : 'text-on-accent';
-  const badgeClass = isCurrent
-    ? 'bg-[#4A3500] text-[var(--current-lesson)]'
-    : 'bg-accent-soft text-accent-hover';
+  const variant = nextVariant();
+  // Current lesson: #ffd86f card with a #fff6dc badge. Next lesson: colours from the chosen variant.
+  const look = isCurrent ? CURRENT_LOOK : NEXT_LOOKS[variant];
+  const cardClass = look.card;
+  const inkClass = look.ink;
+  const badgeClass = look.badge;
   const badgeLabel = isCurrent ? 'Зараз' : 'Наступна пара';
 
   return (
