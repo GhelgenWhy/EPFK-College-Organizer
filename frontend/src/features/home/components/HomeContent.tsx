@@ -8,6 +8,14 @@ import { ScheduleSection } from "./ScheduleSection";
 import { DeadlinesSection } from "./DeadlinesSection";
 import { TasksSection } from "./TasksSection";
 import { EventsSection } from "./EventsSection";
+import { kyivNowMinutes, lessonState } from "../../../lib/dates";
+import type { HomeLesson } from "../types";
+
+/** The lesson in progress, otherwise the next one not started yet; null when the day is over. */
+function pickFeaturedLesson(lessons: HomeLesson[], nowMinutes: number) {
+  const states = lessons.map((lesson) => ({ lesson, state: lessonState(lesson.startsAt, lesson.endsAt, nowMinutes) }));
+  return states.find((item) => item.state === "current") ?? states.find((item) => item.state === "upcoming") ?? null;
+}
 
 export function HomeContent({
   onOpenCalendar,
@@ -21,6 +29,7 @@ export function HomeContent({
   storageKey: string;
 }) {
   const { date, deadlines, events, lessons, tasks } = data;
+  const featured = pickFeaturedLesson(lessons, kyivNowMinutes());
   const { completedTaskIds, toggleTask } = useTaskCompletion(tasks, storageKey);
   const completedTaskCount = tasks.filter((task) =>
     completedTaskIds.includes(task.id),
@@ -59,9 +68,9 @@ export function HomeContent({
       </div>
 
       <div className="grid min-h-0 shrink-0 items-stretch grid-cols-[minmax(0,1.535fr)_minmax(0,1fr)] gap-[clamp(12px,2.5vw,36px)] max-[1200px]:gap-5 max-[760px]:grid-cols-1 max-[760px]:gap-3">
-        {/* Server returns only lessons still ahead of now, so the first is the current or next one. */}
-        {lessons[0] ? (
-          <NextLessonCard lesson={lessons[0]} />
+        {/* Big card: the lesson in progress, otherwise the next upcoming one. */}
+        {featured ? (
+          <NextLessonCard lesson={featured.lesson} state={featured.state} />
         ) : (
           <p className="rounded-[19px] bg-surface p-4 text-secondary">
             Сьогодні пар немає.

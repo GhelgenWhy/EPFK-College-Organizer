@@ -18,16 +18,6 @@ function timeToMinutes(value: string): number {
   return Number(match[1]) * 60 + Number(match[2]);
 }
 
-/** Minutes from midnight of the current day in Europe/Kyiv. */
-function kyivMinutesOfDay(date: Date): number {
-  const parts = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'Europe/Kyiv', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
-  }).formatToParts(date);
-  const hour = Number(parts.find((p) => p.type === 'hour')?.value ?? 0);
-  const minute = Number(parts.find((p) => p.type === 'minute')?.value ?? 0);
-  return hour * 60 + minute;
-}
-
 function getAcademicWeekType(targetDate: Date = new Date()): "numerator" | "denominator" {
   const currentYear: number = targetDate.getFullYear();
   const currentMonth: number = targetDate.getMonth();
@@ -386,13 +376,10 @@ export class ApiService {
       const schedule = scheduleDB?.schedule as unknown as { numerator?: ScheduleDay[]; denominator?: ScheduleDay[] } | null | undefined;
       const lessons: (ScheduleLesson | null)[] = schedule?.[weekType]?.[mondayBasedIndex]?.lessons ?? [];
 
-      // Dashboard contract: title/teacher/location/meetingUrl. Only lessons still ahead of now,
-      // ordered by start time, so the first one is the "current or next" lesson.
-      // Stored times are "H:mm" (no date), compared in minutes of the Kyiv day.
-      const nowMinutes = kyivMinutesOfDay(new Date());
+      // Dashboard contract: title/teacher/location/meetingUrl. All of today's lessons, in start
+      // order; the client decides which one is finished, current or next by the Kyiv clock.
       homeLessons = lessons
         .filter((lesson): lesson is ScheduleLesson => lesson !== null)
-        .filter((lesson) => timeToMinutes(lesson.endsAt) > nowMinutes)
         .sort((a, b) => timeToMinutes(a.startsAt) - timeToMinutes(b.startsAt))
         .map((lesson) => ({
           id: lesson.id,
