@@ -14,7 +14,7 @@ export class StudentSyncScheduler {
 
   constructor(private readonly api: ApiService) {}
 
-  @Interval(5 * 60 * 1000)
+  @Interval(Number(process.env.MOODLE_SYNC_TICK_MS ?? 5 * 60 * 1000))
   async runSyncTick(): Promise<void> {
     if (process.env.MOODLE_AUTO_SYNC === 'false') return;
     // Never overlap two ticks: a slow Moodle must not stack up parallel sync loops.

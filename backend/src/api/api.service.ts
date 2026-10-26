@@ -463,17 +463,22 @@ export class ApiService {
    * students per pass, so Moodle never gets a burst. One failing student is logged and skipped.
    */
   async syncDueStudents(batchSize = 10, now = new Date()): Promise<{ due: number; ok: number; failed: number }> {
-    const dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    const hourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+    // Intervals are configurable for testing (minutes); defaults are active = 60 min, inactive = 24 h.
+    const activeMs = Number(process.env.MOODLE_SYNC_ACTIVE_MIN ?? 60) * 60 * 1000;
+    const inactiveMs = Number(process.env.MOODLE_SYNC_INACTIVE_MIN ?? 24 * 60) * 60 * 1000;
+    const activeWindowMs = Number(process.env.MOODLE_SYNC_ACTIVE_WINDOW_MIN ?? 24 * 60) * 60 * 1000;
+    const activeSince = new Date(now.getTime() - activeWindowMs);
+    const activeCutoff = new Date(now.getTime() - activeMs);
+    const inactiveCutoff = new Date(now.getTime() - inactiveMs);
     const candidates = await this.prismaService.user.findMany({
       where: { token: { not: null } },
       select: { id: true, lastSync: true, lastSeenAt: true },
     });
     const due = candidates
       .filter((user) => {
-        const active = user.lastSeenAt !== null && user.lastSeenAt >= dayAgo;
-        const interval = active ? hourAgo : dayAgo;
-        return user.lastSync === null || user.lastSync <= interval;
+        const active = user.lastSeenAt !== null && user.lastSeenAt >= activeSince;
+        const cutoff = active ? activeCutoff : inactiveCutoff;
+        return user.lastSync === null || user.lastSync <= cutoff;
       })
       .sort((a, b) => (a.lastSync?.getTime() ?? 0) - (b.lastSync?.getTime() ?? 0))
       .slice(0, batchSize);
