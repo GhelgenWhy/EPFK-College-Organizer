@@ -20,6 +20,7 @@ function EventRow({
           className="inline-flex min-h-7 min-w-[69px] items-center justify-center whitespace-nowrap rounded-lg bg-[var(--accent-soft)] px-2 text-[11px] font-bold text-[var(--accent)] max-[760px]:min-h-[27px] max-[760px]:min-w-[68px] max-[760px]:text-[10px]"
           dateTime={event.date}
         >
+          {/* monthLabel is the month name only; the day number comes from the date. */}
           {formatDate(parseLocalDate(event.date), { day: "numeric" })}{" "}
           {event.monthLabel}
         </time>

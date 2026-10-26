@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { MoodleModule } from './moodle/moodle.module.js';
 import { ApiModule } from './api/api.module.js';
 import { APP_GUARD } from '@nestjs/core';
@@ -10,7 +11,7 @@ import { ManagementModule } from './management/management.module.js';
 import { HealthModule } from './health/health.module.js';
 
 @Module({
-  imports: [PrismaModule, MoodleModule, ApiModule, AuthModule, ManagementModule, HealthModule],
+  imports: [ScheduleModule.forRoot(), PrismaModule, MoodleModule, ApiModule, AuthModule, ManagementModule, HealthModule],
   providers: [
     { provide: APP_GUARD, useClass: ClerkAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },

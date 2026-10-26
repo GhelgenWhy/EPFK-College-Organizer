@@ -10,7 +10,7 @@ interface HeaderProps {
 }
 
 export const Header = ({
-  lastSync = "Сьогодні 23:01",
+  lastSync = "ще не було",
   userName = "Профіль",
   userAvatar,
   onSyncClick,
@@ -18,9 +18,10 @@ export const Header = ({
 }: HeaderProps) => {
   return (
     <header className="flex h-[60px] w-full shrink-0 items-center justify-between px-[75px] pl-[85px] max-[760px]:h-[69px] max-[760px]:px-2">
-      {/* Кнопка синхронізації */}
+      {/* Shows the server's last successful Moodle check; the click only reloads that value. */}
       <button
         type="button"
+        title="Час останньої успішної перевірки з Moodle. Натисніть, щоб оновити дані."
         onClick={onSyncClick}
         className="flex h-[34px] items-center gap-1 whitespace-nowrap rounded-[50px] border-0 bg-surface px-5 py-[10px] text-base font-semibold text-muted max-[760px]:max-w-[52%] max-[760px]:overflow-hidden max-[760px]:px-3 max-[760px]:py-2 max-[760px]:text-[9px] max-[760px]:text-ellipsis"
       >
