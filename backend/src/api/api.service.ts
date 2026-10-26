@@ -4,12 +4,29 @@ import { Injectable } from '@nestjs/common';
 export const UNGROUPED_NAME = 'Без групи';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import type { ScheduleResponse } from './types/schedule.ts';
+import type { ScheduleDay, ScheduleLesson, ScheduleResponse } from './types/schedule.ts';
 import type { HomeDeadline } from './types/home.ts';
 import type { HomeworkTask } from './types/tasks.ts';
 import { MoodleAuthError, MoodleService } from '../moodle/moodle.service.js';
 import { ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
+
+/** "9:35" or "09:35" → minutes from midnight. Unparseable values sort as the end of the day. */
+function timeToMinutes(value: string): number {
+  const match = /^(\d{1,2}):(\d{2})$/.exec(value.trim());
+  if (!match) return 24 * 60;
+  return Number(match[1]) * 60 + Number(match[2]);
+}
+
+/** Minutes from midnight of the current day in Europe/Kyiv. */
+function kyivMinutesOfDay(date: Date): number {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Kyiv', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).formatToParts(date);
+  const hour = Number(parts.find((p) => p.type === 'hour')?.value ?? 0);
+  const minute = Number(parts.find((p) => p.type === 'minute')?.value ?? 0);
+  return hour * 60 + minute;
+}
 
 function getAcademicWeekType(targetDate: Date = new Date()): "numerator" | "denominator" {
   const currentYear: number = targetDate.getFullYear();
@@ -46,6 +63,17 @@ export interface Lesson {
   endsAt: string
   location: string
   meetingUrl: string
+}
+
+/** A lesson as the dashboard renders it (see frontend features/home/types.ts). */
+export interface HomeLesson {
+  id: string
+  startsAt: string
+  endsAt: string
+  title: string
+  teacher: string
+  location: string
+  meetingUrl?: string
 }
 
 export interface Day {
@@ -334,7 +362,7 @@ export class ApiService {
     const mondayBasedIndex = (today.getDay() + 6) % 7;
 
     // Weekends and users without a group/schedule get an empty list, never null.
-    let homeLessons: Lesson[] = [];
+    let homeLessons: HomeLesson[] = [];
 
     if (mondayBasedIndex < 5) {
       const scheduleDB = await this.prismaService.schedule.findFirst({
@@ -350,10 +378,27 @@ export class ApiService {
       });
 
       const weekType = getAcademicWeekType();
-      const schedule = scheduleDB?.schedule as unknown as Schedule | null | undefined;
-      const lessons = schedule?.[weekType]?.[mondayBasedIndex]?.lessons ?? [];
+      // Stored schedule uses ScheduleLesson (disciplineName, teacherName, meetingLink).
+      const schedule = scheduleDB?.schedule as unknown as { numerator?: ScheduleDay[]; denominator?: ScheduleDay[] } | null | undefined;
+      const lessons: (ScheduleLesson | null)[] = schedule?.[weekType]?.[mondayBasedIndex]?.lessons ?? [];
 
-      homeLessons = lessons.filter((lesson): lesson is Lesson => lesson !== null);
+      // Dashboard contract: title/teacher/location/meetingUrl. Only lessons still ahead of now,
+      // ordered by start time, so the first one is the "current or next" lesson.
+      // Stored times are "H:mm" (no date), compared in minutes of the Kyiv day.
+      const nowMinutes = kyivMinutesOfDay(new Date());
+      homeLessons = lessons
+        .filter((lesson): lesson is ScheduleLesson => lesson !== null)
+        .filter((lesson) => timeToMinutes(lesson.endsAt) > nowMinutes)
+        .sort((a, b) => timeToMinutes(a.startsAt) - timeToMinutes(b.startsAt))
+        .map((lesson) => ({
+          id: lesson.id,
+          startsAt: lesson.startsAt,
+          endsAt: lesson.endsAt,
+          title: lesson.disciplineName,
+          teacher: lesson.teacherName,
+          location: lesson.location ?? '',
+          meetingUrl: lesson.meetingLink ?? undefined,
+        }));
     }
     // -------------------------------------------------- HOME_LESSONS
 

@@ -59,8 +59,9 @@ export function HomeContent({
       </div>
 
       <div className="grid min-h-0 shrink-0 items-stretch grid-cols-[minmax(0,1.535fr)_minmax(0,1fr)] gap-[clamp(12px,2.5vw,36px)] max-[1200px]:gap-5 max-[760px]:grid-cols-1 max-[760px]:gap-3">
-        {(lessons[1] ?? lessons[0]) ? (
-          <NextLessonCard lesson={lessons[1] ?? lessons[0]} />
+        {/* Server returns only lessons still ahead of now, so the first is the current or next one. */}
+        {lessons[0] ? (
+          <NextLessonCard lesson={lessons[0]} />
         ) : (
           <p className="rounded-[19px] bg-surface p-4 text-secondary">
             Сьогодні пар немає.
