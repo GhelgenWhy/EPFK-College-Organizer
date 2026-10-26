@@ -11,14 +11,16 @@ export function RootLayout() {
   const outlet = useOutlet();
   const { user } = useUser();
   const profile = useCurrentProfile();
+  // Keep the last known server value while a refresh is in flight, so the header does not
+  // flash "ще не було" between the click and the response.
+  const serverLastSync = profile.profile?.lastSync ?? null;
   // Header shows the real Clerk name and avatar instead of the placeholder.
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ');
   return (
     <AppLayout
       userName={fullName || user?.primaryEmailAddress?.emailAddress || undefined}
       userAvatar={user?.imageUrl}
-      // Real last successful sync time from the server; clicking refreshes the profile.
-      lastSync={formatLastSync(profile.profile?.lastSync ?? null)}
+      lastSync={formatLastSync(serverLastSync)}
       onSyncClick={() => void profile.retry()}
     >
       {outlet}
