@@ -10,7 +10,7 @@ interface HeaderProps {
 }
 
 export const Header = ({
-  lastSync = "Сьогодні 23:01",
+  lastSync = "ще не було",
   userName = "Профіль",
   userAvatar,
   onSyncClick,

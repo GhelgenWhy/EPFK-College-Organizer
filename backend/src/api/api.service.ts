@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 /** Name of the system group for students who have no real group. */
 export const UNGROUPED_NAME = 'Без групи';
@@ -90,6 +90,8 @@ export interface Schedule {
 
 @Injectable()
 export class ApiService {
+  private readonly logger = new Logger(ApiService.name);
+
   constructor(
     private readonly moodleService: MoodleService,
     private readonly prismaService: PrismaService
@@ -136,7 +138,8 @@ export class ApiService {
         const [, month, day] = event.date.split('-').map(Number);
         const details = [event.location, event.time].filter(Boolean).join(' · ');
         return {
-          id: event.id,
+          // The dashboard contract expects a string id (the Prisma id is a number).
+          id: String(event.id),
           date: event.date,
           monthLabel: `${day} ${monthNames[month - 1]}`,
           title: event.title,
@@ -411,18 +414,16 @@ export class ApiService {
     };
   }
   getSchedule(user: { userId: string; role: string }) {
-    return this.findUserSchedule(user.userId, user.role === 'admin').then(
+    return this.findUserSchedule(user.userId).then(
       (schedule) => schedule ?? this.schedule,
     );
   }
 
-  /** Schedule stored for the user's group; admins fall back to the first group. */
-  private async findUserSchedule(userId: string, isAdmin: boolean) {
-    const stored = isAdmin
-      ? await this.prismaService.schedule.findFirst()
-      : await this.prismaService.schedule.findFirst({
-          where: { group: { users: { some: { id: userId } } } },
-        });
+  /** Schedule of the user's own group, the same lookup the dashboard uses, for every role. */
+  private async findUserSchedule(userId: string) {
+    const stored = await this.prismaService.schedule.findFirst({
+      where: { group: { users: { some: { id: userId } } } },
+    });
     const value = stored?.schedule as unknown as Schedule | undefined;
     if (!value?.numerator || !value?.denominator) return null;
     // Stored JSON may miss lessons entries added by newer clients; normalize slots.
@@ -453,6 +454,29 @@ export class ApiService {
       throw new UnauthorizedException('Студент ще не підключив Moodle');
     }
     await this.syncWithToken(stored.token, userId);
+  }
+
+  /**
+   * Hourly background sync for every student who linked Moodle. One failing student is logged
+   * and skipped, so the rest still get their update. Returns a short per-run summary.
+   */
+  async syncAllLinkedStudents(): Promise<{ total: number; ok: number; failed: number }> {
+    const users = await this.prismaService.user.findMany({
+      where: { token: { not: null } },
+      select: { id: true },
+    });
+    let ok = 0;
+    let failed = 0;
+    for (const user of users) {
+      try {
+        await this.syncStudentWithStoredToken(user.id);
+        ok += 1;
+      } catch (error) {
+        failed += 1;
+        this.logger.warn(`Sync failed for ${user.id}: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+    return { total: users.length, ok, failed };
   }
 
   /** Id of the system group for users without a real group ("Без групи"), created on first use. */
@@ -515,18 +539,21 @@ export class ApiService {
       })
       const courses = await this.moodleService.getStudentCourses(token);
       await Promise.all(courses.map(async (course) => {
-        const discipline = await this.prismaService.discipline.upsert({
+        // Write only what actually changed: an unchanged Moodle answer leaves the rows alone.
+        const teacher = course.teacherName ?? 'Невідомо';
+        const existingDiscipline = await this.prismaService.discipline.findUnique({
           where: { moodleId: course.id },
-          create: {
-            moodleId: course.id,
-            disciplineName: course.name,
-            teacher: course.teacherName ?? 'Невідомо',
-          },
-          update: {
-            disciplineName: course.name,
-            teacher: course.teacherName ?? 'Невідомо',
-          },
         });
+        const discipline = existingDiscipline
+          ? existingDiscipline.disciplineName === course.name && existingDiscipline.teacher === teacher
+            ? existingDiscipline
+            : await this.prismaService.discipline.update({
+                where: { moodleId: course.id },
+                data: { disciplineName: course.name, teacher },
+              })
+          : await this.prismaService.discipline.create({
+              data: { moodleId: course.id, disciplineName: course.name, teacher },
+            });
 
         await this.prismaService.usersDiscipline.upsert({
           where: {
@@ -541,33 +568,51 @@ export class ApiService {
         await Promise.all(assignments.map(async (assignment) => {
           const isCompleted = await this.moodleService.isAssignmentCompleted(token, assignment.id);
 
-          const task = await this.prismaService.task.upsert({
-            where: { moodleId: assignment.id },
-            create: {
-              moodleId: assignment.id,
-              taskName: assignment.title,
-              deadline: assignment.dueDate,
-              description: assignment.description,
-              disciplineId: discipline.id,
-              addedAt: assignment.addedAt ?? new Date(),
-              cmid: assignment.cmid
-            },
-            update: {
-              taskName: assignment.title,
-              deadline: assignment.dueDate,
-              description: assignment.description,
-              disciplineId: discipline.id,
-              cmid: assignment.cmid
-            }
-          });
+          const existingTask = await this.prismaService.task.findUnique({ where: { moodleId: assignment.id } });
+          const sameDeadline = (a: Date | null, b: Date | null) =>
+            (a === null && b === null) || (a !== null && b !== null && a.getTime() === b.getTime());
+          const task = existingTask
+            ? existingTask.taskName === assignment.title &&
+              existingTask.description === assignment.description &&
+              existingTask.disciplineId === discipline.id &&
+              existingTask.cmid === assignment.cmid &&
+              sameDeadline(existingTask.deadline, assignment.dueDate ?? null)
+              ? existingTask
+              : await this.prismaService.task.update({
+                  where: { moodleId: assignment.id },
+                  data: {
+                    taskName: assignment.title,
+                    deadline: assignment.dueDate,
+                    description: assignment.description,
+                    disciplineId: discipline.id,
+                    cmid: assignment.cmid,
+                  },
+                })
+            : await this.prismaService.task.create({
+                data: {
+                  moodleId: assignment.id,
+                  taskName: assignment.title,
+                  deadline: assignment.dueDate,
+                  description: assignment.description,
+                  disciplineId: discipline.id,
+                  addedAt: assignment.addedAt ?? new Date(),
+                  cmid: assignment.cmid,
+                },
+              });
 
-          await this.prismaService.usersTask.upsert({
-            where: {
-              userId_taskId: { userId, taskId: task.id }
-            },
-            create: { userId: userId, taskId: task.id, isCompleted: isCompleted },
-            update: { isCompleted: isCompleted }
+          const existingLink = await this.prismaService.usersTask.findUnique({
+            where: { userId_taskId: { userId, taskId: task.id } },
           });
+          if (!existingLink) {
+            await this.prismaService.usersTask.create({
+              data: { userId, taskId: task.id, isCompleted },
+            });
+          } else if (existingLink.isCompleted !== isCompleted) {
+            await this.prismaService.usersTask.update({
+              where: { userId_taskId: { userId, taskId: task.id } },
+              data: { isCompleted },
+            });
+          }
         })); 
       }));
     }

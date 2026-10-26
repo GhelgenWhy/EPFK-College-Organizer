@@ -4,14 +4,23 @@ import { AppLayout } from './features/layout/components/AppLayout';
 import { HomePage } from './pages/HomePage';
 import { formatDateKey } from './features/calendar/utils/dateUtils';
 import type { CalendarFilterType } from './features/calendar/types';
+import { useCurrentProfile } from './features/auth/useCurrentProfile';
+import { formatLastSync } from './lib/dates';
 
 export function RootLayout() {
   const outlet = useOutlet();
   const { user } = useUser();
+  const profile = useCurrentProfile();
   // Header shows the real Clerk name and avatar instead of the placeholder.
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ');
   return (
-    <AppLayout userName={fullName || user?.primaryEmailAddress?.emailAddress || undefined} userAvatar={user?.imageUrl}>
+    <AppLayout
+      userName={fullName || user?.primaryEmailAddress?.emailAddress || undefined}
+      userAvatar={user?.imageUrl}
+      // Real last successful sync time from the server; clicking refreshes the profile.
+      lastSync={formatLastSync(profile.profile?.lastSync ?? null)}
+      onSyncClick={() => void profile.retry()}
+    >
       {outlet}
     </AppLayout>
   );

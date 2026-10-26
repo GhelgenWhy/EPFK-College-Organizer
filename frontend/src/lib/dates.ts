@@ -18,3 +18,18 @@ export function formatEuropeanDate(isoDate: string): string {
 export function formatEuropeanLabel(label: string): string {
   return label.replace(/^(\d{4})-(\d{2})-(\d{2})/, (_, year, month, day) => `${day}.${month}.${year}`);
 }
+
+/**
+ * Last successful Moodle check, shown in the header: "26.10.26, 09:15" in Kyiv time,
+ * or "ще не було" when the account never synced.
+ */
+export function formatLastSync(iso: string | null): string {
+  if (!iso) return 'ще не було';
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return 'ще не було';
+  return new Intl.DateTimeFormat('uk-UA', {
+    timeZone: 'Europe/Kyiv',
+    day: '2-digit', month: '2-digit', year: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+  }).format(date);
+}
