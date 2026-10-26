@@ -20,10 +20,10 @@ export function AssignmentCard({ task, completed, urgent, onToggle }: {
   onToggle: () => void;
 }) {
   return (
-    <article className={`relative min-w-0 min-h-[142px] rounded-[18px] border border-border py-[14px] pr-[112px] pb-[13px] pl-4 transition-[border-color,box-shadow] hover:border-border hover:shadow-[0_3px_12px_var(--shadow-subtle-color)] max-[1250px]:pr-[105px] max-[760px]:min-h-0 max-[760px]:rounded-[15px] max-[760px]:py-[14px] max-[760px]:pr-[95px] max-[760px]:pb-3 max-[760px]:pl-[13px] max-[380px]:pr-[13px] ${completed ? 'bg-surface-muted' : 'bg-surface'}`}>
+    <article className={`relative min-w-0 min-h-[142px] rounded-[18px] border border-border py-[14px] pr-[112px] pb-[13px] pl-4 transition-[border-color,box-shadow] hover:border-border hover:shadow-[0_3px_12px_var(--shadow-subtle-color)] max-[1250px]:pr-[105px] max-[760px]:min-h-0 max-[760px]:rounded-[15px] max-[760px]:py-[14px] max-[760px]:pr-[95px] max-[760px]:pb-3 max-[760px]:pl-[13px] max-[380px]:pr-[13px] ${completed ? 'bg-[var(--lesson-background)]' : 'bg-surface'}`}>
       <button
         aria-pressed={completed}
-        className={`absolute top-[15px] right-[15px] inline-flex min-h-[41px] w-[86px] cursor-pointer items-center justify-center whitespace-nowrap rounded-xl border-0 px-[7px] font-semibold text-[10px] transition-[filter] hover:brightness-95 focus-visible:outline-3 focus-visible:outline-focus focus-visible:outline-offset-[3px] max-[760px]:top-3 max-[760px]:right-[11px] max-[760px]:min-h-[34px] max-[760px]:w-[77px] max-[760px]:rounded-[10px] max-[760px]:text-[9px] max-[380px]:static max-[380px]:mb-[10px] max-[380px]:min-h-7 max-[380px]:w-auto max-[380px]:px-[9px] ${completed ? 'bg-success-soft text-link' : 'bg-info-soft text-primary'}`}
+        className={`absolute top-[15px] right-[15px] inline-flex min-h-[41px] w-[86px] cursor-pointer items-center justify-center whitespace-nowrap rounded-xl border-0 px-[7px] font-semibold text-[10px] transition-[filter] hover:brightness-95 focus-visible:outline-3 focus-visible:outline-focus focus-visible:outline-offset-[3px] max-[760px]:top-3 max-[760px]:right-[11px] max-[760px]:min-h-[34px] max-[760px]:w-[77px] max-[760px]:rounded-[10px] max-[760px]:text-[9px] max-[380px]:static max-[380px]:mb-[10px] max-[380px]:min-h-7 max-[380px]:w-auto max-[380px]:px-[9px] ${completed ? 'bg-[var(--accent-strong)] text-on-accent' : 'bg-info-soft text-primary'}`}
         onClick={onToggle}
         type="button"
       >
