@@ -256,10 +256,17 @@ export class ApiService {
   async getHome(userId: string) {
     
     // HOME_DEADLINES ------------------------------------------------
+    const now = new Date();
+    // Dashboard only counts the user's own, not yet completed assignments of their disciplines.
+    const openTasksWhere = {
+      discipline: { users: { some: { userId } } },
+      users: { none: { userId, isCompleted: true } },
+    };
     const homeDeadlinesDB = await this.prismaService.task.findMany({
         where: {
+          ...openTasksWhere,
           deadline: {
-            gt: new Date()
+            gt: now
           }
         },
         take: 3,
@@ -318,8 +325,9 @@ export class ApiService {
 
     const homeTasksDB = await this.prismaService.task.findMany({
       where: {
+        ...openTasksWhere,
         deadline: {
-          gt: new Date()
+          gt: now
         }
       },
       take: 3,
@@ -353,12 +361,13 @@ export class ApiService {
 
     // HOME_LESSONS --------------------------------------------------
     const today = new Date();
-    const mondayBasedIndex = (today.getDay() + 6) % 7;
+    // Monday = 1 ... Saturday = 6, Sunday = 7 (matches the `weekday` field of stored days).
+    const weekday = today.getDay() === 0 ? 7 : today.getDay();
 
-    // Weekends and users without a group/schedule get an empty list, never null.
+    // Users without a group/schedule get an empty list, never null. Sunday has no lessons.
     let homeLessons: HomeLesson[] = [];
 
-    if (mondayBasedIndex < 5) {
+    if (weekday <= 6) {
       const scheduleDB = await this.prismaService.schedule.findFirst({
         where: {
           group: {
@@ -374,7 +383,9 @@ export class ApiService {
       const weekType = getAcademicWeekType();
       // Stored schedule uses ScheduleLesson (disciplineName, teacherName, meetingLink).
       const schedule = scheduleDB?.schedule as unknown as { numerator?: ScheduleDay[]; denominator?: ScheduleDay[] } | null | undefined;
-      const lessons: (ScheduleLesson | null)[] = schedule?.[weekType]?.[mondayBasedIndex]?.lessons ?? [];
+      // Pick today's day by its weekday value, not by array position: Saturday is optional in the stored data.
+      const todayEntry = schedule?.[weekType]?.find((day) => day.weekday === weekday);
+      const lessons: (ScheduleLesson | null)[] = todayEntry?.lessons ?? [];
 
       // Dashboard contract: title/teacher/location/meetingUrl. All of today's lessons, in start
       // order; the client decides which one is finished, current or next by the Kyiv clock.
@@ -393,12 +404,21 @@ export class ApiService {
     }
     // -------------------------------------------------- HOME_LESSONS
 
+    // Summary counters for the dashboard "Аджента" block, counted over all open tasks (not the top-3 lists).
+    const threeDaysAhead = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+    const [activeTasks, deadlinesNext3Days, overdueTasks] = await Promise.all([
+      this.prismaService.task.count({ where: openTasksWhere }),
+      this.prismaService.task.count({ where: { ...openTasksWhere, deadline: { gt: now, lte: threeDaysAhead } } }),
+      this.prismaService.task.count({ where: { ...openTasksWhere, deadline: { lt: now } } }),
+    ]);
+
     return {
       HOME_DEMO_DATE: new Date(),
       HOME_DEADLINES: homeDeadlines,
       HOME_EVENTS: await this.getUpcomingHomeEvents(),
       HOME_LESSONS: homeLessons,
-      HOME_TASKS: homeTasks
+      HOME_TASKS: homeTasks,
+      HOME_SUMMARY: { activeTasks, deadlinesNext3Days, overdueTasks },
     };
   }
   getSchedule(user: { userId: string; role: string }) {

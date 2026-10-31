@@ -15,6 +15,9 @@ interface EventManagerProps {
 }
 
 const EMPTY_FORM = { eventName: '', localTime: '', place: '', description: '', organizer: '', detailsUrl: '' };
+type FormField = keyof typeof EMPTY_FORM;
+/** Fields that must be filled in; the rest may stay empty (and are cleared on edit when emptied). */
+const REQUIRED_FIELDS: FormField[] = ['eventName', 'localTime', 'place', 'description'];
 
 /** Value for `<input type="datetime-local">` from an ISO timestamp; empty when the value is missing. */
 function toLocalInput(iso: string | null) {
@@ -32,14 +35,44 @@ function formatEventTime(iso: string | null) {
   );
 }
 
+/** Input class; a red border and ring mark a required field that is still empty. */
+function inputClass(invalid: boolean, extra = '') {
+  const base = invalid
+    ? `${fieldClass.replace('border-border', 'border-[var(--danger)]')} ring-1 ring-[var(--danger)]`
+    : fieldClass;
+  return `${base} ${extra}`.trim();
+}
+
 export function EventManager({ canEdit, events, onCreate, onUpdate, onDelete }: EventManagerProps) {
   const [form, setForm] = useState(EMPTY_FORM);
+  const [invalid, setInvalid] = useState<Partial<Record<FormField, boolean>>>({});
   const [editingId, setEditingId] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const { banner, show } = useBanner();
+  const [search, setSearch] = useState('');
+  const [period, setPeriod] = useState<'ALL' | 'UPCOMING' | 'PAST'>('ALL');
+
+  const [nowMs] = useState(() => Date.now());
+  const query = search.trim().toLowerCase();
+  const filtersActive = query !== '' || period !== 'ALL';
+  const visibleEvents = events.filter((event) => {
+    const startsMs = Date.parse(event.startTime);
+    if (period === 'UPCOMING' && !(startsMs >= nowMs)) return false;
+    if (period === 'PAST' && !(startsMs < nowMs)) return false;
+    if (!query) return true;
+    return [event.eventName, event.place, event.organizer, event.description]
+      .some((value) => (value ?? '').toLowerCase().includes(query));
+  });
+
+  function resetForm() {
+    setForm(EMPTY_FORM);
+    setInvalid({});
+    setEditingId(null);
+  }
 
   function startEdit(event: EventRow) {
     setEditingId(event.id);
+    setInvalid({});
     setForm({
       eventName: event.eventName,
       localTime: toLocalInput(event.startTime),
@@ -50,30 +83,40 @@ export function EventManager({ canEdit, events, onCreate, onUpdate, onDelete }: 
     });
   }
 
+  function update(field: FormField, value: string) {
+    setForm((current) => ({ ...current, [field]: value }));
+    if (invalid[field] && value.trim()) setInvalid((current) => ({ ...current, [field]: false }));
+  }
+
   async function submit() {
-    if (!form.eventName.trim() || !form.localTime) {
-      show('Вкажіть назву та час події', 'error');
+    const missing: Partial<Record<FormField, boolean>> = {};
+    for (const field of REQUIRED_FIELDS) {
+      if (!form[field].trim()) missing[field] = true;
+    }
+    setInvalid(missing);
+    if (Object.keys(missing).length > 0) {
+      show('Заповніть обов’язкові поля (підсвічені червоним)', 'error');
       return;
     }
+    // Optional fields are sent as null when empty, so an edit actually clears them on the server.
     const payload = {
       eventName: form.eventName.trim(),
       startTime: new Date(form.localTime).toISOString(),
-      place: form.place.trim() || undefined,
-      description: form.description.trim() || undefined,
-      organizer: form.organizer.trim() || undefined,
-      detailsUrl: form.detailsUrl.trim() || undefined,
+      place: form.place.trim(),
+      description: form.description.trim(),
+      organizer: form.organizer.trim() || null,
+      detailsUrl: form.detailsUrl.trim() || null,
     };
     setBusy(true);
     try {
       if (editingId === null) {
-        await onCreate(payload);
+        await onCreate(payload as EventPayload & { eventName: string; startTime: string });
         show('Подію створено');
       } else {
         await onUpdate(editingId, payload);
         show('Подію оновлено');
       }
-      setEditingId(null);
-      setForm(EMPTY_FORM);
+      resetForm();
     } catch (error) {
       show(error instanceof Error ? error.message : 'Не вдалося зберегти подію', 'error');
     } finally {
@@ -86,13 +129,15 @@ export function EventManager({ canEdit, events, onCreate, onUpdate, onDelete }: 
     try {
       await onDelete(eventId);
       show('Подію видалено');
-      if (editingId === eventId) setEditingId(null);
+      if (editingId === eventId) resetForm();
     } catch (error) {
       show(error instanceof Error ? error.message : 'Не вдалося видалити подію', 'error');
     } finally {
       setBusy(false);
     }
   }
+
+  const requiredMark = <span className="text-[var(--danger)]">*</span>;
 
   return (
     <div className="flex flex-col gap-3">
@@ -105,33 +150,33 @@ export function EventManager({ canEdit, events, onCreate, onUpdate, onDelete }: 
           </h3>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="flex flex-col gap-1 text-xs font-semibold text-secondary">
-              Назва
-              <input className={fieldClass} value={form.eventName} onChange={(event) => setForm({ ...form, eventName: event.target.value })} />
+              <span>Назва {requiredMark}</span>
+              <input className={inputClass(!!invalid.eventName)} value={form.eventName} onChange={(event) => update('eventName', event.target.value)} />
             </label>
             <label className="flex flex-col gap-1 text-xs font-semibold text-secondary">
-              Дата й час
-              <input type="datetime-local" className={fieldClass} value={form.localTime} onChange={(event) => setForm({ ...form, localTime: event.target.value })} />
+              <span>Дата й час {requiredMark}</span>
+              <input type="datetime-local" className={inputClass(!!invalid.localTime)} value={form.localTime} onChange={(event) => update('localTime', event.target.value)} />
             </label>
             <label className="flex flex-col gap-1 text-xs font-semibold text-secondary">
-              Місце
-              <input className={fieldClass} value={form.place} onChange={(event) => setForm({ ...form, place: event.target.value })} />
+              <span>Місце {requiredMark}</span>
+              <input className={inputClass(!!invalid.place)} value={form.place} onChange={(event) => update('place', event.target.value)} />
             </label>
             <label className="flex flex-col gap-1 text-xs font-semibold text-secondary">
-              Організатор <span className="font-normal text-muted">(необов’язково)</span>
-              <input className={fieldClass} value={form.organizer} onChange={(event) => setForm({ ...form, organizer: event.target.value })} />
+              <span>Організатор <span className="font-normal text-muted">(необов’язково)</span></span>
+              <input className={inputClass(false)} value={form.organizer} onChange={(event) => update('organizer', event.target.value)} />
             </label>
             <label className="flex flex-col gap-1 text-xs font-semibold text-secondary sm:col-span-2">
-              Посилання на деталі або реєстрацію <span className="font-normal text-muted">(необов’язково)</span>
-              <input className={fieldClass} placeholder="https://" value={form.detailsUrl} onChange={(event) => setForm({ ...form, detailsUrl: event.target.value })} />
+              <span>Посилання на деталі або реєстрацію <span className="font-normal text-muted">(необов’язково)</span></span>
+              <input className={inputClass(false)} placeholder="https://" value={form.detailsUrl} onChange={(event) => update('detailsUrl', event.target.value)} />
             </label>
             <label className="flex flex-col gap-1 text-xs font-semibold text-secondary sm:col-span-2">
-              Опис
-              <textarea className={`${fieldClass} min-h-[70px]`} value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
+              <span>Опис {requiredMark}</span>
+              <textarea className={inputClass(!!invalid.description, 'min-h-[70px]')} value={form.description} onChange={(event) => update('description', event.target.value)} />
             </label>
           </div>
           <div className="mt-4 flex justify-end gap-2">
             {editingId !== null && (
-              <button type="button" className={secondaryButtonClass} onClick={() => setEditingId(null)}>Скасувати</button>
+              <button type="button" className={secondaryButtonClass} onClick={resetForm}>Скасувати</button>
             )}
             <button type="button" className={primaryButtonClass} disabled={busy} onClick={submit}>
               {editingId === null ? 'Створити подію' : 'Зберегти зміни'}
@@ -140,9 +185,48 @@ export function EventManager({ canEdit, events, onCreate, onUpdate, onDelete }: 
         </div>
       )}
 
+      <div className="flex flex-wrap items-end gap-3 rounded-[16px] border border-border bg-surface p-3">
+        <label className="flex min-w-[200px] flex-1 flex-col gap-1 text-xs font-semibold text-secondary">
+          Пошук
+          <input
+            className={fieldClass}
+            placeholder="Назва, місце, організатор, опис"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </label>
+        <label className="flex w-[180px] flex-col gap-1 text-xs font-semibold text-secondary">
+          Період
+          <select
+            className={fieldClass}
+            value={period}
+            onChange={(event) => setPeriod(event.target.value as 'ALL' | 'UPCOMING' | 'PAST')}
+          >
+            <option value="ALL">Усі</option>
+            <option value="UPCOMING">Майбутні</option>
+            <option value="PAST">Минулі</option>
+          </select>
+        </label>
+        {filtersActive && (
+          <button
+            type="button"
+            className={secondaryButtonClass}
+            onClick={() => {
+              setSearch('');
+              setPeriod('ALL');
+            }}
+          >
+            Скинути
+          </button>
+        )}
+      </div>
+
       <div className="flex flex-col gap-2">
         {events.length === 0 && <p className="text-sm text-muted">Подій ще немає</p>}
-        {events.map((event) => (
+        {events.length > 0 && visibleEvents.length === 0 && (
+          <p className="text-sm text-muted">За цими фільтрами подій немає</p>
+        )}
+        {visibleEvents.map((event) => (
           <article key={event.id} className="rounded-[16px] border border-border bg-surface p-4">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>

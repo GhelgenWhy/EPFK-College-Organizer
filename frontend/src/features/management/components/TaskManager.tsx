@@ -130,7 +130,13 @@ export function TaskManager({ tasks, disciplines, canEdit, onCreate, onDelete }:
 
       {/* Wide screens: table. Narrow screens: one card per task (no horizontal scroll). */}
       <div className="overflow-auto rounded-[18px] border border-border bg-surface [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin max-[760px]:hidden">
-        <table className="w-full min-w-[680px] border-collapse text-sm">
+        <table className="w-full min-w-[680px] table-fixed border-collapse text-sm">
+          <colgroup>
+            <col className="w-[40%]" />
+            <col className="w-[24%]" />
+            <col className="w-[18%]" />
+            {canEdit && <col className="w-[118px]" />}
+          </colgroup>
           <thead>
             <tr className="text-left text-secondary">
               <th className="border-b border-border p-3 font-semibold">Завдання</th>

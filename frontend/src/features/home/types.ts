@@ -27,10 +27,18 @@ export interface HomeDeadline {
   urgent?: boolean;
 }
 
+/** Counters over all open (not completed) tasks, computed by the backend. */
+export interface HomeSummary {
+  activeTasks: number;
+  deadlinesNext3Days: number;
+  overdueTasks: number;
+}
+
 export interface HomeData {
   date: Date;
   lessons: HomeLesson[];
   deadlines: HomeDeadline[];
   events: CollegeEvent[];
   tasks: import('../tasks/types').HomeworkTask[];
+  summary?: HomeSummary;
 }

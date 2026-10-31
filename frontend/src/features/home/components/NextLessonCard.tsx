@@ -25,12 +25,14 @@ const NEXT_LOOK: Look = {
  */
 export function NextLessonCard({ lesson, state }: { lesson: HomeLesson | null; state: FeaturedState }) {
   if (!lesson || state === 'none') {
+    // Empty day: solid white card with readable grey text; the "free day" badge gets its own
+    // tinted fill so it does not disappear into the white card.
     return (
-      <section className="relative flex min-h-[clamp(150px,20vh,180px)] items-center justify-center overflow-hidden rounded-[19px] border border-[var(--border)] bg-surface-muted p-4 text-center max-[1200px]:min-w-0 max-[760px]:col-start-1 max-[760px]:min-h-[208px] max-[760px]:p-[17px]" aria-labelledby="next-lesson-heading">
+      <section className="relative flex min-h-[clamp(150px,20vh,180px)] items-center justify-center overflow-hidden rounded-[19px] bg-surface p-4 text-center shadow-[0_1px_3px_var(--shadow-soft-color)] max-[1200px]:min-w-0 max-[760px]:col-start-1 max-[760px]:min-h-[208px] max-[760px]:p-[17px]" aria-labelledby="next-lesson-heading">
         <div>
-          <span className="inline-flex min-h-7 items-center rounded-lg bg-surface px-3 text-[11px] font-bold uppercase text-muted max-[760px]:min-h-[26px] max-[760px]:text-[10px]">Вільний день</span>
-          <h2 id="next-lesson-heading" className="mt-[13px] text-[clamp(18px,1.25vw,24px)] leading-[1.25] font-bold text-secondary">Сьогодні пар немає</h2>
-          <p className="mt-[7px] text-sm text-muted">Наступна пара з’явиться тут, коли розклад це передбачає.</p>
+          <span className="inline-flex min-h-7 items-center rounded-lg bg-[var(--accent-soft)] px-3 text-[11px] font-bold uppercase text-[var(--accent-hover)] max-[760px]:min-h-[26px] max-[760px]:text-[10px]">Вільний день</span>
+          <h2 id="next-lesson-heading" className="mt-[13px] text-[clamp(18px,1.25vw,24px)] leading-[1.25] font-bold text-[var(--text-secondary)]">Сьогодні пар немає</h2>
+          <p className="mt-[7px] text-sm text-[var(--text-muted)]">Наступна пара з’явиться тут, коли розклад це передбачає.</p>
         </div>
       </section>
     );

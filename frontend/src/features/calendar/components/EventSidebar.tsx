@@ -19,7 +19,7 @@ export function EventSidebar({ selectedDate, events }: EventSidebarProps) {
       </div>
 
       {/* Список подій */}
-      <div className="box-border flex flex-1 flex-col gap-[9px] overflow-y-auto rounded-[20px] bg-surface px-3 py-[14px]">
+      <div className="box-border flex min-h-0 flex-1 flex-col gap-[9px] overflow-y-auto rounded-[20px] bg-surface px-3 py-[14px] [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin">
         {events.length === 0 ? (
           // Повідомлення, якщо подій немає
           <p className="m-0 px-1 py-[10px] text-muted">

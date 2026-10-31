@@ -1,17 +1,20 @@
 import type { KyivTime } from '../hooks/useKyivClock';
-import type { Assignment } from '../types';
-import { isDueToday, isOverdue } from '../utils/assignments';
+import type { Assignment, MarkSource } from '../types';
+import { getDeadlineState } from '../utils/assignments';
 import { AssignmentCard } from './AssignmentCard';
 
 export function AssignmentsList({
   tasks,
   completedTaskIds,
+  markSources,
   onToggleTask,
   now,
   onResetFilters,
 }: {
   tasks: Assignment[];
   completedTaskIds: string[];
+  /** Who completed each task: 'SYSTEM' (locked) or 'USER' (editable until synced). */
+  markSources: Record<string, MarkSource>;
   onToggleTask: (taskId: string) => void;
   now: KyivTime;
   onResetFilters: () => void;
@@ -24,19 +27,20 @@ export function AssignmentsList({
     >
       {tasks.length > 0 ? (
         <ul className="m-0 flex list-none flex-col gap-[13px] p-0 max-[760px]:gap-[9px]">
-          {tasks.map((task) => (
-            <li key={task.id}>
-              <AssignmentCard
-                completed={completedTaskIds.includes(task.id)}
-                onToggle={() => onToggleTask(task.id)}
-                task={task}
-                urgent={
-                  isDueToday(task, now) ||
-                  isOverdue(task, completedTaskIds.includes(task.id), now)
-                }
-              />
-            </li>
-          ))}
+          {tasks.map((task) => {
+            const completed = completedTaskIds.includes(task.id);
+            return (
+              <li key={task.id}>
+                <AssignmentCard
+                  completed={completed}
+                  source={markSources[task.id] ?? null}
+                  onToggle={() => onToggleTask(task.id)}
+                  task={task}
+                  deadlineState={getDeadlineState(task, completed, now)}
+                />
+              </li>
+            );
+          })}
         </ul>
       ) : (
         <div className="flex min-h-[245px] flex-col items-center justify-center rounded-[18px] border border-dashed border-[var(--border)] bg-surface/55 px-5 py-7 text-center">

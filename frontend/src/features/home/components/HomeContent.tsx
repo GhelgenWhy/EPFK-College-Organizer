@@ -1,7 +1,6 @@
 import type { CalendarFilterType } from "../../calendar/types";
 import { useTaskCompletion } from "../../tasks/hooks/useTaskCompletion";
 import type { HomeData } from "../types";
-import { formatDate, titleCase } from "../utils/date";
 import { NextLessonCard, type FeaturedState } from "./NextLessonCard";
 import { FocusCard } from "./FocusCard";
 import { ScheduleSection } from "./ScheduleSection";
@@ -34,44 +33,20 @@ export function HomeContent({
   data: HomeData;
   storageKey: string;
 }) {
-  const { date, deadlines, events, lessons, tasks } = data;
+  const { date, deadlines, events, lessons, tasks, summary } = data;
   const featured = pickFeaturedLesson(lessons, kyivNowMinutes());
-  const { completedTaskIds, toggleTask } = useTaskCompletion(tasks, storageKey);
+  const { completedTaskIds } = useTaskCompletion(tasks, storageKey);
   const completedTaskCount = tasks.filter((task) =>
     completedTaskIds.includes(task.id),
   ).length;
   const activeTaskCount = tasks.length - completedTaskCount;
-  const weekday = titleCase(formatDate(date, { weekday: "long" }));
 
   return (
     <main
       className="flex min-h-0 flex-1 flex-col gap-[clamp(8px,1.4vh,14px)] overflow-hidden px-[18px] py-[clamp(12px,2vh,20px)] pr-5 [scrollbar-color:var(--scrollbar)_transparent] [scrollbar-width:thin] max-[1200px]:px-6 max-[960px]:overflow-auto [@media(max-height:700px)]:overflow-auto max-[760px]:gap-[17px] max-[760px]:px-1 max-[760px]:py-4 [&_button:focus-visible]:outline-3 [&_button:focus-visible]:outline-[var(--focus)] [&_button:focus-visible]:outline-offset-[3px] [&_a:focus-visible]:outline-3 [&_a:focus-visible]:outline-[var(--focus)] [&_a:focus-visible]:outline-offset-[3px] [&_input:focus-visible]:outline-3 [&_input:focus-visible]:outline-[var(--focus)] [&_input:focus-visible]:outline-offset-[3px]"
       aria-labelledby="home-heading"
     >
-      <div className="flex min-h-[clamp(48px,7vh,64px)] shrink-0 items-center justify-between gap-5 max-[760px]:min-h-[62px]">
-        <div>
-          <h1
-            id="home-heading"
-            className="text-[clamp(30px,1.8vw,34px)] font-bold leading-[1.15] tracking-[-0.045em] text-primary max-[760px]:text-[30px]"
-          >
-            {formatDate(date, {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            })}
-          </h1>
-          <p className="mt-[7px] text-[15px] text-secondary max-[760px]:mt-[3px] max-[760px]:text-[13px]">
-            {weekday}
-          </p>
-        </div>
-        <button
-          className="mr-[47px] inline-flex min-h-[46px] min-w-[232px] cursor-pointer items-center justify-center rounded-xl border border-[var(--border)] bg-surface px-5 text-[13px] font-semibold text-[var(--accent)] transition-colors hover:border-[var(--accent-soft)] hover:bg-[var(--surface-hover)] max-[1200px]:mr-0 max-[760px]:min-h-10 max-[760px]:min-w-0 max-[760px]:px-[11px] max-[760px]:text-[11px]"
-          onClick={() => onOpenCalendar(date)}
-          type="button"
-        >
-          Відкрити календар
-        </button>
-      </div>
+      <h1 id="home-heading" className="sr-only">Головна</h1>
 
       <div className="grid min-h-0 shrink-0 items-stretch grid-cols-[minmax(0,1.535fr)_minmax(0,1fr)] gap-[clamp(12px,2.5vw,36px)] max-[1200px]:gap-5 max-[760px]:grid-cols-1 max-[760px]:gap-3">
         {/* Big card: current (yellow), next (cyan), or a neutral empty-day card. */}
@@ -80,7 +55,9 @@ export function HomeContent({
           date={date}
           lessons={lessons}
           deadlines={deadlines}
-          activeTaskCount={activeTaskCount}
+          activeTaskCount={summary?.activeTasks ?? activeTaskCount}
+          deadlinesNext3Days={summary?.deadlinesNext3Days ?? deadlines.length}
+          overdueTasks={summary?.overdueTasks ?? 0}
           onOpenCalendar={onOpenCalendar}
           onOpenSchedule={onOpenSchedule}
         />
@@ -95,7 +72,6 @@ export function HomeContent({
         <TasksSection
           tasks={tasks}
           completedTaskIds={completedTaskIds}
-          onToggleTask={toggleTask}
         />
       </div>
 

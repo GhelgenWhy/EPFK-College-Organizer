@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useKyivClock } from '../hooks/useKyivClock';
 import { useTaskCompletion } from '../hooks/useTaskCompletion';
-import type { Assignment, SortOrder, StatusFilter } from '../types';
+import type { Assignment, MarkFilter, MarkSource, SortOrder, StatusFilter } from '../types';
 import { filterTasks, getDisciplines, sortTasks } from '../utils/assignments';
 import { AssignmentsList } from './AssignmentsGrid';
 import { AssignmentsFiltersPanel, AssignmentsStatusTabs } from './AssignmentsToolbar';
@@ -13,22 +13,37 @@ export function AssignmentsContent({
   tasks: Assignment[];
   storageKey: string;
 }) {
-  const { completedTaskIds: localCompletedIds, toggleTask } = useTaskCompletion(tasks, storageKey);
-  // Moodle completion (from the server) is the baseline; a local toggle can still mark a task.
-  const serverCompletedIds = tasks.filter((task) => task.isCompleted).map((task) => task.id);
-  const completedTaskIds = [...new Set([...serverCompletedIds, ...localCompletedIds])];
+  // Local storage keeps the user's own marks. A completion confirmed by the system (Moodle sync)
+  // takes precedence and locks the task: the user can no longer change it.
+  const { completedTaskIds: userMarkIds, toggleTask } = useTaskCompletion(tasks, storageKey);
+  const markSources: Record<string, MarkSource> = {};
+  for (const id of userMarkIds) markSources[id] = 'USER';
+  for (const task of tasks) {
+    if (task.isCompleted) markSources[task.id] = 'SYSTEM';
+  }
+  const completedTaskIds = Object.keys(markSources);
+
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
+  const [markFilter, setMarkFilter] = useState<MarkFilter>('ALL');
   const [discipline, setDiscipline] = useState('ALL');
   const [sortOrder, setSortOrder] = useState<SortOrder>('SOONEST');
   const now = useKyivClock();
   const disciplines = useMemo(() => getDisciplines(tasks), [tasks]);
   const visibleTasks = sortTasks(
-    filterTasks(tasks, statusFilter, discipline, completedTaskIds, now),
+    filterTasks(tasks, statusFilter, discipline, completedTaskIds, now)
+      .filter((task) => markFilter === 'ALL' || markSources[task.id] === markFilter),
     sortOrder,
   );
 
+  function handleToggle(taskId: string) {
+    // System-confirmed completion is fixed; only the user's own marks can be changed.
+    if (markSources[taskId] === 'SYSTEM') return;
+    toggleTask(taskId);
+  }
+
   function resetFilters() {
     setStatusFilter('ALL');
+    setMarkFilter('ALL');
     setDiscipline('ALL');
     setSortOrder('SOONEST');
   }
@@ -54,7 +69,8 @@ export function AssignmentsContent({
         <AssignmentsList
           tasks={visibleTasks}
           completedTaskIds={completedTaskIds}
-          onToggleTask={toggleTask}
+          markSources={markSources}
+          onToggleTask={handleToggle}
           now={now}
           onResetFilters={resetFilters}
         />
@@ -64,6 +80,8 @@ export function AssignmentsContent({
           disciplines={disciplines}
           discipline={discipline}
           onDisciplineChange={setDiscipline}
+          markFilter={markFilter}
+          onMarkFilterChange={setMarkFilter}
           sortOrder={sortOrder}
           onSortOrderChange={setSortOrder}
           onResetFilters={resetFilters}

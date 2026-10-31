@@ -69,14 +69,14 @@ export interface EventRow {
   detailsUrl: string | null;
 }
 
-/** Payload for creating or editing a college event. Organizer and details link are optional. */
+/** Payload for creating or editing a college event. Place and description are required; organizer and details link are optional (null clears them on edit). */
 export interface EventPayload {
   eventName?: string;
   startTime?: string;
   place?: string;
   description?: string;
-  organizer?: string;
-  detailsUrl?: string;
+  organizer?: string | null;
+  detailsUrl?: string | null;
 }
 
 export type WeekType = 'numerator' | 'denominator';

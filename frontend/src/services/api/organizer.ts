@@ -45,6 +45,7 @@ interface HomeResponse {
   HOME_EVENTS: HomeData['events'] | null;
   HOME_LESSONS: HomeData['lessons'] | null;
   HOME_TASKS: HomeData['tasks'] | null;
+  HOME_SUMMARY?: HomeData['summary'] | null;
 }
 const nullableArray = (check: (value: unknown) => boolean) =>
   (value: unknown): boolean => value === null || value === undefined || array(check)(value);
@@ -57,6 +58,7 @@ const home = object({
   HOME_EVENTS: nullableArray(object({ id: string, date: dateKey, monthLabel: string, title: string, details: string })),
   HOME_LESSONS: nullableArray(object({ id: string, startsAt: string, endsAt: string, title: string, teacher: string, location: string, meetingUrl: optional(nullable(string)) })),
   HOME_TASKS: nullableArray(object({ id: string, title: string, course: string, dueDate: dateKey })),
+  HOME_SUMMARY: optional(nullable(object({ activeTasks: number, deadlinesNext3Days: number, overdueTasks: number }))),
 });
 
 export const organizerApi = {
@@ -74,6 +76,7 @@ export const organizerApi = {
       events: data.HOME_EVENTS ?? [],
       lessons: data.HOME_LESSONS ?? [],
       tasks: data.HOME_TASKS ?? [],
+      summary: data.HOME_SUMMARY ?? undefined,
     };
   }),
 };

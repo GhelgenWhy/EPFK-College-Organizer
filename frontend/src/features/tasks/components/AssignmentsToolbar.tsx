@@ -1,4 +1,4 @@
-import type { SortOrder, StatusFilter } from '../types';
+import type { MarkFilter, SortOrder, StatusFilter } from '../types';
 
 const STATUS_TABS: { id: StatusFilter; label: string }[] = [
   { id: 'ALL', label: 'Всі' },
@@ -39,6 +39,8 @@ export function AssignmentsFiltersPanel({
   disciplines,
   discipline,
   onDisciplineChange,
+  markFilter,
+  onMarkFilterChange,
   sortOrder,
   onSortOrderChange,
   onResetFilters,
@@ -46,6 +48,8 @@ export function AssignmentsFiltersPanel({
   disciplines: string[];
   discipline: string;
   onDisciplineChange: (discipline: string) => void;
+  markFilter: MarkFilter;
+  onMarkFilterChange: (markFilter: MarkFilter) => void;
   sortOrder: SortOrder;
   onSortOrderChange: (sortOrder: SortOrder) => void;
   onResetFilters: () => void;
@@ -90,6 +94,19 @@ export function AssignmentsFiltersPanel({
               {course}
             </option>
           ))}
+        </select>
+      </label>
+
+      <label className="flex min-w-0 flex-col gap-[10px] text-[13px] font-semibold text-primary max-[760px]:gap-[6px] max-[760px]:text-[9px]">
+        <span>Відмітка</span>
+        <select
+          className="min-h-[46px] w-max max-w-full min-w-0 cursor-pointer appearance-auto rounded-[11px] border-0 bg-[var(--input-background)] py-0 pr-3 pl-3 font-normal text-[13px] text-primary focus-visible:outline-3 focus-visible:outline-[var(--focus)] focus-visible:outline-offset-[3px] max-[760px]:min-h-[39px] max-[760px]:w-full max-[760px]:pl-2 max-[760px]:text-[10px]"
+          value={markFilter}
+          onChange={(event) => onMarkFilterChange(event.target.value as MarkFilter)}
+        >
+          <option value="ALL">Усі</option>
+          <option value="SYSTEM">Відмічені системою</option>
+          <option value="USER">Відмічені вами</option>
         </select>
       </label>
 

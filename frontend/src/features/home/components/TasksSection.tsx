@@ -5,22 +5,20 @@ import { SectionHeading } from "./SectionHeading";
 function TaskRow({
   task,
   completed,
-  onToggle,
 }: {
   task: HomeworkTask;
   completed: boolean;
-  onToggle: () => void;
 }) {
   return (
     <li className="flex min-h-0 min-w-0 flex-1 items-center border-b border-[var(--border)] last:border-b-0 max-[760px]:min-h-[88px]">
-      <label className="flex min-w-0 cursor-pointer items-start gap-[10px] max-[760px]:gap-3">
-        <input
-          className="mt-px h-6 w-6 cursor-pointer shrink-0 appearance-none rounded-full border-2 border-[var(--accent)] bg-surface checked:border-[var(--accent)] checked:bg-[var(--accent)] checked:shadow-[inset_0_0_0_5px_var(--surface)] focus-visible:outline-3 focus-visible:outline-[var(--focus)] focus-visible:outline-offset-[3px] max-[760px]:h-[22px] max-[760px]:w-[22px]"
-          aria-label={`Позначити завдання «${task.title}» як виконане`}
-          checked={completed}
-          onChange={onToggle}
-          type="checkbox"
-        />
+      <div className="flex min-w-0 items-start gap-[10px] max-[760px]:gap-3">
+        {/* Read-only status marker: completion is set on the Assignments page, not here. */}
+        <span
+          aria-hidden="true"
+          className={`mt-px grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 border-[var(--accent)] bg-surface max-[760px]:h-[22px] max-[760px]:w-[22px] ${completed ? "bg-[var(--accent)]" : ""}`}
+        >
+          {completed && <span className="h-[7px] w-[7px] rounded-full bg-surface" />}
+        </span>
         <span className="flex min-w-0 flex-col items-start">
           <span
             title={task.title}
@@ -42,7 +40,7 @@ function TaskRow({
             })}
           </time>
         </span>
-      </label>
+      </div>
     </li>
   );
 }
@@ -50,15 +48,13 @@ function TaskRow({
 export function TasksSection({
   tasks,
   completedTaskIds,
-  onToggleTask,
 }: {
   tasks: HomeworkTask[];
   completedTaskIds: string[];
-  onToggleTask: (taskId: string) => void;
+  onToggleTask?: (taskId: string) => void;
 }) {
-  const completedCount = tasks.filter((task) =>
-    completedTaskIds.includes(task.id),
-  ).length;
+  // Only open tasks are shown: completed ones leave the list right away.
+  const openTasks = tasks.filter((task) => !completedTaskIds.includes(task.id));
 
   return (
     <section
@@ -68,15 +64,14 @@ export function TasksSection({
       <SectionHeading
         id="my-tasks-heading"
         title="Мої завдання"
-        subtitle={`${tasks.length - completedCount} активні · ${completedCount} виконане цього тижня`}
+        subtitle="Невиконані завдання"
       />
       <ul className="m-0 flex min-h-0 flex-1 list-none flex-col p-0 pt-0.5">
-        {tasks.map((task) => (
+        {openTasks.map((task) => (
           <TaskRow
             key={task.id}
             task={task}
-            completed={completedTaskIds.includes(task.id)}
-            onToggle={() => onToggleTask(task.id)}
+            completed={false}
           />
         ))}
       </ul>

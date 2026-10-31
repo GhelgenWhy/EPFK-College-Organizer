@@ -19,3 +19,11 @@ export interface Assignment extends Omit<HomeworkTask, 'dueDate'> {
 export type StatusFilter = 'ALL' | 'COMPLETED' | 'ACTIVE' | 'OVERDUE';
 
 export type SortOrder = 'SOONEST' | 'LATEST' | 'TITLE';
+
+/** Who marked a task completed: the system (Moodle sync, locked) or the user (editable until synced). */
+export type MarkSource = 'SYSTEM' | 'USER';
+
+/** Filter by marker: all tasks, only system-marked, or only user-marked. */
+export type MarkFilter = 'ALL' | MarkSource;
+
+export type DeadlineState = 'overdue' | 'approaching' | 'normal';

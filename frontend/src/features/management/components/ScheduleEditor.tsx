@@ -184,10 +184,17 @@ export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }:
       </div>
 
       <div className="overflow-auto rounded-[18px] border border-border bg-surface [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin max-[760px]:hidden">
-        <table className="w-full min-w-[720px] border-collapse text-sm">
+        {/* Fixed layout: the time column is narrow and every day column gets an equal share. */}
+        <table className="w-full min-w-[720px] table-fixed border-collapse text-sm">
+          <colgroup>
+            <col className="w-[84px]" />
+            {visibleDays.map((day) => (
+              <col key={day.weekday} />
+            ))}
+          </colgroup>
           <thead>
             <tr>
-              <th className="w-[110px] border-b border-border p-2 text-left font-semibold text-secondary">Час</th>
+              <th className="border-b border-border p-2 text-left font-semibold text-secondary">Час</th>
               {visibleDays.map((day) => (
                 <th key={day.weekday} className="border-b border-border p-2 text-left font-semibold text-secondary">
                   {day.name}
@@ -198,7 +205,11 @@ export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }:
           <tbody>
             {data.timeSlots.map((time, slot) => (
               <tr key={time}>
-                <td className="border-b border-border p-2 align-top text-xs text-muted">{time}</td>
+                <td className="border-b border-border p-2 align-top text-xs leading-snug text-muted">
+                  {time.split(/\s*[-–]\s*/).map((part) => (
+                    <span key={part} className="block">{part}</span>
+                  ))}
+                </td>
                 {visibleDays.map((day) => {
                   const lesson = day.lessons[slot];
                   return (

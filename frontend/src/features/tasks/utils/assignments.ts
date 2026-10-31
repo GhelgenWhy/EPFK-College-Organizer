@@ -13,6 +13,16 @@ export function isOverdue(task: Assignment, completed: boolean, now: KyivTime) {
   return `${now.date}T${now.time}` >= `${dueDateStr}T${task.dueTime}:00`;
 }
 
+/** Deadline state for a card: overdue, approaching (within 3 days) or normal. Completed tasks are always normal. */
+export function getDeadlineState(task: Assignment, completed: boolean, now: KyivTime): 'overdue' | 'approaching' | 'normal' {
+  if (completed || !task.dueDate) return 'normal';
+  if (isOverdue(task, completed, now)) return 'overdue';
+  const today = Date.parse(`${now.date}T00:00:00Z`);
+  const due = Date.parse(`${String(task.dueDate)}T00:00:00Z`);
+  const daysLeft = Math.round((due - today) / 86_400_000);
+  return daysLeft >= 0 && daysLeft <= 3 ? 'approaching' : 'normal';
+}
+
 export function isDueToday(task: Assignment, now: KyivTime) {
   if (!task.dueDate) return false;
   const dueDateStr = String(task.dueDate);
