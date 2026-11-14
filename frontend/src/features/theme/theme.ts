@@ -10,9 +10,10 @@ export function getInitialTheme(): ThemeName {
     const stored = localStorage.getItem(THEME_STORAGE_KEY);
     if (stored === 'light' || stored === 'dark') return stored;
   } catch {
-    // Storage may be disabled by the browser; use the operating-system preference.
+    // Storage may be disabled by the browser; fall back to the light default below.
   }
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  // First visit: light theme by default, regardless of the operating-system preference.
+  return 'light';
 }
 
 export function applyTheme(themeName: ThemeName) {
