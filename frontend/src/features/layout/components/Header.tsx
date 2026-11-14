@@ -17,7 +17,9 @@ export const Header = ({
   onProfileClick,
 }: HeaderProps) => {
   return (
-    <header className="flex h-[60px] w-full shrink-0 items-center justify-between px-[75px] pl-[85px] max-[760px]:h-[69px] max-[760px]:px-2">
+    <header className="flex h-[60px] w-full shrink-0 items-center justify-between px-[18px] max-[1200px]:px-6 max-[760px]:h-[69px] max-[760px]:px-1">
+      {/* Horizontal padding mirrors the dashboard content inset (px-[18px]), so the pills line
+          up with the cards below instead of sticking out past them. */}
       {/* Shows the server's last successful Moodle check; the click only reloads that value. */}
       <button
         type="button"
