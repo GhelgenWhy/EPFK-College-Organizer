@@ -144,11 +144,11 @@ export const SecurityCard = ({ hasPassword, email }: SecurityCardProps) => {
 
         <div className="flex flex-col gap-4">
           {/* Блок пошти */}
-          <div className="min-h-15 flex flex-col justify-start">
-            <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="flex flex-col justify-start gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-col gap-1 text-xs text-secondary w-full sm:w-auto flex-1">
                 <span>Основна електронна пошта</span>
-                <span className="text-sm text-primary break-all font-normal leading-10">
+                <span className="text-sm text-primary break-all font-normal leading-snug">
                   {email || "Не вказано"}
                 </span>
               </div>
@@ -245,11 +245,11 @@ export const SecurityCard = ({ hasPassword, email }: SecurityCardProps) => {
           </div>
 
           {/* Блок пароля */}
-          <div className="min-h-15 flex flex-col justify-start">
-            <div className="flex items-end justify-between gap-4">
+          <div className="flex flex-col justify-start gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-col gap-1 text-xs text-secondary flex-1">
                 <span>Пароль</span>
-                <span className="text-sm text-primary font-normal leading-10">
+                <span className="text-sm text-primary font-normal leading-snug">
                   {hasPassword
                     ? "Для зміни потрібен поточний пароль"
                     : "Пароль для цього способу входу ще не налаштовано"}
