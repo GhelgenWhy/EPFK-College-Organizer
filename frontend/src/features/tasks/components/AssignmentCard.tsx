@@ -21,17 +21,14 @@ const SOURCE_LABEL: Record<MarkSource, string> = {
 export function AssignmentCard({ task, completed, source, deadlineState, onToggle }: {
   task: Assignment;
   completed: boolean;
-  /** Who marked the task completed; null while it is open. */
   source: MarkSource | null;
   deadlineState: DeadlineState;
   onToggle: () => void;
 }) {
-  // A completion confirmed by the system is fixed: the user cannot change it any more.
   const locked = source === 'SYSTEM';
   const overdue = !completed && deadlineState === 'overdue';
   const approaching = !completed && deadlineState === 'approaching';
 
-  // The status button itself shows the deadline state of an open task; clicking it marks the task done.
   const buttonLabel = completed
     ? 'Виконано'
     : overdue
@@ -46,7 +43,6 @@ export function AssignmentCard({ task, completed, source, deadlineState, onToggl
       : approaching
         ? 'bg-[var(--warning)] text-on-accent'
         : 'bg-info-soft text-primary';
-  // The state is shown by the card background (no coloured outline, which read as "selected").
   const cardTone = completed
     ? 'bg-[var(--lesson-background)]'
     : approaching
@@ -68,7 +64,6 @@ export function AssignmentCard({ task, completed, source, deadlineState, onToggl
         {buttonLabel}
       </button>
 
-      {/* Long titles are clamped to two lines so the card keeps its height; full text on hover. */}
       <h2
         title={task.title}
         className={`line-clamp-2 max-w-full break-words text-base font-bold leading-[1.35] tracking-[-0.015em] text-primary ${completed ? 'text-secondary' : ''} max-[760px]:text-[13px]`}

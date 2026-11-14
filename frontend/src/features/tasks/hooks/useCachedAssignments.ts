@@ -21,17 +21,6 @@ function readCachedAssignments(): Assignment[] | null {
   }
 }
 
-/**
- * Keeps the last successful assignments response in localStorage so the page
- * can render something while the network request is still in flight.
- *
- * The cached snapshot is read once, lazily, through the `useState`
- * initializer. The effect only synchronizes the external store (localStorage)
- * and never calls setState, so no cascading render happens on mount. The
- * value returned is the fresh response when present, otherwise the cached
- * snapshot; the cache is deliberately not updated in state so a failed or
- * in-flight refetch keeps showing the last persisted data.
- */
 export function useCachedAssignments(remoteData: Assignment[] | null) {
   const [cachedData] = useState(readCachedAssignments);
 

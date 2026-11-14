@@ -31,7 +31,6 @@ function SidebarLink({ to, label, icon }: SidebarLinkProps) {
 export const Sidebar = () => {
   const { signOut } = useClerk();
   const { user } = useUser();
-  // The sidebar mirrors Clerk metadata; the route guards re-check the server role.
   const role = resolveAppRole(user?.publicMetadata.role);
 
   return (

@@ -87,14 +87,10 @@ body {
   padding: 32px 20px;
 }
 
-/* Public entry page: product intro on the left, Clerk form on the right. */
 .auth-split {
   background: var(--background);
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  /* The page scrolls as one document. Every ancestor defaults to overflow: visible, so
-     even `overflow-x: hidden` here would make this grid its own scroll container and
-     trap the wheel; `clip` cuts the stray pixel without ever creating one. */
   min-height: 100vh;
   overflow-x: clip;
 }
@@ -106,8 +102,6 @@ body {
   flex-direction: column;
   gap: clamp(22px, 4vh, 38px);
   justify-content: center;
-  /* Not hidden: on a short screen the intro grows with its content and the page scrolls,
-     instead of the overflow being clipped away. The padding supplies the bottom gap. */
   padding: clamp(28px, 5vw, 64px);
   position: relative;
 }
@@ -168,10 +162,6 @@ body {
   margin: 2px 0 0;
 }
 .auth-split .auth-card {
-  /* Right half: centres the Clerk form horizontally and vertically.
-     The provider is absolutely positioned so this half keeps its grid height; the padding
-     is the only thing that keeps the form off the divider and the window edge, so it must
-     stay applied here (the provider's own inset was double-padding). */
   align-items: center;
   display: flex;
   justify-content: center;
@@ -182,10 +172,6 @@ body {
   width: 100%;
 }
 .auth-split .auth-provider {
-  /* Fills the padded area, then centres the card inside it. Without centering here the
-     card is stretched to the full half-width and `margin: 0 auto` cannot do anything.
-     `inset` must stay 0: the parent already applies the 32/48 padding, and an equal inset
-     here would double it and push the form past the window edge. */
   align-items: center;
   box-sizing: border-box;
   display: flex;
@@ -193,40 +179,25 @@ body {
   inset: 0;
   justify-content: center;
   position: absolute;
-  /* Never wider than the padded area, so a narrow half shrinks the card instead of
-     letting it overflow to the right edge. */
   max-width: 100%;
 }
 .auth-split .auth-provider-card-box {
   box-sizing: border-box;
-  /* The box must leave a visible gap on both sides of the card, not stretch to the
-     whole padded area: `100%` alone did exactly that and the form looked glued to the
-     right edge on a wide window. `- 2rem` keeps ~16px of breathing room per side at any
-     width, and the fixed cap keeps the form from growing into an unreadably wide card. */
   max-width: min(100% - 2rem, 560px);
   width: 100%;
 }
 .auth-split .auth-provider-card {
-  /* The shared rule caps this at 660px; the flex parent above centres it. */
   margin: 0 auto;
   max-width: 100%;
 }
 @media (max-width: 900px) {
-  /* Stacked layout: the page is one normal scrolling column. Rows must not stretch to the
-     viewport (that left an empty band under the intro), and the Clerk form must sit in the
-     flow instead of being absolutely positioned, otherwise it is clipped with no scroll. */
   .auth-split { align-content: start; grid-template-columns: minmax(0, 1fr); min-height: 0; }
-  /* Mobile: compact intro so the form gets the room. */
   .auth-intro { align-self: start; border-radius: 0; gap: 12px; justify-content: flex-start; padding: 20px 18px 16px; }
   .auth-intro-title { font-size: 26px; max-width: none; }
   .auth-intro-lead { font-size: 13px; line-height: 1.5; margin-top: 8px; }
   .auth-intro-list { gap: 10px; }
   .auth-intro-item-text { font-size: 12px; }
-  /* Insets around the form: space above the card, and a bottom margin so it never
-     touches the end of the page. The half stays a centring flex column, so the form is
-     centred rather than pinned to one side. */
   .auth-split .auth-card { align-items: center; padding: 20px 16px 32px; }
-  /* In the flow (not absolute) so the column can scroll, but still centred by the parent. */
   .auth-split .auth-provider {
     align-items: center;
     display: flex;
@@ -236,8 +207,6 @@ body {
     position: static;
     width: 100%;
   }
-  /* Phones already get their side gap from .auth-card's 16px padding, so the box fills
-     it here instead of subtracting another 2rem. */
   .auth-split .auth-provider-card-box { margin: 0 auto; max-width: 100%; }
   .auth-split .auth-provider-card { margin: 0 auto; max-width: 100%; }
 }
@@ -250,7 +219,6 @@ body {
 .auth-provider-label { color: var(--text-primary) !important; font-size: 13px !important; font-weight: 600 !important; }
 .auth-provider-input { background: var(--input-background) !important; border-color: var(--border) !important; box-sizing: border-box !important; color: var(--text-primary) !important; font-size: 14px !important; height: 46px !important; max-width: 100% !important; width: 100% !important; }
 .auth-provider-submit { background-color: var(--accent) !important; border-radius: 8px !important; color: var(--on-accent) !important; font-size: 14px !important; font-weight: 600 !important; height: 50px !important; }
-/* Secondary Clerk actions (social/alternative sign-in) must not inherit a transparent background. */
 .cl-socialButtonsBlockButton, .cl-socialButtonsIconButton { background-color: var(--surface-muted) !important; border: 1px solid var(--border) !important; }
 .cl-socialButtonsBlockButtonText { color: var(--text-primary) !important; }
 .cl-alternativeMethodsBlockButton { background-color: transparent !important; border: 1px solid var(--border) !important; color: var(--text-primary) !important; }
@@ -261,14 +229,11 @@ body {
 .auth-provider-social-button, .auth-provider-alt-button { background-color: var(--surface-muted) !important; border: 1px solid var(--border) !important; color: var(--text-primary) !important; }
 .auth-provider-social-button:hover, .auth-provider-alt-button:hover { background-color: var(--border) !important; }
 .auth-provider-social-text, .auth-provider-footer-text { color: var(--text-primary) !important; }
-/* Primary action styling lives in auth.css: cascade layers in this file would
-   otherwise drop the !important override below Clerk's `.cl-button`. */
 .auth-loading, .auth-denied, .auth-config-notice { align-content: center; background: var(--background); color: var(--text-primary); display: grid; justify-items: center; min-height: 100vh; padding: 24px; text-align: center; }
 .auth-denied h1, .auth-config-notice h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
 
 @media (max-width: 600px) {
   .auth-page { padding: 16px; }
   .auth-card { padding: 0; }
-  /* Keep ~16px a side on a 390px phone instead of the 24px desktop inset. */
   .auth-provider-card { border-radius: 18px !important; padding: 30px 20px !important; }
 }

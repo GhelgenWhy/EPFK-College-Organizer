@@ -10,16 +10,13 @@ interface EventManagerProps {
   onCreate: (payload: EventPayload & { eventName: string; startTime: string }) => Promise<void>;
   onUpdate: (eventId: number, payload: EventPayload) => Promise<void>;
   onDelete: (eventId: number) => Promise<void>;
-  /** Rows rendered by the caller after each mutation (the page refetches). */
   events: EventRow[];
 }
 
 const EMPTY_FORM = { eventName: '', localTime: '', place: '', description: '', organizer: '', detailsUrl: '' };
 type FormField = keyof typeof EMPTY_FORM;
-/** Fields that must be filled in; the rest may stay empty (and are cleared on edit when emptied). */
 const REQUIRED_FIELDS: FormField[] = ['eventName', 'localTime', 'place', 'description'];
 
-/** Value for `<input type="datetime-local">` from an ISO timestamp; empty when the value is missing. */
 function toLocalInput(iso: string | null) {
   if (!iso || Number.isNaN(Date.parse(iso))) return '';
   const date = new Date(iso);
@@ -35,7 +32,6 @@ function formatEventTime(iso: string | null) {
   );
 }
 
-/** Input class; a red border and ring mark a required field that is still empty. */
 function inputClass(invalid: boolean, extra = '') {
   const base = invalid
     ? `${fieldClass.replace('border-border', 'border-[var(--danger)]')} ring-1 ring-[var(--danger)]`
@@ -98,7 +94,6 @@ export function EventManager({ canEdit, events, onCreate, onUpdate, onDelete }: 
       show('Заповніть обов’язкові поля (підсвічені червоним)', 'error');
       return;
     }
-    // Optional fields are sent as null when empty, so an edit actually clears them on the server.
     const payload = {
       eventName: form.eventName.trim(),
       startTime: new Date(form.localTime).toISOString(),

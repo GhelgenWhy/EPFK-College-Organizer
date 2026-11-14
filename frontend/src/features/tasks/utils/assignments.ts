@@ -13,7 +13,6 @@ export function isOverdue(task: Assignment, completed: boolean, now: KyivTime) {
   return `${now.date}T${now.time}` >= `${dueDateStr}T${task.dueTime}:00`;
 }
 
-/** Deadline state for a card: overdue, approaching (within 3 days) or normal. Completed tasks are always normal. */
 export function getDeadlineState(task: Assignment, completed: boolean, now: KyivTime): 'overdue' | 'approaching' | 'normal' {
   if (completed || !task.dueDate) return 'normal';
   if (isOverdue(task, completed, now)) return 'overdue';

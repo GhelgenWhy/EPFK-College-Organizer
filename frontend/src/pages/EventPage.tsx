@@ -27,7 +27,6 @@ export const EventPage = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // 1. Фільтрація за періодом
     const periodFiltered = (query.data ?? []).filter((event) => {
       const eventDate = new Date(event.date);
       eventDate.setHours(0, 0, 0, 0);
@@ -50,10 +49,9 @@ export const EventPage = () => {
           eventDate.getFullYear() === today.getFullYear()
         );
       }
-      return true; // "Усі дати"
+      return true;
     });
 
-    // 2. Фільтрація за статусом
     const statusFiltered = periodFiltered.filter((event) => {
       if (status === "Усі статуси") return true;
       return event.status === status;

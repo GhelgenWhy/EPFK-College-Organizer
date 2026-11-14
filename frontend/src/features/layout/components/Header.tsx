@@ -18,9 +18,6 @@ export const Header = ({
 }: HeaderProps) => {
   return (
     <header className="flex h-[60px] w-full shrink-0 items-center justify-between px-[18px] max-[1200px]:px-6 max-[760px]:h-[69px] max-[760px]:px-1">
-      {/* Horizontal padding mirrors the dashboard content inset (px-[18px]), so the pills line
-          up with the cards below instead of sticking out past them. */}
-      {/* Shows the server's last successful Moodle check; the click only reloads that value. */}
       <button
         type="button"
         title="Час останньої успішної перевірки з Moodle. Натисніть, щоб оновити дані."
@@ -35,7 +32,6 @@ export const Header = ({
         </span>
       </button>
 
-      {/* Профіль користувача через NavLink (перекидує на /profile) */}
       <NavLink
         to="/profile"
         end
@@ -47,7 +43,6 @@ export const Header = ({
           }`
         }
       >
-        {/* Аватар користувача */}
         <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[20px] bg-[var(--surface-muted)] max-[760px]:h-[34px] max-[760px]:w-[34px]">
           <img
             src={userAvatar ?? profileAvatar}
@@ -58,12 +53,10 @@ export const Header = ({
           />
         </div>
 
-        {/* Ім'я користувача */}
         <span className="max-w-[90px] overflow-hidden text-xs font-bold text-ellipsis whitespace-nowrap min-[761px]:max-w-none min-[761px]:text-base">
           {userName}
         </span>
 
-        {/* Стрілка меню профілю */}
         <svg width="18" height="10" viewBox="0 0 19 10" fill="none">
           <path
             d="M0.29289 0.292874C-0.09763 0.683475 -0.09763 1.31658 0.29289 1.70718L6.93736 8.3516C8.10864 9.52286 10.0074 9.52322 11.1791 8.35242L17.7545 1.78208C18.1451 1.39158 18.1451 0.758375 17.7545 0.367875C17.364 -0.022625 16.7308 -0.022625 16.3403 0.367875L9.76834 6.93992C9.37774 7.33044 8.74464 7.33044 8.35414 6.93992L1.70711 0.292874C1.31658 -0.0976257 0.68342 -0.0976257 0.29289 0.292874Z"

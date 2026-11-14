@@ -143,7 +143,6 @@ export const SecurityCard = ({ hasPassword, email }: SecurityCardProps) => {
         <div className="border-t border-(--border) pt-4 mt-4" />
 
         <div className="flex flex-col gap-4">
-          {/* Блок пошти */}
           <div className="flex flex-col justify-start gap-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-col gap-1 text-xs text-secondary w-full sm:w-auto flex-1">
@@ -244,7 +243,6 @@ export const SecurityCard = ({ hasPassword, email }: SecurityCardProps) => {
             )}
           </div>
 
-          {/* Блок пароля */}
           <div className="flex flex-col justify-start gap-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-col gap-1 text-xs text-secondary flex-1">

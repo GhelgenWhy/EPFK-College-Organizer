@@ -8,7 +8,6 @@ export type EmptyReason =
   | 'no-data';
 
 const COPY: Record<EmptyReason, { pose: CheshirePose; title: string; hint: string }> = {
-  // The peeking pose is reserved for the events page; empty states use other poses.
   'no-group': {
     pose: 'sleep',
     title: 'Групу ще не обрано',
@@ -31,10 +30,6 @@ const COPY: Record<EmptyReason, { pose: CheshirePose; title: string; hint: strin
   },
 };
 
-/**
- * Пустое состояние с котом. Причина задаётся явно, а не по ошибке сервера: отсутствие данных
- * это не сбой. Кот декоративный, поэтому текст всё равно передаёт смысл.
- */
 export function EmptyState({
   reason = 'no-data',
   title,

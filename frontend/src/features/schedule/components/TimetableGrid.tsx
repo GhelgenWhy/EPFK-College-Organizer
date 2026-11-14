@@ -10,14 +10,10 @@ interface TimetableGridProps {
 export const TimetableGrid = ({ timeSlots, days }: TimetableGridProps) => {
   const { date } = useKyivClock();
   const currentWeekday = new Date(`${date}T00:00:00Z`).getUTCDay() || 7;
-  // Monday to Friday are always columns; Saturday appears only when it is in the data
-  // (the API sends it only when it has lessons).
   const visibleDays = days.filter((day) => day.weekday <= 5 || day.lessons.some((lesson) => lesson !== null));
   const columns = visibleDays.length;
 
   return (
-  // On phones the grid keeps a readable column width and the wrapper scrolls sideways,
-  // instead of squeezing every day into the screen width.
   <div className="min-h-0 min-w-0 flex-1 overflow-x-auto max-[760px]:-mx-1 max-[760px]:px-1">
   <div
     className="grid min-h-0 gap-1 [grid-template-columns:var(--desktop-cols)] max-[760px]:min-w-[640px] max-[760px]:[grid-template-columns:64px_repeat(var(--cols),minmax(104px,1fr))]"

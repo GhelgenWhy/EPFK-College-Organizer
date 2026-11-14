@@ -47,7 +47,6 @@ export const EventHeader = ({
   return (
     <div className="w-full px-[30px] pt-[29px] pb-5 max-[760px]:px-4 max-[760px]:pt-4">
       <div className="flex flex-wrap items-center bg-surface py-[17px] px-[22px] gap-[16px] rounded-[18px] shadow-sm relative z-30 max-[760px]:gap-[8px] max-[760px]:p-[10px] max-[760px]:rounded-[14px]">
-        {/* 1. Період */}
         <div className="flex min-w-0 flex-col gap-1 relative max-[760px]:w-[calc(50%-4px)]">
           <label className="text-[12px] text-gray-400 font-medium max-[760px]:text-[10px]">
             Період
@@ -94,7 +93,6 @@ export const EventHeader = ({
           )}
         </div>
 
-        {/* 2. Статус */}
         <div className="flex min-w-0 flex-col gap-1 relative max-[760px]:w-[calc(50%-4px)]">
           <label className="text-[12px] text-gray-400 font-medium max-[760px]:text-[10px]">
             Статус
@@ -141,7 +139,6 @@ export const EventHeader = ({
           )}
         </div>
 
-        {/* 3. Сортування */}
         <div className="flex min-w-0 flex-col gap-1 relative max-[760px]:w-[calc(50%-4px)]">
           <label className="text-[12px] text-gray-400 font-medium max-[760px]:text-[10px]">
             Сортування
@@ -188,7 +185,6 @@ export const EventHeader = ({
           )}
         </div>
 
-        {/* Кнопка сброса */}
         <button
           onClick={onReset}
           className="text-teal-600 text-sm font-medium hover:underline self-center mt-5 cursor-pointer"

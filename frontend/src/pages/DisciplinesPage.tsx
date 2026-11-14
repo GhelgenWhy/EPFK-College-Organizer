@@ -31,7 +31,6 @@ export function DisciplinesPage() {
 
   useEffect(() => {
     if (query.data) {
-      // Persist only: the rendered list already uses query.data, so no state update here.
       try {
         localStorage.setItem(DISCIPLINES_CACHE_KEY, JSON.stringify(query.data));
       } catch (e) {
@@ -67,5 +66,3 @@ export function DisciplinesPage() {
     </main>
   );
 }
-
-

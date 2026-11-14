@@ -1,4 +1,4 @@
-﻿import type { KyivTime } from '../hooks/useKyivClock';
+import type { KyivTime } from '../hooks/useKyivClock';
 import type { Assignment, MarkSource } from '../types';
 import { getDeadlineState } from '../utils/assignments';
 import { AssignmentCard } from './AssignmentCard';
@@ -13,7 +13,6 @@ export function AssignmentsList({
 }: {
   tasks: Assignment[];
   completedTaskIds: string[];
-  /** Who completed each task: 'SYSTEM' (locked) or 'USER' (editable until synced). */
   markSources: Record<string, MarkSource>;
   onToggleTask: (taskId: string) => void;
   now: KyivTime;

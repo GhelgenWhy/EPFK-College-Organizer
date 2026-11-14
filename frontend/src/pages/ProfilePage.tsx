@@ -36,7 +36,6 @@ type ClerkUser = NonNullable<ReturnType<typeof useUser>["user"]>;
 const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
     const { setTheme } = useTheme();
     const { getToken } = useAuth();
-    // The group is the server value (admin-assigned), not a Clerk metadata string.
     const profileQuery = useCurrentProfile();
     const groupOptionsQuery = useApiQuery(manageApi.getGroupOptions);
     const serverGroupId = profileQuery.profile?.groupId ?? null;
@@ -45,7 +44,6 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
         firstName: user.firstName ?? "",
         lastName: user.lastName ?? "",
         group: "",
-        // Moodle credentials are never stored in Clerk metadata; the token lives on the backend.
         moodleLogin: "",
         moodlePassword: "",
         language: user.unsafeMetadata.language === "English" ? "English" : "Українська",
@@ -82,12 +80,9 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
             "Особисті дані успішно оновлено.",
         );
 
-    // Moodle sync only: the group is not edited here (admin assigns it, the user may pick
-    // from existing groups through chooseGroup).
     const saveEducation = (data: { moodleLogin: string; moodlePassword: string }) =>
         save(async () => {
             const controller = new AbortController();
-            // The backend exchanges the credentials for a Moodle token and stores only that token.
             await moodleApi.postCredentials(
                 {
                     username: data.moodleLogin.trim(),
@@ -103,6 +98,7 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
                 moodleLogin: "",
                 moodlePassword: "",
             }));
+            await profileQuery.retry();
         }, "Дані Moodle збережено.");
 
     const chooseGroup = (groupId: number) =>
@@ -154,10 +150,6 @@ const LoadedProfilePage = ({ user }: { user: ClerkUser }) => {
                 </h1>
             </div>
 
-            {/* Decorative cat sitting on the profile header card. The wrapper is pinned to the
-                window (position: fixed), which lifts it above every scrolling container so the
-                page can no longer cut it; only the artwork's own status row ends up below the
-                card's top edge, keeping the same pixel position as before. */}
             <div
                 className="pointer-events-none fixed top-[calc(var(--app-view-top)-74px)] left-[calc(var(--app-view-left)+30%)] z-[70] hidden min-[1100px]:block"
                 aria-hidden="true">

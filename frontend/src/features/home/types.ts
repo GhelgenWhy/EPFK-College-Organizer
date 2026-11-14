@@ -27,7 +27,6 @@ export interface HomeDeadline {
   urgent?: boolean;
 }
 
-/** Counters over all open (not completed) tasks, computed by the backend. */
 export interface HomeSummary {
   activeTasks: number;
   deadlinesNext3Days: number;

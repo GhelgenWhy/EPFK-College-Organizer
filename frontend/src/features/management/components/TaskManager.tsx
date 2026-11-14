@@ -128,7 +128,6 @@ export function TaskManager({ tasks, disciplines, canEdit, onCreate, onDelete }:
         </div>
       )}
 
-      {/* Wide screens: table. Narrow screens: one card per task (no horizontal scroll). */}
       <div className="overflow-auto rounded-[18px] border border-border bg-surface [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin max-[760px]:hidden">
         <table className="w-full min-w-[680px] table-fixed border-collapse text-sm">
           <colgroup>

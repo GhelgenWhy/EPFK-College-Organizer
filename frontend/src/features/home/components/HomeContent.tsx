@@ -11,10 +11,6 @@ import { EventsSection } from "./EventsSection";
 import { kyivNowMinutes, lessonState } from "../../../lib/dates";
 import type { HomeLesson } from "../types";
 
-/**
- * Big card: the lesson in progress (current), otherwise the next one not started yet (next).
- * When nothing is left today the card shows the neutral "none" state.
- */
 function pickFeaturedLesson(lessons: HomeLesson[], nowMinutes: number): { lesson: HomeLesson | null; state: FeaturedState } {
   const current = lessons.find((lesson) => lessonState(lesson.startsAt, lesson.endsAt, nowMinutes) === "current");
   if (current) return { lesson: current, state: "current" };
@@ -50,7 +46,6 @@ export function HomeContent({
       <h1 id="home-heading" className="sr-only">Головна</h1>
 
       <div className="grid min-h-0 shrink-0 items-stretch grid-cols-[minmax(0,1.535fr)_minmax(0,1fr)] gap-[clamp(12px,2.5vw,36px)] max-[1200px]:gap-5 max-[760px]:grid-cols-1 max-[760px]:gap-3">
-        {/* Big card: current (yellow), next (cyan), or a neutral empty-day card. */}
         <div className="min-w-0">
           {(!featured.lesson || featured.state === 'none') && (
             <div className="pointer-events-none absolute top-[clamp(-100px,calc(1vh-60px),180px)] right-[calc(var(--app-main-left)+37vw)] z-[60] hidden min-[1200px]:block">
@@ -91,4 +86,3 @@ export function HomeContent({
     </main>
   );
 }
-

@@ -43,17 +43,12 @@ export interface UpdateTaskDto {
 export interface CreateEventDto {
   eventName: string;
   startTime: string;
-  /** Required: where the event takes place. */
   place: string;
-  /** Required: what the event is about. */
   description: string;
-  /** Optional organizer name typed by the admin (not the author's account name). */
   organizer?: string;
-  /** Optional link to details or a registration form. */
   detailsUrl?: string;
 }
 
-/** Edit payload: a `null` value for an optional field clears it. Required fields cannot be cleared. */
 export interface UpdateEventDto {
   eventName?: string;
   startTime?: string;
@@ -172,7 +167,6 @@ export function parseUpdateEvent(body: unknown): UpdateEventDto {
   if (value.startTime !== undefined) result.startTime = requiredDate(value.startTime, 'startTime').toISOString();
   if (value.place !== undefined) result.place = requiredString(value.place, 'place');
   if (value.description !== undefined) result.description = requiredString(value.description, 'description');
-  // Optional fields: null (or empty string) clears the stored value.
   if (value.organizer !== undefined) result.organizer = optionalString(value.organizer);
   if (value.detailsUrl !== undefined) result.detailsUrl = optionalString(value.detailsUrl);
   return result;

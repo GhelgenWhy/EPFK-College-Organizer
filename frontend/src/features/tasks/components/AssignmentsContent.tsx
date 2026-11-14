@@ -14,8 +14,6 @@ export function AssignmentsContent({
   tasks: Assignment[];
   storageKey: string;
 }) {
-  // Local storage keeps the user's own marks. A completion confirmed by the system (Moodle sync)
-  // takes precedence and locks the task: the user can no longer change it.
   const { completedTaskIds: userMarkIds, toggleTask } = useTaskCompletion(tasks, storageKey);
   const markSources: Record<string, MarkSource> = {};
   for (const id of userMarkIds) markSources[id] = 'USER';
@@ -37,7 +35,6 @@ export function AssignmentsContent({
   );
 
   function handleToggle(taskId: string) {
-    // System-confirmed completion is fixed; only the user's own marks can be changed.
     if (markSources[taskId] === 'SYSTEM') return;
     toggleTask(taskId);
   }
@@ -55,7 +52,6 @@ export function AssignmentsContent({
       aria-labelledby="assignments-title"
     >
       <div className="flex shrink-0 items-center gap-3">
-        {/* The page's only cat: it sits to the left of the title and is not repeated in empty states. */}
         <CheshireCat pose="read" height={72} className="max-[760px]:hidden" />
         <h1
           id="assignments-title"
@@ -80,7 +76,6 @@ export function AssignmentsContent({
           onResetFilters={resetFilters}
         />
 
-        {/* Панель фільтрів */}
         <AssignmentsFiltersPanel
           disciplines={disciplines}
           discipline={discipline}

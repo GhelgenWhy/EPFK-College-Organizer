@@ -20,7 +20,7 @@ export function useTaskCompletion(tasks: { id: string }[], storageKey = COMPLETE
     try {
       localStorage.setItem(storageKey, JSON.stringify(completedTaskIds));
     } catch {
-      // Tasks remain usable when browser storage is unavailable.
+      // Storage unavailable: marks stay in memory for this session.
     }
   }, [completedTaskIds, storageKey]);
 

@@ -6,7 +6,6 @@ import type { ApiRequestOptions } from './client';
 import { requestJson } from './client';
 import { array, boolean, dateKey, dateString, id, nullable, number, object, oneOf, optional, string, validated } from './validation';
 
-// One malformed lesson must not hide the whole timetable: unknown lessons become empty slots.
 const lesson = object({
   id: id, disciplineName: string, teacherName: string,
   startsAt: string, endsAt: string, format: oneOf('OFFLINE', 'ONLINE', 'HYBRID'),
@@ -21,7 +20,6 @@ const schedule = object({
   numerator: array(day), denominator: array(day),
 });
 
-/** Replaces malformed lesson entries with `null` so the grid keeps its six slots. */
 function normalizeSchedule(value: ScheduleResponse): ScheduleResponse {
   const days = (list: ScheduleResponse['numerator']) =>
     list.map((item) => ({
@@ -50,8 +48,6 @@ interface HomeResponse {
 const nullableArray = (check: (value: unknown) => boolean) =>
   (value: unknown): boolean => value === null || value === undefined || array(check)(value);
 
-// Backend may send null for missing lists or fields (weekends, no group, no deadline).
-// Nullable lists are normalised to [] in getHome; nullable fields are rendered as text fallbacks.
 const home = object({
   HOME_DEMO_DATE: dateString,
   HOME_DEADLINES: nullableArray(object({ id: string, date: dateKey, label: string, title: string, course: string, urgent: optional(boolean) })),

@@ -42,7 +42,6 @@ export class MoodleService {
             },
         );
 
-        // Moodle answers 200 with { error, errorcode } for wrong credentials; never return undefined.
         const token = response.data?.token;
         if (typeof token !== "string" || token === "") {
             const reason = response.data?.error ?? "неизвестная ошибка";
@@ -159,8 +158,6 @@ export class MoodleService {
 
         const courses: MoodleCourse[] = response.data.courses;
 
-        // Teacher = the course contact Moodle shows on the course page (core_course_get_courses_by_field).
-        // One failing course must not break the whole sync, so its teacher just stays unknown.
         return Promise.all(
             courses.map(async (course): Promise<MoodleCourseDto> => ({
                 id: course.id,

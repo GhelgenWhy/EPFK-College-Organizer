@@ -31,11 +31,6 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   return children;
 }
 
-/**
- * Gate for organizer pages. The role comes from the backend (`/manage/me`) so
- * it matches the permissions enforced by the API; Clerk metadata is used only
- * while that request is in flight.
- */
 export function RequireRole({ roles, children }: { roles: readonly AppRole[]; children: ReactNode }) {
   const { isLoaded, isSignedIn, user } = useUser();
   const { profile, isLoading, error, retry } = useCurrentProfile();
@@ -49,8 +44,6 @@ export function RequireRole({ roles, children }: { roles: readonly AppRole[]; ch
 
   const fallbackRole = resolveAppRole(user.publicMetadata.role);
 
-  // Children read AuthzContext, which only exists once the server role is known.
-  // Rendering them earlier throws on a direct page load (no cached profile yet).
   if (isLoading && !profile) return <LoadingScreen />;
 
   if (error && !profile) {

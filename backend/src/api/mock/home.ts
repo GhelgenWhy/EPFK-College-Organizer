@@ -3,8 +3,6 @@ import type { CollegeEvent, HomeDeadline, HomeLesson } from '../types/home.js';
 
 export { HOME_TASKS };
 
-// The export contained a static September 30 snapshot, so this content is for
-// preview purposes until the application has live data from its API.
 export const HOME_DEMO_DATE = new Date(2026, 8, 30);
 
 export const HOME_LESSONS: HomeLesson[] = [

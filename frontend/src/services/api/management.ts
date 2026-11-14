@@ -31,7 +31,6 @@ export interface GroupInfo {
 
 export interface StudentInfo {
   id: string;
-  /** Display name from Clerk; null when it could not be resolved. */
   firstName: string | null;
   lastName: string | null;
   email: string | null;
@@ -69,7 +68,6 @@ export interface EventRow {
   detailsUrl: string | null;
 }
 
-/** Payload for creating or editing a college event. Place and description are required; organizer and details link are optional (null clears them on edit). */
 export interface EventPayload {
   eventName?: string;
   startTime?: string;
@@ -185,7 +183,6 @@ export const manageApi = {
   getMe: (options: ApiRequestOptions) =>
     requestJson('/manage/me', options, (value) => validated<CurrentUserProfile>(value, meCheck, 'me')),
 
-  /** Existing groups the user may pick from (no creation). */
   getGroupOptions: (options: ApiRequestOptions) =>
     requestJson('/manage/group-options', options, (value) =>
       validated<Array<{ id: number; groupName: string }>>(
@@ -194,12 +191,10 @@ export const manageApi = {
         'group options',
       )),
 
-  /** Admin forces a Moodle sync for one student using the token they already linked. */
   syncStudent: async (userId: string, options: ApiRequestOptions) => {
     await send(`/manage/admin/students/${encodeURIComponent(userId)}/sync`, 'POST', undefined, options);
   },
 
-  /** The user selects one of the existing groups for themselves. */
   chooseOwnGroup: async (groupId: number, options: ApiRequestOptions) => {
     await send('/manage/me/group', 'PUT', { groupId }, options);
   },

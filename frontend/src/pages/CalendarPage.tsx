@@ -61,30 +61,25 @@ export function CalendarPage() {
     });
   }
 
-  // Перехід до попереднього місяця
   const handlePrevMonth = () => {
     updateCalendar({
       month: new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1),
     });
   };
 
-  // Перехід до наступного місяця
   const handleNextMonth = () => {
     updateCalendar({
       month: new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1),
     });
   };
 
-  // Вибір дня календаря
   const handleSelectDay = (day: CalendarDay) => {
     updateCalendar({ date: day.date, month: day.date });
   };
 
-  // Формування днів календаря
   const days = generateCalendarMatrix(viewDate, selectedDate);
   const selectedKey = formatDateKey(selectedDate);
 
-  // Фільтрація подій для вибраної дати
   const sidebarEvents =
     query.data?.filter((e) => {
       if (e.date !== selectedKey) return false;
@@ -109,7 +104,6 @@ export function CalendarPage() {
 
       <ApiQueryStatus query={query} loadingText="Завантаження календаря…" />
       {query.data && <div className="flex min-h-0 flex-1 gap-5 overflow-hidden max-[760px]:flex-col max-[760px]:gap-3">
-        {/* Основна частина календаря */}
         <div className="flex min-h-0 min-w-0 flex-1 flex-col max-[760px]:overflow-y-auto">
           <CalendarHeader
             viewDate={viewDate}
@@ -127,7 +121,6 @@ export function CalendarPage() {
           />
         </div>
 
-        {/* Бічна панель з подіями */}
         <EventSidebar selectedDate={selectedDate} events={sidebarEvents} />
       </div>}
     </main>

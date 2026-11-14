@@ -18,7 +18,6 @@ interface ManageHeaderProps {
   children?: ReactNode;
 }
 
-/** Page header with the underline-style tab bar used by the admin panel. */
 export function ManageHeader({ title, subtitle, tabs, activeTab, onTabChange, children }: ManageHeaderProps) {
   return (
     <div className="flex flex-col gap-3">

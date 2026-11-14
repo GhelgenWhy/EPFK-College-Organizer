@@ -1,6 +1,5 @@
 import type { Discipline } from '../features/disciplines/types';
 
-// Temporary catalog until disciplines are provided by the backend.
 export const MOCK_DISCIPLINES: Discipline[] = [
   { id: 'machine-learning', name: 'Машинне навчання та штучний інтелект', teacherName: 'Котов Р.О.', moodleUrl: 'https://moodle.org' },
   { id: 'databases', name: 'Бази даних', teacherName: 'Мельник А.С.', moodleUrl: 'https://moodle.org' },

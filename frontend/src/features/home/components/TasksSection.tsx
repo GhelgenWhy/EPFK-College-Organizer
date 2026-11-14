@@ -13,7 +13,6 @@ function TaskRow({
   return (
     <li className="flex min-h-0 min-w-0 flex-1 items-center border-b border-[var(--border)] last:border-b-0 max-[760px]:min-h-[88px]">
       <div className="flex min-w-0 items-start gap-[10px] max-[760px]:gap-3">
-        {/* Read-only status marker: completion is set on the Assignments page, not here. */}
         <span
           aria-hidden="true"
           className={`mt-px grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 border-[var(--accent)] bg-surface max-[760px]:h-[22px] max-[760px]:w-[22px] ${completed ? "bg-[var(--accent)]" : ""}`}
@@ -56,7 +55,6 @@ export function TasksSection({
   completedTaskIds: string[];
   onToggleTask?: (taskId: string) => void;
 }) {
-  // Only open tasks are shown: completed ones leave the list right away.
   const openTasks = tasks.filter((task) => !completedTaskIds.includes(task.id));
 
   return (

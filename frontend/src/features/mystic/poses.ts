@@ -11,20 +11,19 @@ import cat10 from '../../assets/cheshire/cat-10-tea.png';
 import cat11 from '../../assets/cheshire/cat-11-done.png';
 import cat12 from '../../assets/cheshire/cat-12-notebook.png';
 
-// Cheshire Cat poses: one character, one image per situation.
 export const CHESHIRE_POSES = {
-  lying: cat01, // lies on a flat edge, tail hanging down
-  grin: cat02, // only the grin and the eyes
-  peek: cat03, // peeks from behind a vertical edge
-  sleep: cat04, // sleeps curled up
-  calendar: cat05, // holds a blank calendar page
-  read: cat06, // reads a book
-  yarn: cat07, // plays with yarn (loading)
-  dissolve: cat08, // dissolving (errors, 404)
-  wave: cat09, // waves hello
-  tea: cat10, // relaxes in a striped cushion with a cup of tea
-  done: cat11, // thumbs up next to finished books
-  notebook: cat12, // waves with a notebook in the other paw (profile page)
+  lying: cat01,
+  grin: cat02,
+  peek: cat03,
+  sleep: cat04,
+  calendar: cat05,
+  read: cat06,
+  yarn: cat07,
+  dissolve: cat08,
+  wave: cat09,
+  tea: cat10,
+  done: cat11,
+  notebook: cat12,
 } as const;
 
 export type CheshirePose = keyof typeof CHESHIRE_POSES;
