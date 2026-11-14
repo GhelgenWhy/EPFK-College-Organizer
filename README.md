@@ -9,10 +9,12 @@ frontend/                  React + Vite
   src/
     App.tsx                кореневий компонент
     main.tsx               точка входу
-    pages/                 сторінки
-    features/              функціональні модулі з власними компонентами, хуками й API
-    components/            спільні компоненти, якщо з'являться
-    assets/                зображення та шрифти, якщо з'являться
+    pages/                 компоненти маршрутів та збирання сторінок
+    features/              компоненти, типи, хуки та логіка за функціональними напрямами
+    services/api/          спільні клієнти для запитів до backend
+    mocks/                 тимчасові набори демонстраційних даних
+    themes/                палітри світлої й темної тем у JSON
+    assets/                зображення та брендова графіка
 backend/                   NestJS
   src/
     main.ts                запуск сервера
@@ -26,7 +28,37 @@ backend/                   NestJS
 
 ## Запуск
 
+### Однією командою
+
+Запустіть `start-all.bat` з кореня репозиторію (подвійним кліком або з консолі):
+
+```powershell
+.\start-all.bat
+```
+
+Скрипт перевіряє Docker і Node.js, за потреби запускає Docker Desktop, створює
+`.env` з прикладів, піднімає PostgreSQL, встановлює залежності, застосовує
+Prisma-міграції та відкриває backend і frontend у окремих вікнах.
+
+Прапорці:
+
+- `/fresh` - видалити локальний том бази та створити її заново;
+- `/noinstall` - не запускати `npm ci`, навіть якщо `node_modules` відсутній.
+
+```powershell
+.\start-all.bat /fresh
+```
+
+Перед першим запуском заповніть ключі Clerk у `backend/.env` і `frontend/.env`.
+
+### Вручну
+
+PostgreSQL, Prisma та команди міграцій описані в [infrastructure/db/README.md](infrastructure/db/README.md).
+Перед запуском backend підніміть базу та застосуйте міграції за цією інструкцією.
+
 Потрібен Node.js, сумісний із версіями залежностей у `package.json`.
+
+Для локального входу налаштуйте ключі Clerk за інструкцією в [AUTH.md](AUTH.md), скопіювавши `.env.example` у `.env` для frontend і backend.
 
 ```powershell
 cd backend
@@ -42,7 +74,7 @@ npm ci
 npm run dev
 ```
 
-API перевіряється через `GET /health` і повертає `{ "status": "ok" }`.
+API перевіряється через `GET /health` і повертає `{ "status": "ok" }`. Розклад доступний через `GET /api/schedule`; бекенд повертає обидва тижні, шість часових слотів і масиви з шістьма заняттями або `null` на кожен день. Джерело демонстраційних даних - `backend/src/schedule/schedule.json`.
 
 ## Перевірка
 

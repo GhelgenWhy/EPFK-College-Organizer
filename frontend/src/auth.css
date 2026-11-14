@@ -1,0 +1,10 @@
+.auth-provider-card button.cl-formButtonPrimary {
+  background-color: var(--accent, #079b98) !important;
+  color: var(--on-accent, #ffffff) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.auth-provider-card button.cl-formButtonPrimary:hover {
+  background-color: var(--accent-hover, #078582) !important;
+}
