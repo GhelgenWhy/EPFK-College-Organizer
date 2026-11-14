@@ -168,10 +168,13 @@ body {
   margin: 2px 0 0;
 }
 .auth-split .auth-card {
-  /* Right half: a flex column that centres the Clerk form both ways. The form is
-     absolutely positioned (inset) so the half keeps its grid height; padding keeps the
-     form off the divider and the screen edge. */
-  display: block;
+  /* Right half: centres the Clerk form horizontally and vertically.
+     The provider is absolutely positioned so this half keeps its grid height; the padding
+     is the only thing that keeps the form off the divider and the window edge, so it must
+     stay applied here (the provider's own inset was double-padding). */
+  align-items: center;
+  display: flex;
+  justify-content: center;
   max-width: none;
   min-height: 0;
   padding: 32px 48px;
@@ -179,22 +182,30 @@ body {
   width: 100%;
 }
 .auth-split .auth-provider {
+  /* Fills the padded area, then centres the card inside it. Without centering here the
+     card is stretched to the full half-width and `margin: 0 auto` cannot do anything.
+     `inset` must stay 0: the parent already applies the 32/48 padding, and an equal inset
+     here would double it and push the form past the window edge. */
   align-items: center;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  inset: 0;
   justify-content: center;
-  inset: 32px 48px;
   position: absolute;
+  /* Never wider than the padded area, so a narrow half shrinks the card instead of
+     letting it overflow to the right edge. */
+  max-width: 100%;
 }
 .auth-split .auth-provider-card-box {
   box-sizing: border-box;
-  max-width: 100%;
+  max-width: min(100%, 660px);
   width: 100%;
 }
 .auth-split .auth-provider-card {
-  /* The shared rule caps this at 660px; no outer margin, the flex parent centres it. */
+  /* The shared rule caps this at 660px; the flex parent above centres it. */
   margin: 0 auto;
+  max-width: 100%;
 }
 @media (max-width: 900px) {
   /* Stacked layout: the page is one normal scrolling column. Rows must not stretch to the
@@ -208,11 +219,21 @@ body {
   .auth-intro-list { gap: 10px; }
   .auth-intro-item-text { font-size: 12px; }
   /* Insets around the form: space above the card, and a bottom margin so it never
-     touches the end of the page. */
-  .auth-split .auth-card { padding: 20px 16px 32px; }
-  .auth-split .auth-provider { display: block; inset: auto; position: relative; }
-  .auth-split .auth-provider-card-box { margin: 0 auto; }
-  .auth-split .auth-provider-card { margin: 0 auto; }
+     touches the end of the page. The half stays a centring flex column, so the form is
+     centred rather than pinned to one side. */
+  .auth-split .auth-card { align-items: center; padding: 20px 16px 32px; }
+  /* In the flow (not absolute) so the column can scroll, but still centred by the parent. */
+  .auth-split .auth-provider {
+    align-items: center;
+    display: flex;
+    inset: auto;
+    margin: 0 auto;
+    max-width: min(100%, 660px);
+    position: static;
+    width: 100%;
+  }
+  .auth-split .auth-provider-card-box { margin: 0 auto; max-width: 100%; }
+  .auth-split .auth-provider-card { margin: 0 auto; max-width: 100%; }
 }
 
 .auth-card { background: transparent; max-width: 660px; padding: 0; width: 100%; }
