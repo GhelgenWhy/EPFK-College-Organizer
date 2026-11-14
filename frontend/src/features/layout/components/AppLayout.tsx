@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { SyncSetupNotice } from './SyncSetupNotice';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -30,14 +31,9 @@ export const AppLayout = ({
           onSyncClick={onSyncClick}
           onProfileClick={onProfileClick}
         />
-        {/* Positioning context for absolutely placed page decorations (e.g. the dashboard cat):
-            it spans only the content column under the header, so it does not clip anything. */}
+        <SyncSetupNotice />
         <div
           className="relative flex min-h-0 min-w-0 flex-1 flex-row gap-2"
-          // --app-main-left: left padding of the content column.
-          // Content-column origin in the viewport for decorations fixed to the window:
-          // --app-view-left / --app-view-top: the content column's origin in the viewport
-          // (app padding + sidebar + gap + app header), for decorations fixed to the window.
           style={{
             '--app-main-left': '22px',
             '--app-view-left': '106px',

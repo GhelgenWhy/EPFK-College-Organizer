@@ -29,11 +29,6 @@ import {
   type WeekType,
 } from './dto/management.dto.js';
 
-/**
- * Endpoints used by the admin and starosta panels.
- * Routes under `admin/` are admin-only; the rest are open to both roles and
- * restricted to the caller's own group for starostas.
- */
 @Controller('manage')
 export class ManagementController {
   constructor(
@@ -47,7 +42,6 @@ export class ManagementController {
     return this.management.getMe(user);
   }
 
-  /** Admin forces a Moodle sync for one student (uses the token the student already linked). */
   @Post('admin/students/:userId/sync')
   @Roles('admin')
   @HttpCode(200)
@@ -56,15 +50,16 @@ export class ManagementController {
     return { synced: true };
   }
 
-  /** Existing groups a user may choose from (read-only, any role). */
   @Get('group-options')
   listGroupOptions() {
     return this.management.listGroupOptions();
   }
 
-  /** The user picks their own group from the existing ones; creating groups is admin-only. */
   @Put('me/group')
-  chooseOwnGroup(@CurrentUser() user: AuthenticatedUser, @Body() body: unknown) {
+  chooseOwnGroup(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: unknown,
+  ) {
     const groupId = (body as { groupId?: unknown } | null)?.groupId;
     if (typeof groupId !== 'number' || !Number.isInteger(groupId)) {
       throw new BadRequestException('Некоректна група');
@@ -72,7 +67,7 @@ export class ManagementController {
     return this.management.chooseOwnGroup(user, groupId);
   }
 
-  // ----------------------------------------------------------------- groups
+  // groups
 
   @Get('admin/groups')
   @Roles('admin')
@@ -86,10 +81,12 @@ export class ManagementController {
     return this.management.createGroup(parseGroup(body));
   }
 
-  /** Renames a group (admin only); members follow automatically because they reference the id. */
   @Patch('admin/groups/:groupId')
   @Roles('admin')
-  renameGroup(@Param('groupId', ParseIntPipe) groupId: number, @Body() body: unknown) {
+  renameGroup(
+    @Param('groupId', ParseIntPipe) groupId: number,
+    @Body() body: unknown,
+  ) {
     return this.management.renameGroup(groupId, parseGroup(body));
   }
 
@@ -99,33 +96,47 @@ export class ManagementController {
     return this.management.deleteGroup(groupId);
   }
 
-  // --------------------------------------------------------------- students
+  // students
 
   @Get('admin/students')
   @Roles('admin')
-  listStudents(@CurrentUser() user: AuthenticatedUser, @Query('groupId') groupId?: string) {
+  listStudents(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('groupId') groupId?: string,
+  ) {
     const parsed = groupId ? Number(groupId) : undefined;
-    return this.roles.getScope(user).then((scope) =>
-      this.management.listStudents(scope, Number.isInteger(parsed) ? parsed : undefined),
-    );
+    return this.roles
+      .getScope(user)
+      .then((scope) =>
+        this.management.listStudents(
+          scope,
+          Number.isInteger(parsed) ? parsed : undefined,
+        ),
+      );
   }
 
   @Get('students')
   @Roles('starosta', 'admin')
   listOwnStudents(@CurrentUser() user: AuthenticatedUser) {
-    return this.roles.getScope(user).then((scope) => this.management.listStudents(scope));
+    return this.roles
+      .getScope(user)
+      .then((scope) => this.management.listStudents(scope));
   }
 
   @Patch('admin/students/:userId/group')
   @Roles('admin', 'starosta')
-  assignGroup(@CurrentUser() user: AuthenticatedUser, @Param('userId') userId: string, @Body() body: unknown) {
+  assignGroup(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('userId') userId: string,
+    @Body() body: unknown,
+  ) {
     const dto = parseAssignGroup(body);
-    return this.roles.getScope(user).then((scope) =>
-      this.management.assignGroup(scope, userId, dto.groupId),
-    );
+    return this.roles
+      .getScope(user)
+      .then((scope) => this.management.assignGroup(scope, userId, dto.groupId));
   }
 
-  // -------------------------------------------------------------- schedule
+  // schedule
 
   @Get('groups/:groupId/schedule')
   @Roles('starosta', 'admin')
@@ -163,12 +174,14 @@ export class ManagementController {
     const scope = await this.roles.getScope(user);
     this.roles.assertGroupAccess(scope, groupId);
     if (weekType !== 'numerator' && weekType !== 'denominator') {
-      throw new BadRequestException('weekType має бути numerator або denominator');
+      throw new BadRequestException(
+        'weekType має бути numerator або denominator',
+      );
     }
     return this.management.removeLesson(groupId, weekType, weekday, slot);
   }
 
-  // ------------------------------------------------------------------ tasks
+  // tasks
 
   @Get('disciplines')
   @Roles('starosta', 'admin')
@@ -189,7 +202,10 @@ export class ManagementController {
 
   @Post('tasks')
   @Roles('starosta', 'admin')
-  async createTask(@CurrentUser() user: AuthenticatedUser, @Body() body: unknown) {
+  async createTask(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: unknown,
+  ) {
     const dto = parseCreateTask(body);
     const scope = await this.roles.getScope(user);
     await this.roles.assertDisciplineAccess(scope, dto.disciplineId);
@@ -198,7 +214,10 @@ export class ManagementController {
 
   @Patch('tasks/:taskId')
   @Roles('starosta', 'admin')
-  updateTask(@Param('taskId', ParseIntPipe) taskId: number, @Body() body: unknown) {
+  updateTask(
+    @Param('taskId', ParseIntPipe) taskId: number,
+    @Body() body: unknown,
+  ) {
     return this.management.updateTask(taskId, parseUpdateTask(body));
   }
 
@@ -208,7 +227,7 @@ export class ManagementController {
     return this.management.deleteTask(taskId);
   }
 
-  // ----------------------------------------------------------------- events
+  // events
 
   @Get('events')
   @Roles('admin')
@@ -224,7 +243,10 @@ export class ManagementController {
 
   @Patch('events/:eventId')
   @Roles('admin')
-  updateEvent(@Param('eventId', ParseIntPipe) eventId: number, @Body() body: unknown) {
+  updateEvent(
+    @Param('eventId', ParseIntPipe) eventId: number,
+    @Body() body: unknown,
+  ) {
     return this.management.updateEvent(eventId, parseUpdateEvent(body));
   }
 
