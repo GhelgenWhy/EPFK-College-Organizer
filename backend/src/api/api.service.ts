@@ -323,17 +323,14 @@ export class ApiService {
 
     // HOME_TASKS ----------------------------------------------------
 
+    // Open tasks with or without a deadline: tasks without one must still show in "Мои завдання".
     const homeTasksDB = await this.prismaService.task.findMany({
       where: {
         ...openTasksWhere,
-        deadline: {
-          gt: now
-        }
+        OR: [{ deadline: null }, { deadline: { gt: now } }],
       },
       take: 3,
-      orderBy: {
-        deadline: 'asc'
-      },
+      orderBy: [{ deadline: { sort: 'asc', nulls: 'last' } }, { addedAt: 'desc' }],
       select: {
         id: true,
         taskName: true,
@@ -344,15 +341,11 @@ export class ApiService {
       }
     });
 
-    const safeHomeTasks = homeTasksDB.filter(
-      (task): task is typeof task & { deadline: Date } => task.deadline !== null
-    );
-
-    const homeTasks: HomeworkTask[] = safeHomeTasks.map(task => {
+    const homeTasks: HomeworkTask[] = homeTasksDB.map(task => {
       return {
         id: task.id.toString(),
         course: task.discipline.disciplineName,
-        dueDate: task.deadline.toISOString().split('T')[0],
+        dueDate: task.deadline ? task.deadline.toISOString().split('T')[0] : null,
         title: task.taskName
       }
     })
@@ -422,9 +415,25 @@ export class ApiService {
     };
   }
   getSchedule(user: { userId: string; role: string }) {
+    // No fallback to the demo mock: it belongs to a real group (K121-23) and would show
+    // someone else's timetable to users with no group yet ("Без групи") or no synced schedule.
     return this.findUserSchedule(user.userId).then(
-      (schedule) => schedule ?? this.schedule,
+      (schedule) => schedule ?? this.emptySchedule(),
     );
+  }
+
+  /** Empty week grid with the standard time slots, so the timetable renders without lessons. */
+  private emptySchedule() {
+    const emptyDays = () =>
+      [1, 2, 3, 4, 5].map((weekday) => ({
+        weekday,
+        lessons: Array.from({ length: 6 }, () => null),
+      }));
+    return {
+      timeSlots: this.schedule.timeSlots,
+      numerator: emptyDays(),
+      denominator: emptyDays(),
+    };
   }
 
   /** Schedule of the user's own group, the same lookup the dashboard uses, for every role. */
