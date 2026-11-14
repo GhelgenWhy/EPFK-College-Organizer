@@ -1,5 +1,5 @@
 import { NavLink } from "react-router";
-import logoSvg from "../../../assets/logo.svg";
+import logoSvg from "../../../assets/brand/epfk-znu-logo.svg";
 import { useClerk, useUser } from "@clerk/react";
 import { isManager, resolveAppRole } from "../../auth/roles";
 import { SidebarIcon, type SidebarIconName } from './SidebarIcon';

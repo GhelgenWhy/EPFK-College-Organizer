@@ -1,4 +1,5 @@
-import type { KyivTime } from '../hooks/useKyivClock';
+﻿import type { KyivTime } from '../hooks/useKyivClock';
+import { CheshireCat } from '../../mystic/CheshireCat';
 import type { Assignment, MarkSource } from '../types';
 import { getDeadlineState } from '../utils/assignments';
 import { AssignmentCard } from './AssignmentCard';
@@ -50,6 +51,7 @@ export function AssignmentsList({
           >
             ✓
           </span>
+          <CheshireCat pose="read" height={110} className="mx-auto" />
           <h2 className="mt-3 text-[15px] font-normal text-primary">
             Тут поки немає завдань
           </h2>

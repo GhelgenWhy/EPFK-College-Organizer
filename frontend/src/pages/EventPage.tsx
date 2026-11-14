@@ -4,6 +4,7 @@ import { EventList } from "../features/events/components/EventList";
 import { organizerApi } from "../services/api/organizer";
 import { useApiQuery } from "../services/api/useApiQuery";
 import { ApiQueryStatus } from "../features/api/components/ApiQueryStatus";
+import { CheshireCat } from "../features/mystic/CheshireCat";
 import type {
   PeriodFilter,
   StatusFilter,
@@ -88,6 +89,9 @@ export const EventPage = () => {
         setSort={setSort}
         onReset={handleReset}
       />
+      <div className="flex items-end justify-end px-[30px] max-[760px]:hidden">
+        <CheshireCat pose="peek" height={64} className="mb-[-4px]" />
+      </div>
       <ApiQueryStatus query={query} loadingText="Завантаження подій…" />
       {query.data && <EventList events={filteredAndSortedEvents} />}
     </div>

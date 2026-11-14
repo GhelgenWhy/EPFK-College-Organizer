@@ -1,14 +1,20 @@
-import { useSearchParams } from 'react-router';
+﻿import { useSearchParams } from 'react-router';
 import type { WeekType } from '../features/schedule/types';
 import { WeekTypeToggle } from '../features/schedule/components/WeekTypeToggle';
 import { TimetableGrid } from '../features/schedule/components/TimetableGrid';
 import { organizerApi } from '../services/api/organizer';
 import { useApiQuery } from '../services/api/useApiQuery';
 import { ApiQueryStatus } from '../features/api/components/ApiQueryStatus';
+import { EmptyState, type EmptyReason } from '../features/mystic/EmptyState';
+import { useCurrentProfile } from '../features/auth/useCurrentProfile';
 
 export const SchedulePage = () => {
   const query = useApiQuery(organizerApi.getSchedule);
   const schedule = query.data;
+  const profileState = useCurrentProfile();
+  const profile = profileState.profile;
+  const hasLessons = !!schedule && [...schedule.numerator, ...schedule.denominator].some((day) => day.lessons.some((lesson) => lesson !== null));
+  const emptyReason: EmptyReason | null = !schedule || hasLessons ? null : !profile?.groupId ? 'no-group' : !profile.lastSync ? 'not-synced' : 'no-schedule';
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedWeek = searchParams.get('week');
   const currentWeekType: WeekType = requestedWeek === 'denominator' ? 'DENOMINATOR' : 'NUMERATOR';
@@ -28,7 +34,8 @@ export const SchedulePage = () => {
       </div>
 
       <ApiQueryStatus query={query} loadingText="Завантаження розкладу…" />
-      {schedule && (
+      {emptyReason && <EmptyState reason={emptyReason} height={150} />}
+      {schedule && !emptyReason && (
         <TimetableGrid
           days={schedule[currentWeekType === 'NUMERATOR' ? 'numerator' : 'denominator']}
           timeSlots={schedule.timeSlots}
@@ -39,3 +46,4 @@ export const SchedulePage = () => {
 };
 
 export default SchedulePage;
+

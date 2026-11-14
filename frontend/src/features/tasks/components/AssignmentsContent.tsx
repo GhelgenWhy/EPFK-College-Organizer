@@ -5,6 +5,7 @@ import type { Assignment, MarkFilter, MarkSource, SortOrder, StatusFilter } from
 import { filterTasks, getDisciplines, sortTasks } from '../utils/assignments';
 import { AssignmentsList } from './AssignmentsGrid';
 import { AssignmentsFiltersPanel, AssignmentsStatusTabs } from './AssignmentsToolbar';
+import { CheshireCat } from '../../mystic/CheshireCat';
 
 export function AssignmentsContent({
   tasks,
@@ -53,12 +54,15 @@ export function AssignmentsContent({
       className="flex h-full min-h-0 flex-1 flex-col gap-[13px] px-[40px] pt-[29px] pr-[40px] pb-6 max-[1250px]:px-6 max-[760px]:gap-[14px] max-[760px]:px-1 max-[760px]:py-4"
       aria-labelledby="assignments-title"
     >
-      <h1
-        id="assignments-title"
-        className="translate-y-1 shrink-0 text-[33px] font-bold leading-[1.15] tracking-[-0.045em] text-primary max-[760px]:text-[29px]"
-      >
-        Завдання
-      </h1>
+      <div className="flex shrink-0 items-end justify-between gap-4">
+        <h1
+          id="assignments-title"
+          className="translate-y-1 text-[33px] font-bold leading-[1.15] tracking-[-0.045em] text-primary max-[760px]:text-[29px]"
+        >
+          Завдання
+        </h1>
+        <CheshireCat pose="read" height={78} className="mb-[-6px] max-[760px]:hidden" />
+      </div>
 
       <AssignmentsStatusTabs
         statusFilter={statusFilter}

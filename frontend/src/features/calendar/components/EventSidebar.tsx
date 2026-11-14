@@ -1,6 +1,7 @@
 import type { CalendarEvent } from '../types';
 import { formatSelectedDateHeader } from '../utils/dateUtils';
 import { formatEuropeanDate } from '../../../lib/dates';
+import { CheshireCat } from '../../mystic/CheshireCat';
 
 interface EventSidebarProps {
   selectedDate: Date;
@@ -21,10 +22,11 @@ export function EventSidebar({ selectedDate, events }: EventSidebarProps) {
       {/* Список подій */}
       <div className="box-border flex min-h-0 flex-1 flex-col gap-[9px] overflow-y-auto rounded-[20px] bg-surface px-3 py-[14px] [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin">
         {events.length === 0 ? (
-          // Повідомлення, якщо подій немає
-          <p className="m-0 px-1 py-[10px] text-muted">
-            На цей день подій немає
-          </p>
+          // Порожній день: від кота залишилась лише усмішка, як у Чеширського
+          <div className="flex min-h-full flex-1 flex-col items-center justify-center gap-4 px-1 py-6 text-center">
+            <CheshireCat pose="grin" height={170} />
+            <p className="m-0 text-muted">На цей день подій немає</p>
+          </div>
         ) : (
           events.map((event) => (
             <div

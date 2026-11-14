@@ -1,3 +1,4 @@
+﻿import { CheshireCat } from '../../mystic/CheshireCat';
 import type { CalendarFilterType } from "../../calendar/types";
 import { useTaskCompletion } from "../../tasks/hooks/useTaskCompletion";
 import type { HomeData } from "../types";
@@ -50,7 +51,14 @@ export function HomeContent({
 
       <div className="grid min-h-0 shrink-0 items-stretch grid-cols-[minmax(0,1.535fr)_minmax(0,1fr)] gap-[clamp(12px,2.5vw,36px)] max-[1200px]:gap-5 max-[760px]:grid-cols-1 max-[760px]:gap-3">
         {/* Big card: current (yellow), next (cyan), or a neutral empty-day card. */}
-        <NextLessonCard lesson={featured.lesson} state={featured.state} />
+        <div className="relative min-w-0">
+          {(!featured.lesson || featured.state === 'none') && (
+            <div className="pointer-events-none absolute right-[8%] bottom-full z-10 hidden min-[1200px]:block">
+              <CheshireCat pose="lying" height={132} />
+            </div>
+          )}
+          <NextLessonCard lesson={featured.lesson} state={featured.state} />
+        </div>
         <FocusCard
           date={date}
           lessons={lessons}
@@ -83,3 +91,4 @@ export function HomeContent({
     </main>
   );
 }
+
