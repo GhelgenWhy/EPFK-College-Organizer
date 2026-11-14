@@ -57,7 +57,7 @@ const home = object({
   HOME_DEADLINES: nullableArray(object({ id: string, date: dateKey, label: string, title: string, course: string, urgent: optional(boolean) })),
   HOME_EVENTS: nullableArray(object({ id: string, date: dateKey, monthLabel: string, title: string, details: string })),
   HOME_LESSONS: nullableArray(object({ id: string, startsAt: string, endsAt: string, title: string, teacher: string, location: string, meetingUrl: optional(nullable(string)) })),
-  HOME_TASKS: nullableArray(object({ id: string, title: string, course: string, dueDate: dateKey })),
+  HOME_TASKS: nullableArray(object({ id: string, title: string, course: string, dueDate: optional(nullable(dateKey)) })),
   HOME_SUMMARY: optional(nullable(object({ activeTasks: number, deadlinesNext3Days: number, overdueTasks: number }))),
 });
 

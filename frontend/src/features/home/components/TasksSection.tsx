@@ -29,16 +29,18 @@ function TaskRow({
           <span className="mt-[6px] max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-xs text-[var(--text-muted)]">
             {task.course}
           </span>
-          <time
-            className="mt-2 text-xs font-semibold text-[var(--accent)] max-[760px]:text-[10px]"
-            dateTime={task.dueDate}
-          >
-            До{" "}
-            {formatDate(parseLocalDate(task.dueDate), {
-              day: "numeric",
-              month: "long",
-            })}
-          </time>
+          {task.dueDate && (
+            <time
+              className="mt-2 text-xs font-semibold text-[var(--accent)] max-[760px]:text-[10px]"
+              dateTime={task.dueDate}
+            >
+              До{" "}
+              {formatDate(parseLocalDate(task.dueDate), {
+                day: "numeric",
+                month: "long",
+              })}
+            </time>
+          )}
         </span>
       </div>
     </li>
