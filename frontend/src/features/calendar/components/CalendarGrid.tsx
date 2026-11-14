@@ -34,8 +34,13 @@ export function CalendarGrid({
         ))}
       </div>
 
-      {/* Сітка календаря */}
-      <div className="grid h-full min-h-0 flex-1 auto-rows-[minmax(0,1fr)] grid-cols-7 gap-[6px]">
+      {/* Сітка календаря.
+          Desktop: фіксована висота батька, ряди ділять її порівну (1fr).
+          Phone: колонка календаря стає скрольованою, тому flex-1/h-full більше не дає
+          висоти — ряди з minmax(0,1fr) схлопувались у смужки без номерів днів.
+          Тут даємо ряду мінімальну висоту, достатню для числа й позначок, і хай
+          сітка росте за вмістом. */}
+      <div className="grid min-h-0 flex-1 auto-rows-[minmax(0,1fr)] grid-cols-7 gap-[6px] max-[760px]:flex-none max-[760px]:auto-rows-[minmax(52px,1fr)]">
         {days.map((day) => {
           const dayEvents = filteredEvents.filter(
             (e) => e.date === day.dateString
