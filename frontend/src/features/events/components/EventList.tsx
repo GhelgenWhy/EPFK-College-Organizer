@@ -2,7 +2,6 @@ import React from "react";
 import type { CollegeEvent, EventStatus } from "../types";
 import { formatEuropeanDate } from "../../../lib/dates";
 import { textOr } from "../../../lib/nullSafe";
-import { CheshireCat } from "../../mystic/CheshireCat";
 
 interface EventListProps {
   events: CollegeEvent[];
@@ -36,8 +35,7 @@ const getStatusStyles = (status: EventStatus) => {
 export const EventList: React.FC<EventListProps> = ({ events }) => {
   if (events.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center flex-1 gap-4 py-16 text-gray-400 text-sm text-center">
-        <CheshireCat pose="peek" height={150} />
+      <div className="flex flex-col items-center justify-center flex-1 py-16 text-gray-400 text-sm text-center">
         За обраними критеріями подій не знайдено.
       </div>
     );

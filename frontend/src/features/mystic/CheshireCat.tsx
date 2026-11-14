@@ -1,38 +1,15 @@
-﻿import cat01 from '../../assets/cheshire/cat-01-lying.png';
-import cat02 from '../../assets/cheshire/cat-02-grin.png';
-import cat03 from '../../assets/cheshire/cat-03-peek.png';
-import cat04 from '../../assets/cheshire/cat-04-sleep.png';
-import cat05 from '../../assets/cheshire/cat-05-calendar.png';
-import cat06 from '../../assets/cheshire/cat-06-read.png';
-import cat07 from '../../assets/cheshire/cat-07-yarn.png';
-import cat08 from '../../assets/cheshire/cat-08-dissolve.png';
-import cat09 from '../../assets/cheshire/cat-09-wave.png';
-
-// Позы Чеширского кота: один персонаж, девять состояний для разных пустых мест интерфейса.
-export const CHESHIRE_POSES = {
-  lying: cat01,
-  grin: cat02,
-  peek: cat03,
-  sleep: cat04,
-  calendar: cat05,
-  read: cat06,
-  yarn: cat07,
-  dissolve: cat08,
-  wave: cat09,
-} as const;
-
-export type CheshirePose = keyof typeof CHESHIRE_POSES;
+import { CHESHIRE_POSES, type CheshirePose } from './poses';
 
 interface CheshireCatProps {
   pose: CheshirePose;
-  /** Высота в пикселях; ширина пропорциональна. */
+  /** Height in pixels; the width follows the image proportions. */
   height?: number;
   className?: string;
 }
 
 /**
- * Декоративный кот. aria-hidden: текст состояния рядом уже объясняет пустоту.
- * pointer-events отключены, чтобы кот не мешал кликам.
+ * Decorative cat. aria-hidden: the text next to it carries the meaning.
+ * pointer-events are off so the cat never blocks clicks on the UI under it.
  */
 export function CheshireCat({ pose, height = 120, className = '' }: CheshireCatProps) {
   return (

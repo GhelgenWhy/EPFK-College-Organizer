@@ -1,6 +1,7 @@
 import type { HomeLesson } from "../types";
 import { formatDate, titleCase } from "../utils/date";
 import { SectionHeading } from "./SectionHeading";
+import { CheshireCat } from "../../mystic/CheshireCat";
 import { textOr } from "../../../lib/nullSafe";
 import { kyivNowMinutes, lessonState, type LessonState } from "../../../lib/dates";
 
@@ -53,9 +54,10 @@ export function ScheduleSection({
         subtitle={`${titleCase(formatDate(date, { weekday: "long" }))} · ${lessons.length} пари`}
       />
       {lessons.length === 0 && (
-        <p className="m-0 flex flex-1 items-center justify-center p-4 text-sm text-muted">
-          На цей день пар немає
-        </p>
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 p-4 text-center">
+          <CheshireCat pose="tea" height={130} />
+          <p className="m-0 text-sm text-muted">На цей день пар немає. Час випити чаю.</p>
+        </div>
       )}
       <ol className="m-0 flex min-h-0 flex-1 list-none flex-col p-0">
         {lessons.map((lesson, index) => {

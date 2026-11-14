@@ -1,4 +1,4 @@
-﻿import { CheshireCat } from '../../mystic/CheshireCat';
+import { CheshireCat } from '../../mystic/CheshireCat';
 import type { CalendarFilterType } from "../../calendar/types";
 import { useTaskCompletion } from "../../tasks/hooks/useTaskCompletion";
 import type { HomeData } from "../types";
@@ -44,17 +44,17 @@ export function HomeContent({
 
   return (
     <main
-      className="flex min-h-0 flex-1 flex-col gap-[clamp(8px,1.4vh,14px)] overflow-hidden px-[18px] py-[clamp(12px,2vh,20px)] pr-5 [scrollbar-color:var(--scrollbar)_transparent] [scrollbar-width:thin] max-[1200px]:px-6 max-[960px]:overflow-auto [@media(max-height:700px)]:overflow-auto max-[760px]:gap-[17px] max-[760px]:px-1 max-[760px]:py-4 [&_button:focus-visible]:outline-3 [&_button:focus-visible]:outline-[var(--focus)] [&_button:focus-visible]:outline-offset-[3px] [&_a:focus-visible]:outline-3 [&_a:focus-visible]:outline-[var(--focus)] [&_a:focus-visible]:outline-offset-[3px] [&_input:focus-visible]:outline-3 [&_input:focus-visible]:outline-[var(--focus)] [&_input:focus-visible]:outline-offset-[3px]"
+      className="flex min-h-0 flex-1 flex-col gap-[clamp(8px,1.4vh,14px)] overflow-x-clip px-[18px] py-[clamp(12px,2vh,20px)] pr-5 [scrollbar-color:var(--scrollbar)_transparent] [scrollbar-width:thin] max-[1200px]:px-6 max-[960px]:overflow-auto [@media(max-height:700px)]:overflow-auto max-[760px]:gap-[17px] max-[760px]:px-1 max-[760px]:py-4 [&_button:focus-visible]:outline-3 [&_button:focus-visible]:outline-[var(--focus)] [&_button:focus-visible]:outline-offset-[3px] [&_a:focus-visible]:outline-3 [&_a:focus-visible]:outline-[var(--focus)] [&_a:focus-visible]:outline-offset-[3px] [&_input:focus-visible]:outline-3 [&_input:focus-visible]:outline-[var(--focus)] [&_input:focus-visible]:outline-offset-[3px]"
       aria-labelledby="home-heading"
     >
       <h1 id="home-heading" className="sr-only">Головна</h1>
 
       <div className="grid min-h-0 shrink-0 items-stretch grid-cols-[minmax(0,1.535fr)_minmax(0,1fr)] gap-[clamp(12px,2.5vw,36px)] max-[1200px]:gap-5 max-[760px]:grid-cols-1 max-[760px]:gap-3">
         {/* Big card: current (yellow), next (cyan), or a neutral empty-day card. */}
-        <div className="relative min-w-0">
+        <div className="min-w-0">
           {(!featured.lesson || featured.state === 'none') && (
-            <div className="pointer-events-none absolute right-[8%] bottom-full z-10 hidden min-[1200px]:block">
-              <CheshireCat pose="lying" height={132} />
+            <div className="pointer-events-none absolute top-[clamp(-100px,calc(1vh-60px),180px)] right-[calc(var(--app-main-left)+37vw)] z-[60] hidden min-[1200px]:block">
+              <CheshireCat pose="lying" height={120} />
             </div>
           )}
           <NextLessonCard lesson={featured.lesson} state={featured.state} />

@@ -79,7 +79,7 @@ export const EventPage = () => {
   }, [query.data, period, status, sort]);
 
   return (
-    <div className="flex flex-col w-full h-full overflow-hidden">
+    <div className="relative flex w-full h-full flex-col overflow-x-clip overflow-y-hidden">
       <EventHeader
         period={period}
         setPeriod={setPeriod}
@@ -89,8 +89,8 @@ export const EventPage = () => {
         setSort={setSort}
         onReset={handleReset}
       />
-      <div className="flex items-end justify-end px-[30px] max-[760px]:hidden">
-        <CheshireCat pose="peek" height={64} className="mb-[-4px]" />
+      <div className="pointer-events-none fixed top-[96px] right-0 z-[70] hidden min-[900px]:block" aria-hidden="true">
+        <CheshireCat pose="peek" height={150} className="translate-x-[36px]" />
       </div>
       <ApiQueryStatus query={query} loadingText="Завантаження подій…" />
       {query.data && <EventList events={filteredAndSortedEvents} />}

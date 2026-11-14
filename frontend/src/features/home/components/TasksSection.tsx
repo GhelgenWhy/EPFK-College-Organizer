@@ -1,5 +1,6 @@
 import type { HomeworkTask } from "../types";
 import { formatDate, parseLocalDate } from "../utils/date";
+import { CheshireCat } from '../../mystic/CheshireCat';
 import { SectionHeading } from "./SectionHeading";
 
 function TaskRow({
@@ -68,6 +69,12 @@ export function TasksSection({
         title="Мої завдання"
         subtitle="Невиконані завдання"
       />
+      {openTasks.length === 0 && (
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 pt-2 text-center">
+          <CheshireCat pose="done" height={120} />
+          <p className="m-0 text-sm text-[var(--text-muted)]">Усі завдання виконано</p>
+        </div>
+      )}
       <ul className="m-0 flex min-h-0 flex-1 list-none flex-col p-0 pt-0.5">
         {openTasks.map((task) => (
           <TaskRow

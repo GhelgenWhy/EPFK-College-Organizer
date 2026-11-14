@@ -1,4 +1,5 @@
-﻿import { CheshireCat, type CheshirePose } from './CheshireCat';
+import { CheshireCat } from './CheshireCat';
+import type { CheshirePose } from './poses';
 
 export type EmptyReason =
   | 'no-group'
@@ -7,23 +8,24 @@ export type EmptyReason =
   | 'no-data';
 
 const COPY: Record<EmptyReason, { pose: CheshirePose; title: string; hint: string }> = {
+  // The peeking pose is reserved for the events page; empty states use other poses.
   'no-group': {
-    pose: 'peek',
+    pose: 'sleep',
     title: 'Групу ще не обрано',
     hint: 'Оберіть свою групу в профілі, щоб побачити розклад.',
   },
   'not-synced': {
-    pose: 'sleep',
+    pose: 'wave',
     title: 'Дані ще не завантажені',
     hint: 'Натисніть «Остання синхронізація», щоб оновити дані з Moodle.',
   },
   'no-schedule': {
-    pose: 'calendar',
+    pose: 'sleep',
     title: 'Розклад ще не внесено',
     hint: 'Адміністрація або староста групи ще не додали розклад для вашої групи.',
   },
   'no-data': {
-    pose: 'grin',
+    pose: 'tea',
     title: 'Тут поки порожньо',
     hint: '',
   },

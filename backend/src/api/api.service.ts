@@ -424,9 +424,11 @@ export class ApiService {
 
   /** Empty week grid with the standard time slots, so the timetable renders without lessons. */
   private emptySchedule() {
+    const weekdayNames = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', 'П’ятниця'];
     const emptyDays = () =>
-      [1, 2, 3, 4, 5].map((weekday) => ({
-        weekday,
+      weekdayNames.map((name, index) => ({
+        weekday: index + 1,
+        name,
         lessons: Array.from({ length: 6 }, () => null),
       }));
     return {
