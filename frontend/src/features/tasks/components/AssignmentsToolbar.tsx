@@ -56,7 +56,7 @@ export function AssignmentsFiltersPanel({
 }) {
   return (
     <aside
-      className="[grid-area:filters] flex min-h-[306px] min-w-0 flex-col items-start gap-4 rounded-[19px] bg-surface px-[22px] py-[21px] max-[1250px]:min-w-0 max-[760px]:order-1 max-[760px]:grid max-[760px]:min-h-0 max-[760px]:grid-cols-2 max-[760px]:items-end max-[760px]:gap-3 max-[760px]:p-[14px] max-[380px]:grid-cols-1"
+      className="[grid-area:filters] flex min-h-[306px] min-w-0 flex-col items-start gap-4 rounded-[19px] bg-surface px-[22px] py-[21px] max-[1250px]:min-w-0 max-[760px]:order-1 max-[760px]:grid max-[760px]:min-h-0 max-[760px]:grid-cols-2 max-[760px]:items-end max-[760px]:gap-2 max-[760px]:p-[10px] max-[380px]:grid-cols-1"
       aria-labelledby="assignment-filters-title"
     >
       <h2
@@ -66,10 +66,10 @@ export function AssignmentsFiltersPanel({
         Фільтри
       </h2>
 
-      <label className="flex min-w-0 flex-col gap-[10px] text-[13px] font-semibold text-primary max-[760px]:gap-[6px] max-[760px]:text-[9px]">
+      <label className="flex min-w-0 flex-col gap-[10px] text-[13px] font-semibold text-primary max-[760px]:gap-[4px] max-[760px]:text-[10px]">
         <span>Сортування за дедлайном</span>
         <select
-          className="min-h-[46px] w-max max-w-full min-w-0 cursor-pointer appearance-auto rounded-[11px] border-0 bg-[var(--input-background)] py-0 pr-3 pl-3 font-normal text-[13px] text-primary focus-visible:outline-3 focus-visible:outline-[var(--focus)] focus-visible:outline-offset-[3px] max-[760px]:min-h-[39px] max-[760px]:w-full max-[760px]:pl-2 max-[760px]:text-[10px]"
+          className="min-h-[46px] w-max max-w-full min-w-0 cursor-pointer appearance-auto rounded-[11px] border-0 bg-[var(--input-background)] py-0 pr-3 pl-3 font-normal text-[13px] text-primary focus-visible:outline-3 focus-visible:outline-[var(--focus)] focus-visible:outline-offset-[3px] max-[760px]:min-h-[32px] max-[760px]:w-full max-[760px]:pl-2 max-[760px]:pr-2 max-[760px]:text-[11px]"
           value={sortOrder}
           onChange={(event) =>
             onSortOrderChange(event.target.value as SortOrder)
@@ -81,10 +81,10 @@ export function AssignmentsFiltersPanel({
         </select>
       </label>
 
-      <label className="flex min-w-0 flex-col gap-[10px] text-[13px] font-semibold text-primary max-[760px]:gap-[6px] max-[760px]:text-[9px]">
+      <label className="flex min-w-0 flex-col gap-[10px] text-[13px] font-semibold text-primary max-[760px]:gap-[4px] max-[760px]:text-[10px]">
         <span>Дисципліна</span>
         <select
-          className="min-h-[46px] w-[137px] max-w-full min-w-0 cursor-pointer appearance-auto rounded-[11px] border-0 bg-[var(--input-background)] py-0 pr-3 pl-3 font-normal text-[13px] text-primary focus-visible:outline-3 focus-visible:outline-[var(--focus)] focus-visible:outline-offset-[3px] max-[760px]:min-h-[39px] max-[760px]:w-full max-[760px]:pl-2 max-[760px]:text-[10px]"
+          className="min-h-[46px] w-[137px] max-w-full min-w-0 cursor-pointer appearance-auto rounded-[11px] border-0 bg-[var(--input-background)] py-0 pr-3 pl-3 font-normal text-[13px] text-primary focus-visible:outline-3 focus-visible:outline-[var(--focus)] focus-visible:outline-offset-[3px] max-[760px]:min-h-[32px] max-[760px]:w-full max-[760px]:pl-2 max-[760px]:pr-2 max-[760px]:text-[11px]"
           value={discipline}
           onChange={(event) => onDisciplineChange(event.target.value)}
         >
@@ -97,10 +97,10 @@ export function AssignmentsFiltersPanel({
         </select>
       </label>
 
-      <label className="flex min-w-0 flex-col gap-[10px] text-[13px] font-semibold text-primary max-[760px]:gap-[6px] max-[760px]:text-[9px]">
+      <label className="flex min-w-0 flex-col gap-[10px] text-[13px] font-semibold text-primary max-[760px]:gap-[4px] max-[760px]:text-[10px]">
         <span>Відмітка</span>
         <select
-          className="min-h-[46px] w-max max-w-full min-w-0 cursor-pointer appearance-auto rounded-[11px] border-0 bg-[var(--input-background)] py-0 pr-3 pl-3 font-normal text-[13px] text-primary focus-visible:outline-3 focus-visible:outline-[var(--focus)] focus-visible:outline-offset-[3px] max-[760px]:min-h-[39px] max-[760px]:w-full max-[760px]:pl-2 max-[760px]:text-[10px]"
+          className="min-h-[46px] w-max max-w-full min-w-0 cursor-pointer appearance-auto rounded-[11px] border-0 bg-[var(--input-background)] py-0 pr-3 pl-3 font-normal text-[13px] text-primary focus-visible:outline-3 focus-visible:outline-[var(--focus)] focus-visible:outline-offset-[3px] max-[760px]:min-h-[32px] max-[760px]:w-full max-[760px]:pl-2 max-[760px]:pr-2 max-[760px]:text-[11px]"
           value={markFilter}
           onChange={(event) => onMarkFilterChange(event.target.value as MarkFilter)}
         >

@@ -46,15 +46,15 @@ export const EventHeader = ({
 
   return (
     <div className="w-full px-[30px] pt-[29px] pb-5 max-[760px]:px-4 max-[760px]:pt-4">
-      <div className="flex flex-wrap items-center bg-surface py-[17px] px-[22px] gap-[16px] rounded-[18px] shadow-sm relative z-30">
+      <div className="flex flex-wrap items-center bg-surface py-[17px] px-[22px] gap-[16px] rounded-[18px] shadow-sm relative z-30 max-[760px]:gap-[8px] max-[760px]:p-[10px] max-[760px]:rounded-[14px]">
         {/* 1. Період */}
-        <div className="flex flex-col gap-1 relative">
-          <label className="text-[12px] text-gray-400 font-medium">
+        <div className="flex min-w-0 flex-col gap-1 relative max-[760px]:w-[calc(50%-4px)]">
+          <label className="text-[12px] text-gray-400 font-medium max-[760px]:text-[10px]">
             Період
           </label>
           <div
             onClick={() => toggleDropdown("period")}
-            className="flex items-center justify-between px-3 w-[205px] h-[38px] bg-gray-50 hover:bg-gray-100/80 border border-gray-200/80 rounded-[10px] cursor-pointer text-sm transition-colors select-none"
+            className="flex items-center justify-between px-3 w-[205px] h-[38px] max-[760px]:w-full max-[760px]:h-[32px] max-[760px]:px-2 bg-gray-50 hover:bg-gray-100/80 border border-gray-200/80 rounded-[10px] cursor-pointer text-sm transition-colors select-none max-[760px]:text-[12px]"
           >
             <span className="truncate">{period}</span>
             <svg
@@ -74,7 +74,7 @@ export const EventHeader = ({
           </div>
 
           {openDropdown === "period" && (
-            <div className="absolute top-[calc(100%+6px)] left-0 w-[205px] bg-surface border border-gray-100 rounded-[14px] shadow-xl py-2 z-40 flex flex-col gap-1">
+            <div className="absolute top-[calc(100%+6px)] left-0 w-[205px] max-[760px]:w-full max-[760px]:py-1 bg-surface border border-gray-100 rounded-[14px] shadow-xl py-2 z-40 flex flex-col gap-1">
               {periodOptions.map((option) => (
                 <div
                   key={option}
@@ -82,7 +82,7 @@ export const EventHeader = ({
                     setPeriod(option);
                     setOpenDropdown(null);
                   }}
-                  className={`px-3 py-2 mx-2 rounded-[10px] text-sm cursor-pointer transition-colors ${period === option
+                  className={`px-3 py-2 mx-2 rounded-[10px] text-sm cursor-pointer transition-colors max-[760px]:py-[6px] max-[760px]:text-[12px] ${period === option
                     ? "bg-[var(--accent-soft)] text-[var(--accent)] font-medium"
                     : "text-gray-700 hover:bg-gray-50"
                     }`}
@@ -95,13 +95,13 @@ export const EventHeader = ({
         </div>
 
         {/* 2. Статус */}
-        <div className="flex flex-col gap-1 relative">
-          <label className="text-[12px] text-gray-400 font-medium">
+        <div className="flex min-w-0 flex-col gap-1 relative max-[760px]:w-[calc(50%-4px)]">
+          <label className="text-[12px] text-gray-400 font-medium max-[760px]:text-[10px]">
             Статус
           </label>
           <div
             onClick={() => toggleDropdown("status")}
-            className="flex items-center justify-between px-3 w-[205px] h-[38px] bg-gray-50 hover:bg-gray-100/80 border border-gray-200/80 rounded-[10px] cursor-pointer text-sm transition-colors select-none"
+            className="flex items-center justify-between px-3 w-[205px] h-[38px] max-[760px]:w-full max-[760px]:h-[32px] max-[760px]:px-2 bg-gray-50 hover:bg-gray-100/80 border border-gray-200/80 rounded-[10px] cursor-pointer text-sm transition-colors select-none max-[760px]:text-[12px]"
           >
             <span className="truncate">{status}</span>
             <svg
@@ -121,7 +121,7 @@ export const EventHeader = ({
           </div>
 
           {openDropdown === "status" && (
-            <div className="absolute top-[calc(100%+6px)] left-0 w-[205px] bg-surface border border-gray-100 rounded-[14px] shadow-xl py-2 z-40 flex flex-col gap-1">
+            <div className="absolute top-[calc(100%+6px)] left-0 w-[205px] max-[760px]:w-full max-[760px]:py-1 bg-surface border border-gray-100 rounded-[14px] shadow-xl py-2 z-40 flex flex-col gap-1">
               {statusOptions.map((option) => (
                 <div
                   key={option}
@@ -129,7 +129,7 @@ export const EventHeader = ({
                     setStatus(option);
                     setOpenDropdown(null);
                   }}
-                  className={`px-3 py-2 mx-2 rounded-[10px] text-sm cursor-pointer transition-colors ${status === option
+                  className={`px-3 py-2 mx-2 rounded-[10px] text-sm cursor-pointer transition-colors max-[760px]:py-[6px] max-[760px]:text-[12px] ${status === option
                     ? "bg-[var(--accent-soft)] text-[var(--accent)] font-medium"
                     : "text-gray-700 hover:bg-gray-50"
                     }`}
@@ -142,13 +142,13 @@ export const EventHeader = ({
         </div>
 
         {/* 3. Сортування */}
-        <div className="flex flex-col gap-1 relative">
-          <label className="text-[12px] text-gray-400 font-medium">
+        <div className="flex min-w-0 flex-col gap-1 relative max-[760px]:w-[calc(50%-4px)]">
+          <label className="text-[12px] text-gray-400 font-medium max-[760px]:text-[10px]">
             Сортування
           </label>
           <div
             onClick={() => toggleDropdown("sort")}
-            className="flex items-center justify-between px-3 w-[205px] h-[38px] bg-gray-50 hover:bg-gray-100/80 border border-gray-200/80 rounded-[10px] cursor-pointer text-sm transition-colors select-none"
+            className="flex items-center justify-between px-3 w-[205px] h-[38px] max-[760px]:w-full max-[760px]:h-[32px] max-[760px]:px-2 bg-gray-50 hover:bg-gray-100/80 border border-gray-200/80 rounded-[10px] cursor-pointer text-sm transition-colors select-none max-[760px]:text-[12px]"
           >
             <span className="truncate">{sort}</span>
             <svg
@@ -168,7 +168,7 @@ export const EventHeader = ({
           </div>
 
           {openDropdown === "sort" && (
-            <div className="absolute top-[calc(100%+6px)] left-0 w-[205px] bg-surface border border-gray-100 rounded-[14px] shadow-xl py-2 z-40 flex flex-col gap-1">
+            <div className="absolute top-[calc(100%+6px)] left-0 w-[205px] max-[760px]:w-full max-[760px]:py-1 bg-surface border border-gray-100 rounded-[14px] shadow-xl py-2 z-40 flex flex-col gap-1">
               {sortOptions.map((option) => (
                 <div
                   key={option}
@@ -176,7 +176,7 @@ export const EventHeader = ({
                     setSort(option);
                     setOpenDropdown(null);
                   }}
-                  className={`px-3 py-2 mx-2 rounded-[10px] text-sm cursor-pointer transition-colors ${sort === option
+                  className={`px-3 py-2 mx-2 rounded-[10px] text-sm cursor-pointer transition-colors max-[760px]:py-[6px] max-[760px]:text-[12px] ${sort === option
                     ? "bg-[var(--accent-soft)] text-[var(--accent)] font-medium"
                     : "text-gray-700 hover:bg-gray-50"
                     }`}
