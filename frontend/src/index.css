@@ -199,7 +199,11 @@ body {
 }
 .auth-split .auth-provider-card-box {
   box-sizing: border-box;
-  max-width: min(100%, 660px);
+  /* The box must leave a visible gap on both sides of the card, not stretch to the
+     whole padded area: `100%` alone did exactly that and the form looked glued to the
+     right edge on a wide window. `- 2rem` keeps ~16px of breathing room per side at any
+     width, and the fixed cap keeps the form from growing into an unreadably wide card. */
+  max-width: min(100% - 2rem, 560px);
   width: 100%;
 }
 .auth-split .auth-provider-card {
@@ -228,10 +232,12 @@ body {
     display: flex;
     inset: auto;
     margin: 0 auto;
-    max-width: min(100%, 660px);
+    max-width: min(100%, 560px);
     position: static;
     width: 100%;
   }
+  /* Phones already get their side gap from .auth-card's 16px padding, so the box fills
+     it here instead of subtracting another 2rem. */
   .auth-split .auth-provider-card-box { margin: 0 auto; max-width: 100%; }
   .auth-split .auth-provider-card { margin: 0 auto; max-width: 100%; }
 }
