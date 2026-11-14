@@ -43,9 +43,14 @@ export interface StoredSchedule {
   denominator: StoredDay[];
 }
 
-// Default timetable is Monday to Friday. Saturday exists only when it has lessons,
-// so it appears as an extra column on demand.
-const DAY_NAMES = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', "П'ятниця", 'Субота'];
+const DAY_NAMES = [
+  'Понеділок',
+  'Вівторок',
+  'Середа',
+  'Четвер',
+  "П'ятниця",
+  'Субота',
+];
 const WEEKDAYS_DEFAULT = 5;
 const DEFAULT_TIME_SLOTS = [
   '8:00 - 9:20',
@@ -65,10 +70,13 @@ const emptyDay = (weekday: number): StoredDay => ({
 function emptySchedule(): StoredSchedule {
   const days = (): StoredDay[] =>
     Array.from({ length: WEEKDAYS_DEFAULT }, (_, index) => emptyDay(index + 1));
-  return { timeSlots: [...DEFAULT_TIME_SLOTS], numerator: days(), denominator: days() };
+  return {
+    timeSlots: [...DEFAULT_TIME_SLOTS],
+    numerator: days(),
+    denominator: days(),
+  };
 }
 
-/** Has at least one lesson in any slot. */
 function hasLessons(day: StoredDay): boolean {
   return day.lessons.some((lesson) => lesson !== null);
 }
@@ -77,23 +85,40 @@ function normalizeSchedule(value: unknown): StoredSchedule {
   const base = emptySchedule();
   if (!value || typeof value !== 'object') return base;
   const stored = value as Partial<StoredSchedule>;
-  if (Array.isArray(stored.timeSlots) && stored.timeSlots.length === 6) base.timeSlots = stored.timeSlots;
+  if (Array.isArray(stored.timeSlots) && stored.timeSlots.length === 6)
+    base.timeSlots = stored.timeSlots;
   for (const week of ['numerator', 'denominator'] as const) {
     const days = stored[week];
     if (!Array.isArray(days)) continue;
-    const result = new Map<number, StoredDay>(base[week].map((day) => [day.weekday, day]));
+    const result = new Map<number, StoredDay>(
+      base[week].map((day) => [day.weekday, day]),
+    );
     for (const incoming of days) {
       const weekday = Number(incoming?.weekday);
-      if (!Number.isInteger(weekday) || weekday < 1 || weekday > DAY_NAMES.length) continue;
+      if (
+        !Number.isInteger(weekday) ||
+        weekday < 1 ||
+        weekday > DAY_NAMES.length
+      )
+        continue;
       if (!Array.isArray(incoming.lessons)) continue;
-      const lessons: (StoredLesson | null)[] = [null, null, null, null, null, null];
+      const lessons: (StoredLesson | null)[] = [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ];
       for (let slot = 0; slot < 6; slot += 1) {
         const lesson = incoming.lessons[slot];
-        lessons[slot] = lesson && typeof lesson === 'object' ? (lesson as StoredLesson) : null;
+        lessons[slot] =
+          lesson && typeof lesson === 'object'
+            ? (lesson as StoredLesson)
+            : null;
       }
       result.set(weekday, { ...emptyDay(weekday), lessons });
     }
-    // Saturday is kept only while it has lessons; empty Saturday is not shown.
     base[week] = [...result.values()]
       .filter((day) => day.weekday <= WEEKDAYS_DEFAULT || hasLessons(day))
       .sort((a, b) => a.weekday - b.weekday);
@@ -105,43 +130,49 @@ function normalizeSchedule(value: unknown): StoredSchedule {
 export class ManagementService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // ---------------------------------------------------------------- groups
+  // groups
 
   async listGroups() {
-    return this.prisma.group.findMany({
-      orderBy: { groupName: 'asc' },
-      select: {
-        id: true,
-        groupName: true,
-        _count: { select: { users: true } },
-        schedules: { select: { id: true }, take: 1 },
-      },
-    }).then((groups) =>
-      groups.map((group) => ({
-        id: group.id,
-        groupName: group.groupName,
-        studentCount: group._count.users,
-        scheduleId: group.schedules[0]?.id ?? null,
-      })),
-    );
+    return this.prisma.group
+      .findMany({
+        orderBy: { groupName: 'asc' },
+        select: {
+          id: true,
+          groupName: true,
+          _count: { select: { users: true } },
+          schedules: { select: { id: true }, take: 1 },
+        },
+      })
+      .then((groups) =>
+        groups.map((group) => ({
+          id: group.id,
+          groupName: group.groupName,
+          studentCount: group._count.users,
+          scheduleId: group.schedules[0]?.id ?? null,
+        })),
+      );
   }
 
   async createGroup(dto: CreateGroupDto) {
-    const existing = await this.prisma.group.findUnique({ where: { groupName: dto.groupName } });
+    const existing = await this.prisma.group.findUnique({
+      where: { groupName: dto.groupName },
+    });
     if (existing) throw new ConflictException('Група з такою назвою вже існує');
     return this.prisma.group.create({ data: { groupName: dto.groupName } });
   }
 
-  /**
-   * Renames a group. Students reference the group by id, so they see the new name at once
-   * and no per-user change is needed.
-   */
   async renameGroup(groupId: number, dto: CreateGroupDto) {
-    const group = await this.prisma.group.findUnique({ where: { id: groupId } });
+    const group = await this.prisma.group.findUnique({
+      where: { id: groupId },
+    });
     if (!group) throw new NotFoundException('Групу не знайдено');
-    if (group.groupName === UNGROUPED_NAME) throw new BadRequestException('Системну групу не можна перейменувати');
-    const taken = await this.prisma.group.findUnique({ where: { groupName: dto.groupName } });
-    if (taken && taken.id !== groupId) throw new ConflictException('Група з такою назвою вже існує');
+    if (group.groupName === UNGROUPED_NAME)
+      throw new BadRequestException('Системну групу не можна перейменувати');
+    const taken = await this.prisma.group.findUnique({
+      where: { groupName: dto.groupName },
+    });
+    if (taken && taken.id !== groupId)
+      throw new ConflictException('Група з такою назвою вже існує');
     return this.prisma.group.update({
       where: { id: groupId },
       data: { groupName: dto.groupName },
@@ -155,8 +186,12 @@ export class ManagementService {
       select: { _count: { select: { users: true } } },
     });
     if (!group) throw new NotFoundException('Групу не знайдено');
-    const systemGroup = await this.prisma.group.findUnique({ where: { id: groupId }, select: { groupName: true } });
-    if (systemGroup?.groupName === UNGROUPED_NAME) throw new BadRequestException('Системну групу не можна видалити');
+    const systemGroup = await this.prisma.group.findUnique({
+      where: { id: groupId },
+      select: { groupName: true },
+    });
+    if (systemGroup?.groupName === UNGROUPED_NAME)
+      throw new BadRequestException('Системну групу не можна видалити');
     if (group._count.users > 0) {
       throw new ConflictException('Спочатку переведіть студентів з цієї групи');
     }
@@ -167,7 +202,7 @@ export class ManagementService {
     return { deleted: true };
   }
 
-  // --------------------------------------------------------------- students
+  // students
 
   async listStudents(scope: HomeroomScope, groupId?: number) {
     const where =
@@ -187,7 +222,9 @@ export class ManagementService {
         _count: { select: { tasks: true, disciplines: true } },
       },
     });
-    const names = await this.resolveNames(students.map((student) => student.id));
+    const names = await this.resolveNames(
+      students.map((student) => student.id),
+    );
     return students.map((student) => ({
       id: student.id,
       firstName: names.get(student.id)?.firstName ?? null,
@@ -202,18 +239,24 @@ export class ManagementService {
     }));
   }
 
-  /**
-   * Looks up the display name and primary email in Clerk in one request.
-   * A Clerk outage must not break the list, so failures return an empty map.
-   */
   private async resolveNames(userIds: string[]) {
-    const result = new Map<string, { firstName: string | null; lastName: string | null; email: string | null }>();
+    const result = new Map<
+      string,
+      {
+        firstName: string | null;
+        lastName: string | null;
+        email: string | null;
+      }
+    >();
     if (userIds.length === 0) return result;
     const secretKey = process.env.CLERK_SECRET_KEY;
     if (!secretKey) return result;
     try {
       const clerk = createClerkClient({ secretKey });
-      const page = await clerk.users.getUserList({ userId: userIds, limit: userIds.length });
+      const page = await clerk.users.getUserList({
+        userId: userIds,
+        limit: userIds.length,
+      });
       for (const user of page.data) {
         result.set(user.id, {
           firstName: user.firstName ?? null,
@@ -222,19 +265,29 @@ export class ManagementService {
         });
       }
     } catch {
-      // Names are informational; the list still works with ids.
+      // Clerk is unavailable: keep the ids and show no names.
     }
     return result;
   }
 
-  async assignGroup(scope: HomeroomScope, userId: string, groupId: number | null) {
-    const student = await this.prisma.user.findUnique({ where: { id: userId } });
+  async assignGroup(
+    scope: HomeroomScope,
+    userId: string,
+    groupId: number | null,
+  ) {
+    const student = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
     if (!student) throw new NotFoundException('Студента не знайдено');
     if (groupId !== null) {
-      const group = await this.prisma.group.findUnique({ where: { id: groupId } });
+      const group = await this.prisma.group.findUnique({
+        where: { id: groupId },
+      });
       if (!group) throw new NotFoundException('Групу не знайдено');
       if (scope.user.role !== 'admin' && !scope.groupIds.includes(groupId)) {
-        throw new BadRequestException('Староста може керувати лише своєю групою');
+        throw new BadRequestException(
+          'Староста може керувати лише своєю групою',
+        );
       }
     }
     const updated = await this.prisma.user.update({
@@ -242,14 +295,19 @@ export class ManagementService {
       data: { groupId },
       select: { id: true, group: { select: { id: true, groupName: true } } },
     });
-    return { id: updated.id, groupId: updated.group?.id ?? null, groupName: updated.group?.groupName ?? null };
+    return {
+      id: updated.id,
+      groupId: updated.group?.id ?? null,
+      groupName: updated.group?.groupName ?? null,
+    };
   }
 
-  // -------------------------------------------------------------- schedule
+  // schedule
 
-  /** Returns the stored schedule JSON for a group, creating it on demand. */
   private async loadGroupSchedule(groupId: number) {
-    const group = await this.prisma.group.findUnique({ where: { id: groupId } });
+    const group = await this.prisma.group.findUnique({
+      where: { id: groupId },
+    });
     if (!group) throw new NotFoundException('Групу не знайдено');
     let schedule = await this.prisma.schedule.findFirst({ where: { groupId } });
     if (!schedule) {
@@ -257,7 +315,10 @@ export class ManagementService {
         data: { groupId, schedule: emptySchedule() as never },
       });
     }
-    return { scheduleId: schedule.id, data: normalizeSchedule(schedule.schedule) };
+    return {
+      scheduleId: schedule.id,
+      data: normalizeSchedule(schedule.schedule),
+    };
   }
 
   async readGroupSchedule(groupId: number) {
@@ -270,7 +331,6 @@ export class ManagementService {
     const week = data[dto.weekType];
     let day = week.find((candidate) => candidate.weekday === dto.weekday);
     if (!day) {
-      // Saturday (and any other day) is created on demand when the first lesson is added.
       day = emptyDay(dto.weekday);
       week.push(day);
       week.sort((a, b) => a.weekday - b.weekday);
@@ -295,22 +355,38 @@ export class ManagementService {
     return lesson;
   }
 
-  async removeLesson(groupId: number, weekType: WeekType, weekday: number, slot: number) {
+  async removeLesson(
+    groupId: number,
+    weekType: WeekType,
+    weekday: number,
+    slot: number,
+  ) {
     const { scheduleId, data } = await this.loadGroupSchedule(groupId);
-    const day = data[weekType].find((candidate) => candidate.weekday === weekday);
-    if (!day || !day.lessons[slot]) throw new NotFoundException('Заняття не знайдено');
+    const day = data[weekType].find(
+      (candidate) => candidate.weekday === weekday,
+    );
+    if (!day || !day.lessons[slot])
+      throw new NotFoundException('Заняття не знайдено');
     day.lessons[slot] = null;
-    await this.prisma.schedule.update({ where: { id: scheduleId }, data: { schedule: data as never } });
+    await this.prisma.schedule.update({
+      where: { id: scheduleId },
+      data: { schedule: data as never },
+    });
     return { deleted: true };
   }
 
-  // ------------------------------------------------------------------ tasks
+  // tasks
 
   async listDisciplines(scope: HomeroomScope) {
     if (scope.user.role === 'admin') {
       return this.prisma.discipline.findMany({
         orderBy: { disciplineName: 'asc' },
-        select: { id: true, disciplineName: true, teacher: true, moodleId: true },
+        select: {
+          id: true,
+          disciplineName: true,
+          teacher: true,
+          moodleId: true,
+        },
       });
     }
     const groupUsers = await this.prisma.user.findMany({
@@ -318,7 +394,9 @@ export class ManagementService {
       select: { id: true },
     });
     return this.prisma.discipline.findMany({
-      where: { users: { some: { userId: { in: groupUsers.map((user) => user.id) } } } },
+      where: {
+        users: { some: { userId: { in: groupUsers.map((user) => user.id) } } },
+      },
       orderBy: { disciplineName: 'asc' },
       select: { id: true, disciplineName: true, teacher: true, moodleId: true },
     });
@@ -330,7 +408,13 @@ export class ManagementService {
       select: { id: true },
     });
     return this.prisma.task.findMany({
-      where: { discipline: { users: { some: { userId: { in: groupUsers.map((user) => user.id) } } } } },
+      where: {
+        discipline: {
+          users: {
+            some: { userId: { in: groupUsers.map((user) => user.id) } },
+          },
+        },
+      },
       orderBy: [{ deadline: 'asc' }],
       select: {
         id: true,
@@ -347,10 +431,14 @@ export class ManagementService {
   }
 
   async createTask(disciplineId: number, dto: CreateTaskDto) {
-    const discipline = await this.prisma.discipline.findUnique({ where: { id: disciplineId } });
+    const discipline = await this.prisma.discipline.findUnique({
+      where: { id: disciplineId },
+    });
     if (!discipline) throw new NotFoundException('Дисципліну не знайдено');
-    // Local tasks get negative moodle ids so they never clash with Moodle sync data.
-    const min = await this.prisma.task.aggregate({ where: { moodleId: { lt: 0 } }, _min: { moodleId: true } });
+    const min = await this.prisma.task.aggregate({
+      where: { moodleId: { lt: 0 } },
+      _min: { moodleId: true },
+    });
     const nextId = (min._min.moodleId ?? 0) - 1;
     return this.prisma.task.create({
       data: {
@@ -371,8 +459,12 @@ export class ManagementService {
       where: { id: taskId },
       data: {
         ...(dto.taskName !== undefined ? { taskName: dto.taskName } : {}),
-        ...(dto.description !== undefined ? { description: dto.description } : {}),
-        ...(dto.deadline !== undefined ? { deadline: dto.deadline ? new Date(dto.deadline) : null } : {}),
+        ...(dto.description !== undefined
+          ? { description: dto.description }
+          : {}),
+        ...(dto.deadline !== undefined
+          ? { deadline: dto.deadline ? new Date(dto.deadline) : null }
+          : {}),
       },
     });
   }
@@ -384,7 +476,7 @@ export class ManagementService {
     return { deleted: true };
   }
 
-  // ----------------------------------------------------------------- events
+  // events
 
   async listEvents() {
     return this.prisma.event.findMany({ orderBy: { startTime: 'asc' } });
@@ -405,31 +497,42 @@ export class ManagementService {
   }
 
   async updateEvent(eventId: number, dto: UpdateEventDto) {
-    const event = await this.prisma.event.findUnique({ where: { id: eventId } });
+    const event = await this.prisma.event.findUnique({
+      where: { id: eventId },
+    });
     if (!event) throw new NotFoundException('Подію не знайдено');
     return this.prisma.event.update({
       where: { id: eventId },
       data: {
         ...(dto.eventName !== undefined ? { eventName: dto.eventName } : {}),
-        ...(dto.startTime !== undefined ? { startTime: new Date(dto.startTime) } : {}),
+        ...(dto.startTime !== undefined
+          ? { startTime: new Date(dto.startTime) }
+          : {}),
         ...(dto.place !== undefined ? { place: dto.place ?? null } : {}),
-        ...(dto.description !== undefined ? { description: dto.description ?? null } : {}),
-        ...(dto.organizer !== undefined ? { organizer: dto.organizer ?? null } : {}),
-        ...(dto.detailsUrl !== undefined ? { detailsUrl: dto.detailsUrl ?? null } : {}),
+        ...(dto.description !== undefined
+          ? { description: dto.description ?? null }
+          : {}),
+        ...(dto.organizer !== undefined
+          ? { organizer: dto.organizer ?? null }
+          : {}),
+        ...(dto.detailsUrl !== undefined
+          ? { detailsUrl: dto.detailsUrl ?? null }
+          : {}),
       },
     });
   }
 
   async deleteEvent(eventId: number) {
-    const event = await this.prisma.event.findUnique({ where: { id: eventId } });
+    const event = await this.prisma.event.findUnique({
+      where: { id: eventId },
+    });
     if (!event) throw new NotFoundException('Подію не знайдено');
     await this.prisma.event.delete({ where: { id: eventId } });
     return { deleted: true };
   }
 
-  // ------------------------------------------------------------------- me
+  // me
 
-  /** Groups a student may choose from: names only, created by admins. */
   async listGroupOptions() {
     return this.prisma.group.findMany({
       orderBy: { groupName: 'asc' },
@@ -437,12 +540,10 @@ export class ManagementService {
     });
   }
 
-  /**
-   * Lets a user pick their own group, but only one that already exists.
-   * Students cannot create groups; the admin assigns anything else.
-   */
   async chooseOwnGroup(user: AuthenticatedUser, groupId: number) {
-    const group = await this.prisma.group.findUnique({ where: { id: groupId } });
+    const group = await this.prisma.group.findUnique({
+      where: { id: groupId },
+    });
     if (!group) throw new NotFoundException('Групу не знайдено');
     await this.prisma.user.upsert({
       where: { id: user.userId },
@@ -455,7 +556,10 @@ export class ManagementService {
   async getMe(user: AuthenticatedUser) {
     const dbUser = await this.prisma.user.findUnique({
       where: { id: user.userId },
-      select: { group: { select: { id: true, groupName: true } }, lastSync: true },
+      select: {
+        group: { select: { id: true, groupName: true } },
+        lastSync: true,
+      },
     });
     return {
       userId: user.userId,

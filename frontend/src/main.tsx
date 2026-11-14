@@ -1,5 +1,4 @@
 import "./index.css";
-// Loaded after index.css so Clerk overrides are not folded into the Tailwind layer.
 import "./auth.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";

@@ -11,15 +11,9 @@ import type {
 } from '../../../services/api/management';
 import type { ApiRequestOptions } from '../../../services/api/client';
 
-/**
- * Loads one management resource with the Clerk token.
- * `load` must be a stable callback (wrap it in useCallback in the caller).
- */
 function useResource<T>(load: (options: ApiRequestOptions) => Promise<T>) {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const [attempt, setAttempt] = useState(0);
-  // Result is tagged with the loader it came from: a new loader (for example another
-  // selected group) must not show the previous group's data while the request runs.
   const [state, setState] = useState<{
     data: T | null;
     error: Error | null;
@@ -126,7 +120,6 @@ export function useManagementData({ role, ownGroupId }: ManagementDataOptions) {
   const { refresh: refreshTasks } = tasks;
   const { refresh: refreshStudents } = students;
   const { refresh: refreshEvents } = events;
-  // Every mutation calls this, so groups, students and schedules update without a page reload.
   const refreshAll = useCallback(() => {
     refreshGroups();
     refreshSchedule();

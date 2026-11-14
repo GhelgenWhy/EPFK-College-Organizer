@@ -10,9 +10,9 @@ export function getInitialTheme(): ThemeName {
     const stored = localStorage.getItem(THEME_STORAGE_KEY);
     if (stored === 'light' || stored === 'dark') return stored;
   } catch {
-    // Storage may be disabled by the browser; use the operating-system preference.
+    // Storage unavailable: fall back to the default theme below.
   }
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return 'light';
 }
 
 export function applyTheme(themeName: ThemeName) {

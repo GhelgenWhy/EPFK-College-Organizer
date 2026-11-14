@@ -3,6 +3,7 @@ import type { HomeDeadline } from "../types";
 import { parseLocalDate } from "../utils/date";
 import { formatEuropeanLabel } from "../../../lib/dates";
 import { SectionHeading } from "./SectionHeading";
+import { CheshireCat } from "../../mystic/CheshireCat";
 
 export function DeadlinesSection({
   deadlines,
@@ -21,6 +22,12 @@ export function DeadlinesSection({
         title="Найближчі дедлайни"
         subtitle="Спочатку найтерміновіші"
       />
+      {deadlines.length === 0 && (
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 pt-2 text-center">
+          <CheshireCat pose="calendar" height={130} />
+          <p className="m-0 text-sm text-[var(--text-muted)]">Дедлайнів поки немає</p>
+        </div>
+      )}
       <ul className="m-0 flex min-h-0 flex-1 list-none flex-col gap-2 p-0 pt-2">
         {deadlines.map((deadline, index) => (
           <li className="min-h-0 flex-1" key={deadline.id}>

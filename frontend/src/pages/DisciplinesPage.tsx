@@ -3,6 +3,7 @@ import { DisciplineGrid } from "../features/disciplines/components/DisciplineGri
 import { moodleApi } from "../services/api/moodle";
 import { useApiQuery } from "../services/api/useApiQuery";
 import { ApiQueryStatus } from "../features/api/components/ApiQueryStatus";
+import { CheshireCat } from "../features/mystic/CheshireCat";
 import type { Discipline } from "../features/disciplines/types";
 
 const DISCIPLINES_CACHE_KEY = "epfk-organizer:disciplines-data-cache";
@@ -30,7 +31,6 @@ export function DisciplinesPage() {
 
   useEffect(() => {
     if (query.data) {
-      // Persist only: the rendered list already uses query.data, so no state update here.
       try {
         localStorage.setItem(DISCIPLINES_CACHE_KEY, JSON.stringify(query.data));
       } catch (e) {
@@ -61,9 +61,7 @@ export function DisciplinesPage() {
       ) : disciplinesToRender.length > 0 ? (
         <DisciplineGrid disciplines={disciplinesToRender} />
       ) : (
-        <p className="text-secondary">
-          У Moodle поки немає доступних дисциплін.
-        </p>
+        <div className="flex flex-col items-center gap-3 text-center"><CheshireCat pose="sleep" height={130} /><p className="text-secondary">Дисципліни ще не завантажені. Натисніть «Остання синхронізація», щоб оновити дані з Moodle.</p></div>
       )}
     </main>
   );

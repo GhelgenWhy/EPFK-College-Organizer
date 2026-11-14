@@ -15,8 +15,6 @@ export function ManagementPage() {
   const { role, groupId: ownGroupId, groupName } = useAuthz();
   const [tab, setTab] = useState<ManageTab>('schedule');
 
-  // Both roles see students and schedules; only admins get group and event controls
-  // (StudentsManager and EventManager hide them for starostas).
   const isAdmin = role === 'admin';
   const data = useManagementData({ role: isAdmin ? 'admin' : 'starosta', ownGroupId });
   const groupId = data.selectedGroupId ?? ownGroupId;
@@ -26,7 +24,7 @@ export function ManagementPage() {
   return (
     <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-auto px-[30px] pt-2 pr-[40px] pb-5 [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin max-[760px]:px-4 max-[760px]:pb-24">
       <ManageHeader
-        title={isAdmin ? 'Керування коледжем' : 'Моя група'}
+        title={isAdmin ? 'Організація навчального процесу' : 'Моя група'}
         subtitle={isAdmin ? `Роль: ${ROLE_LABELS[role]}` : `${groupName ?? 'Група не закріплена'} · ${ROLE_LABELS[role]}`}
         tabs={isAdmin ? ['schedule', 'tasks', 'students', 'events'] : ['schedule', 'tasks', 'students']}
         activeTab={tab}

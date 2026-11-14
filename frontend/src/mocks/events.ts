@@ -4,7 +4,7 @@ export const MOCK_COLLEGE_EVENTS: CollegeEvent[] = [
   {
     id: 1,
     title: "День відкритих дверей: знайомство з коледжем",
-    date: "2026-10-05", // Текущая неделя (октябрь 2026)
+    date: "2026-10-05",
     time: "14:00",
     status: "Заплановано",
     location: "Медіацентр, аудиторія 204",
@@ -17,7 +17,7 @@ export const MOCK_COLLEGE_EVENTS: CollegeEvent[] = [
   {
     id: 2,
     title: "Студентський форум цифрових ідей",
-    date: "2026-10-08", // Текущая неделя
+    date: "2026-10-08",
     time: "15:30",
     status: "Заплановано",
     location: "Головний корпус, актова зала",
@@ -29,7 +29,7 @@ export const MOCK_COLLEGE_EVENTS: CollegeEvent[] = [
   {
     id: 3,
     title: "Круглий стіл з кібербезпеки",
-    date: "2026-10-18", // Этот месяц
+    date: "2026-10-18",
     time: "12:00",
     status: "Перенесено",
     location: "Онлайн (Zoom)",
@@ -41,7 +41,7 @@ export const MOCK_COLLEGE_EVENTS: CollegeEvent[] = [
   {
     id: 4,
     title: "Осінній хакатон з програмування",
-    date: "2026-09-28", // Прошлые
+    date: "2026-09-28",
     time: "10:00",
     status: "Завершено",
     location: "Комп’ютерний клас 301",
@@ -53,7 +53,7 @@ export const MOCK_COLLEGE_EVENTS: CollegeEvent[] = [
   {
     id: 5,
     title: "Презентація студентських проєктів",
-    date: "2026-10-29", // Этот месяц
+    date: "2026-10-29",
     time: "13:00",
     status: "Заплановано",
     location: "Виставковий зал",
@@ -65,7 +65,7 @@ export const MOCK_COLLEGE_EVENTS: CollegeEvent[] = [
   {
     id: 6,
     title: "Майстер-клас з React та TypeScript",
-    date: "2026-10-12", // Этот месяц
+    date: "2026-10-12",
     time: "16:00",
     status: "Заплановано",
     location: "Комп’ютерний клас 305",
@@ -77,7 +77,7 @@ export const MOCK_COLLEGE_EVENTS: CollegeEvent[] = [
   {
     id: 7,
     title: "Спортивний турнір з настільного тенісу",
-    date: "2026-10-14", // Этот месяц
+    date: "2026-10-14",
     time: "15:00",
     status: "Заплановано",
     location: "Спортивний зал",
@@ -89,7 +89,7 @@ export const MOCK_COLLEGE_EVENTS: CollegeEvent[] = [
   {
     id: 8,
     title: "Зустріч з випускниками-програмістами",
-    date: "2026-10-22", // Этот месяц
+    date: "2026-10-22",
     time: "14:30",
     status: "Заплановано",
     location: "Актова зала",
@@ -101,7 +101,7 @@ export const MOCK_COLLEGE_EVENTS: CollegeEvent[] = [
   {
     id: 9,
     title: "Виставка науково-технічної творчості",
-    date: "2026-09-15", // Прошлые
+    date: "2026-09-15",
     time: "11:00",
     status: "Завершено",
     location: "Виставковий зал",
@@ -113,7 +113,7 @@ export const MOCK_COLLEGE_EVENTS: CollegeEvent[] = [
   {
     id: 10,
     title: "Презентація волонтерських ініціатив",
-    date: "2026-10-25", // Этот месяц
+    date: "2026-10-25",
     time: "13:30",
     status: "Заплановано",
     location: "Читальна зала бібліотеки",
@@ -125,7 +125,7 @@ export const MOCK_COLLEGE_EVENTS: CollegeEvent[] = [
   {
     id: 11,
     title: "Дебати: Штучний інтелект у освіті",
-    date: "2026-11-02", // Будущий месяц
+    date: "2026-11-02",
     time: "15:00",
     status: "Заплановано",
     location: "Аудиторія 401",
@@ -137,7 +137,7 @@ export const MOCK_COLLEGE_EVENTS: CollegeEvent[] = [
   {
     id: 12,
     title: "Семінар з фінансової грамотності",
-    date: "2026-10-10", // Текущая неделя
+    date: "2026-10-10",
     time: "14:00",
     status: "Перенесено",
     location: "Аудиторія 208",
@@ -149,7 +149,7 @@ export const MOCK_COLLEGE_EVENTS: CollegeEvent[] = [
   {
     id: 13,
     title: "Творчий вечір поезії та музики",
-    date: "2026-11-05", // Будущий месяц
+    date: "2026-11-05",
     time: "17:00",
     status: "Заплановано",
     location: "Актова зала",
@@ -161,7 +161,7 @@ export const MOCK_COLLEGE_EVENTS: CollegeEvent[] = [
   {
     id: 14,
     title: "Брифінг щодо академічної мобільності",
-    date: "2026-09-20", // Прошлые
+    date: "2026-09-20",
     time: "12:30",
     status: "Завершено",
     location: "Міжнародний відділ, ауд. 102",
@@ -173,7 +173,7 @@ export const MOCK_COLLEGE_EVENTS: CollegeEvent[] = [
   {
     id: 15,
     title: "День донора у коледжі",
-    date: "2026-11-10", // Будущий месяц
+    date: "2026-11-10",
     time: "09:00",
     status: "Заплановано",
     location: "Медичний пункт",

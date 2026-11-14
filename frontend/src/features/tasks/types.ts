@@ -2,7 +2,7 @@ export interface HomeworkTask {
   id: string;
   title: string;
   course: string;
-  dueDate: string;
+  dueDate: string | null;
 }
 
 export interface Assignment extends Omit<HomeworkTask, 'dueDate'> {
@@ -12,10 +12,15 @@ export interface Assignment extends Omit<HomeworkTask, 'dueDate'> {
   source: string;
   addedAt: string;
   moodleUrl?: string;
-  /** Completion status from Moodle, as synced by the backend. */
   isCompleted?: boolean;
 }
 
 export type StatusFilter = 'ALL' | 'COMPLETED' | 'ACTIVE' | 'OVERDUE';
 
 export type SortOrder = 'SOONEST' | 'LATEST' | 'TITLE';
+
+export type MarkSource = 'SYSTEM' | 'USER';
+
+export type MarkFilter = 'ALL' | MarkSource;
+
+export type DeadlineState = 'overdue' | 'approaching' | 'normal';

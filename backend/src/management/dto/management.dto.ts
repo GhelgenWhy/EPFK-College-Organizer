@@ -43,15 +43,20 @@ export interface UpdateTaskDto {
 export interface CreateEventDto {
   eventName: string;
   startTime: string;
-  place?: string;
-  description?: string;
-  /** Optional organizer name typed by the admin (not the author's account name). */
+  place: string;
+  description: string;
   organizer?: string;
-  /** Optional link to details or a registration form. */
   detailsUrl?: string;
 }
 
-export interface UpdateEventDto extends Partial<CreateEventDto> {}
+export interface UpdateEventDto {
+  eventName?: string;
+  startTime?: string;
+  place?: string;
+  description?: string;
+  organizer?: string | null;
+  detailsUrl?: string | null;
+}
 
 function requiredString(value: unknown, field: string): string {
   if (typeof value !== 'string' || value.trim() === '') {
@@ -148,8 +153,8 @@ export function parseCreateEvent(body: unknown): CreateEventDto {
   return {
     eventName: requiredString(value.eventName, 'eventName'),
     startTime: requiredDate(value.startTime, 'startTime').toISOString(),
-    place: optionalString(value.place) ?? undefined,
-    description: optionalString(value.description) ?? undefined,
+    place: requiredString(value.place, 'place'),
+    description: requiredString(value.description, 'description'),
     organizer: optionalString(value.organizer) ?? undefined,
     detailsUrl: optionalString(value.detailsUrl) ?? undefined,
   };
@@ -160,9 +165,9 @@ export function parseUpdateEvent(body: unknown): UpdateEventDto {
   const result: UpdateEventDto = {};
   if (value.eventName !== undefined) result.eventName = requiredString(value.eventName, 'eventName');
   if (value.startTime !== undefined) result.startTime = requiredDate(value.startTime, 'startTime').toISOString();
-  if (value.place !== undefined) result.place = optionalString(value.place) ?? undefined;
-  if (value.description !== undefined) result.description = optionalString(value.description) ?? undefined;
-  if (value.organizer !== undefined) result.organizer = optionalString(value.organizer) ?? undefined;
-  if (value.detailsUrl !== undefined) result.detailsUrl = optionalString(value.detailsUrl) ?? undefined;
+  if (value.place !== undefined) result.place = requiredString(value.place, 'place');
+  if (value.description !== undefined) result.description = requiredString(value.description, 'description');
+  if (value.organizer !== undefined) result.organizer = optionalString(value.organizer);
+  if (value.detailsUrl !== undefined) result.detailsUrl = optionalString(value.detailsUrl);
   return result;
 }

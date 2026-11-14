@@ -6,7 +6,6 @@ import type { ApiRequestOptions } from './client';
 import { requestJson } from './client';
 import { array, boolean, dateKey, dateString, id, nullable, number, object, oneOf, optional, string, validated } from './validation';
 
-// One malformed lesson must not hide the whole timetable: unknown lessons become empty slots.
 const lesson = object({
   id: id, disciplineName: string, teacherName: string,
   startsAt: string, endsAt: string, format: oneOf('OFFLINE', 'ONLINE', 'HYBRID'),
@@ -21,7 +20,6 @@ const schedule = object({
   numerator: array(day), denominator: array(day),
 });
 
-/** Replaces malformed lesson entries with `null` so the grid keeps its six slots. */
 function normalizeSchedule(value: ScheduleResponse): ScheduleResponse {
   const days = (list: ScheduleResponse['numerator']) =>
     list.map((item) => ({
@@ -45,18 +43,18 @@ interface HomeResponse {
   HOME_EVENTS: HomeData['events'] | null;
   HOME_LESSONS: HomeData['lessons'] | null;
   HOME_TASKS: HomeData['tasks'] | null;
+  HOME_SUMMARY?: HomeData['summary'] | null;
 }
 const nullableArray = (check: (value: unknown) => boolean) =>
   (value: unknown): boolean => value === null || value === undefined || array(check)(value);
 
-// Backend may send null for missing lists or fields (weekends, no group, no deadline).
-// Nullable lists are normalised to [] in getHome; nullable fields are rendered as text fallbacks.
 const home = object({
   HOME_DEMO_DATE: dateString,
   HOME_DEADLINES: nullableArray(object({ id: string, date: dateKey, label: string, title: string, course: string, urgent: optional(boolean) })),
   HOME_EVENTS: nullableArray(object({ id: string, date: dateKey, monthLabel: string, title: string, details: string })),
   HOME_LESSONS: nullableArray(object({ id: string, startsAt: string, endsAt: string, title: string, teacher: string, location: string, meetingUrl: optional(nullable(string)) })),
-  HOME_TASKS: nullableArray(object({ id: string, title: string, course: string, dueDate: dateKey })),
+  HOME_TASKS: nullableArray(object({ id: string, title: string, course: string, dueDate: optional(nullable(dateKey)) })),
+  HOME_SUMMARY: optional(nullable(object({ activeTasks: number, deadlinesNext3Days: number, overdueTasks: number }))),
 });
 
 export const organizerApi = {
@@ -74,6 +72,7 @@ export const organizerApi = {
       events: data.HOME_EVENTS ?? [],
       lessons: data.HOME_LESSONS ?? [],
       tasks: data.HOME_TASKS ?? [],
+      summary: data.HOME_SUMMARY ?? undefined,
     };
   }),
 };

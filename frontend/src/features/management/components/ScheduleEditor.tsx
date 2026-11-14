@@ -23,7 +23,6 @@ interface ScheduleEditorProps {
 
 const FORMAT_LABELS = { OFFLINE: 'Офлайн', ONLINE: 'Онлайн', HYBRID: 'Гібрид' } as const;
 
-/** Short place caption for a grid cell: classroom for OFFLINE, both for HYBRID, link state for ONLINE. */
 function lessonPlace(lesson: LessonSlot): string {
   if (lesson.format === 'ONLINE') return 'Онлайн';
   if (lesson.format === 'HYBRID') return `${lesson.location || 'Аудиторію не вказано'} · онлайн`;
@@ -43,15 +42,12 @@ interface DraftLesson {
 
 export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }: ScheduleEditorProps) {
   const [weekType, setWeekType] = useState<WeekType>('numerator');
-  // Narrow screens show one day at a time; Monday is the default.
   const [mobileDay, setMobileDay] = useState(1);
   const [draft, setDraft] = useState<DraftLesson | null>(null);
   const [saving, setSaving] = useState(false);
   const { banner, show } = useBanner();
 
   const data = schedule.schedule;
-  // Managers always see Monday to Saturday as columns, like any other day, so a Saturday
-  // lesson can be added without extra clicks. Students see Saturday only when it has lessons.
   const storedDays = data[weekType];
   const hasSaturday = storedDays.some((day) => day.weekday === 6);
   const days = hasSaturday
@@ -136,7 +132,6 @@ export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }:
 
       <Banner message={banner?.message ?? null} tone={banner?.tone} />
 
-      {/* Narrow screens: pick one day, then its six slots (a wide grid would not fit). */}
       <div className="hidden flex-col gap-3 max-[760px]:flex">
         <div className="flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]">
           {visibleDays.map((day) => (
@@ -184,10 +179,16 @@ export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }:
       </div>
 
       <div className="overflow-auto rounded-[18px] border border-border bg-surface [scrollbar-color:var(--scrollbar)_transparent] scrollbar-thin max-[760px]:hidden">
-        <table className="w-full min-w-[720px] border-collapse text-sm">
+        <table className="w-full min-w-[720px] table-fixed border-collapse text-sm">
+          <colgroup>
+            <col className="w-[84px]" />
+            {visibleDays.map((day) => (
+              <col key={day.weekday} />
+            ))}
+          </colgroup>
           <thead>
             <tr>
-              <th className="w-[110px] border-b border-border p-2 text-left font-semibold text-secondary">Час</th>
+              <th className="border-b border-border p-2 text-left font-semibold text-secondary">Час</th>
               {visibleDays.map((day) => (
                 <th key={day.weekday} className="border-b border-border p-2 text-left font-semibold text-secondary">
                   {day.name}
@@ -198,7 +199,11 @@ export function ScheduleEditor({ groupId, schedule, canEdit, onSave, onDelete }:
           <tbody>
             {data.timeSlots.map((time, slot) => (
               <tr key={time}>
-                <td className="border-b border-border p-2 align-top text-xs text-muted">{time}</td>
+                <td className="border-b border-border p-2 align-top text-xs leading-snug text-muted">
+                  {time.split(/\s*[-–]\s*/).map((part) => (
+                    <span key={part} className="block">{part}</span>
+                  ))}
+                </td>
                 {visibleDays.map((day) => {
                   const lesson = day.lessons[slot];
                   return (

@@ -1,49 +1,44 @@
 import type { CalendarFilterType } from "../../calendar/types";
 import type { HomeDeadline, HomeLesson } from "../types";
-import { formatDateKey, parseLocalDate } from "../utils/date";
+import { parseLocalDate } from "../utils/date";
 
 export function FocusCard({
-  date,
-  lessons,
   deadlines,
   activeTaskCount,
+  deadlinesNext3Days,
+  overdueTasks,
   onOpenCalendar,
-  onOpenSchedule,
 }: {
   date: Date;
   lessons: HomeLesson[];
   deadlines: HomeDeadline[];
   activeTaskCount: number;
+  deadlinesNext3Days: number;
+  overdueTasks: number;
   onOpenCalendar: (date: Date, filter?: CalendarFilterType) => void;
   onOpenSchedule: () => void;
 }) {
-  const dateKey = formatDateKey(date);
-  const urgentDeadlines = deadlines.filter(
-    (deadline) => deadline.urgent || deadline.date === dateKey,
-  );
   const metrics = [
     {
-      value: lessons.length,
-      label: "пари",
-      detail: "Сьогодні в розкладі",
-      action: onOpenSchedule,
+      value: overdueTasks,
+      label: "прострочені",
+      detail: "Дедлайн уже минув",
+      action: () => onOpenCalendar(deadlines[0] ? parseLocalDate(deadlines[0].date) : new Date(), "DEADLINES_ONLY"),
+      urgent: true,
     },
     {
-      value: urgentDeadlines.length,
+      value: deadlinesNext3Days,
       label: "дедлайни",
-      detail: "Потребують уваги",
-      action: () =>
-        onOpenCalendar(
-          deadlines[0] ? parseLocalDate(deadlines[0].date) : date,
-          "DEADLINES_ONLY",
-        ),
-      urgent: true,
+      detail: "Протягом 3 днів",
+      action: () => onOpenCalendar(deadlines[0] ? parseLocalDate(deadlines[0].date) : new Date(), "DEADLINES_ONLY"),
+      urgent: false,
     },
     {
       value: activeTaskCount,
       label: "завдання",
-      detail: "Ще не завершені",
-      action: () => onOpenCalendar(date, "DEADLINES_ONLY"),
+      detail: "Ще не виконані",
+      action: () => onOpenCalendar(new Date(), "DEADLINES_ONLY"),
+      urgent: false,
     },
   ];
 
@@ -59,7 +54,7 @@ export function FocusCard({
         Аджента
       </h2>
       <p className="mt-1 text-[11px] leading-[1.35] text-[var(--text-muted)] max-[760px]:text-[11px]">
-        «те, що має бути зроблено» або «справа, яку слід виконати»
+        «справи, які слід виконати»
       </p>
       <div className="mt-2 grid grid-cols-3 gap-[6px]">
         {metrics.map((metric) => (

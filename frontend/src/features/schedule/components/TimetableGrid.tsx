@@ -10,15 +10,14 @@ interface TimetableGridProps {
 export const TimetableGrid = ({ timeSlots, days }: TimetableGridProps) => {
   const { date } = useKyivClock();
   const currentWeekday = new Date(`${date}T00:00:00Z`).getUTCDay() || 7;
-  // Monday to Friday are always columns; Saturday appears only when it is in the data
-  // (the API sends it only when it has lessons).
   const visibleDays = days.filter((day) => day.weekday <= 5 || day.lessons.some((lesson) => lesson !== null));
   const columns = visibleDays.length;
 
   return (
+  <div className="min-h-0 min-w-0 flex-1 overflow-x-auto max-[760px]:-mx-1 max-[760px]:px-1">
   <div
-    className="grid min-h-0 min-w-0 flex-1 gap-1"
-    style={{ gridTemplateColumns: `clamp(60px,8vw,130px) repeat(${columns}, minmax(0, 1fr))` }}
+    className="grid min-h-0 gap-1 [grid-template-columns:var(--desktop-cols)] max-[760px]:min-w-[640px] max-[760px]:[grid-template-columns:64px_repeat(var(--cols),minmax(104px,1fr))]"
+    style={{ ['--cols' as string]: columns, ['--desktop-cols' as string]: `clamp(60px,8vw,130px) repeat(${columns}, minmax(0, 1fr))` }}
   >
     <div className="grid min-h-0 min-w-0 grid-rows-[clamp(28px,5vh,48px)_minmax(0,1fr)] gap-1">
       <div className="flex min-w-0 items-center justify-center rounded-md bg-surface px-1 text-center text-[clamp(9px,1vw,16px)] font-bold text-primary">Час</div>
@@ -41,6 +40,7 @@ export const TimetableGrid = ({ timeSlots, days }: TimetableGridProps) => {
         </div>
       </div>
     ))}
+  </div>
   </div>
   );
 };

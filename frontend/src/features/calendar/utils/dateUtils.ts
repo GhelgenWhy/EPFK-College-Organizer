@@ -16,7 +16,6 @@ export const UKRAINIAN_WEEKDAYS_FULL = [
 
 export const WEEKDAYS_SHORT = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'НД'];
 
-// Формування дати у форматі РРРР-ММ-ДД
 export const formatDateKey = (date: Date): string => {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -24,13 +23,11 @@ export const formatDateKey = (date: Date): string => {
   return `${y}-${m}-${d}`;
 };
 
-// Формування заголовка місяця
 export const formatMonthHeader = (date: Date): string => {
   const monthName = UKRAINIAN_MONTHS[date.getMonth()];
   return `${monthName} ${date.getFullYear()} р.`;
 };
 
-// Формування заголовка вибраної дати
 export const formatSelectedDateHeader = (date: Date): string => {
   const weekday = UKRAINIAN_WEEKDAYS_FULL[date.getDay()];
   const day = date.getDate();
@@ -38,7 +35,6 @@ export const formatSelectedDateHeader = (date: Date): string => {
   return `${weekday}, ${day} ${monthGenitive}`;
 };
 
-// Створення днів календаря
 export const generateCalendarMatrix = (
   viewDate: Date,
   selectedDate: Date
@@ -57,7 +53,6 @@ export const generateCalendarMatrix = (
 
   const days: CalendarDay[] = [];
 
-  // Дні попереднього місяця
   const prevMonthTotalDays = new Date(year, month, 0).getDate();
   for (let i = startDayOfWeek - 1; i >= 0; i--) {
     const d = new Date(year, month - 1, prevMonthTotalDays - i);
@@ -72,7 +67,6 @@ export const generateCalendarMatrix = (
     });
   }
 
-  // Дні поточного місяця
   for (let i = 1; i <= totalDaysInMonth; i++) {
     const d = new Date(year, month, i);
     const key = formatDateKey(d);
@@ -86,7 +80,6 @@ export const generateCalendarMatrix = (
     });
   }
 
-  // Дні наступного місяця
   const remainder = days.length % 7;
   const remainingDays = remainder === 0 ? 0 : 7 - remainder;
 

@@ -2,10 +2,6 @@ import { useAuth } from '@clerk/react';
 import { useCallback, useState } from 'react';
 import type { ApiRequestOptions } from '../../../services/api/client';
 
-/**
- * Wraps a management API call with the Clerk token and an abort signal,
- * and keeps a single error message for the page-level banner.
- */
 export function useManageAction(onSuccess?: () => void) {
   const { getToken } = useAuth();
   const [error, setError] = useState<string | null>(null);

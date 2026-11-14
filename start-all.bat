@@ -1,14 +1,6 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
 
-rem ---------------------------------------------------------------------------
-rem  EPFK College Organizer - one-click local stack launcher
-rem  Starts PostgreSQL (Docker), applies Prisma migrations, then opens the
-rem  backend and frontend each in its own window.
-rem  Optional flags:  /fresh     - drop the local database volume and recreate it
-rem                    /noinstall - never run "npm ci" automatically
-rem ---------------------------------------------------------------------------
-
 set "ROOT=%~dp0"
 set "COMPOSE_FILE=%ROOT%infrastructure\db\docker-compose.yml"
 set "FRESH="
@@ -27,7 +19,7 @@ echo   EPFK College Organizer - local startup
 echo ============================================================
 echo.
 
-rem --- 1. required tools -----------------------------------------------------
+rem 1. required tools
 where docker >nul 2>nul
 if errorlevel 1 goto no_docker
 where node >nul 2>nul
@@ -54,7 +46,7 @@ goto fail
 :docker_is_ready
 echo       Docker engine is ready.
 
-rem --- 2. env files ----------------------------------------------------------
+rem 2. env files
 echo [2/6] Checking .env files...
 if exist "%ROOT%backend\.env" goto backend_env_ok
 if not exist "%ROOT%backend\.env.example" goto no_backend_example
@@ -67,7 +59,7 @@ copy /y "%ROOT%frontend\.env.example" "%ROOT%frontend\.env" >nul
 echo       Created frontend\.env from .env.example - fill in your Clerk key.
 :frontend_env_ok
 
-rem --- 3. database -----------------------------------------------------------
+rem 3. database
 if not defined FRESH goto db_start
 echo [3/6] Recreating the local database volume...
 docker compose -f "%COMPOSE_FILE%" down -v
@@ -77,7 +69,7 @@ echo [3/6] Starting PostgreSQL container...
 docker compose -f "%COMPOSE_FILE%" up -d --wait
 if errorlevel 1 goto db_failed
 
-rem --- 4. backend dependencies and migrations --------------------------------
+rem 4. backend dependencies and migrations
 pushd "%ROOT%backend"
 if exist "node_modules" goto backend_deps_ok
 if defined NOINSTALL goto backend_deps_ok
@@ -93,7 +85,7 @@ call npm run prisma:deploy
 if errorlevel 1 goto backend_step_failed
 popd
 
-rem --- 5. frontend dependencies ----------------------------------------------
+rem 5. frontend dependencies
 pushd "%ROOT%frontend"
 if exist "node_modules" goto frontend_deps_ok
 if defined NOINSTALL goto frontend_deps_ok
@@ -104,7 +96,7 @@ if errorlevel 1 goto frontend_step_failed
 if not exist "node_modules" goto frontend_deps_missing
 popd
 
-rem --- 6. start dev servers --------------------------------------------------
+rem 6. start dev servers
 echo [6/6] Starting backend and frontend...
 start "EPFK backend" cmd /k "cd /d "%ROOT%backend" && npm run start:dev"
 timeout /t 3 /nobreak >nul

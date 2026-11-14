@@ -34,7 +34,6 @@ interface MoodleAssignment {
   source: string;
   addedAt: string | null;
   moodleUrl: string;
-  /** Completion status from Moodle (kept in sync by the backend). */
   isCompleted?: boolean;
 }
 const course = object({
@@ -138,15 +137,6 @@ export const moodleApi = {
     const allBatches = await Promise.all(
       courses.map((course) => moodleApi.getCourseAssignments(course.id, options))
     );
-
-    // const assignments: Assignment[] = [];
-    // for (const course of courses) {
-    //   const courseAssignments = await moodleApi.getCourseAssignments(course.id, options);
-    //   for (const assignment of courseAssignments) {
-    //     assignments.push(assignment);
-    //   } 
-    //
-    // }
 
     const assignments = allBatches.flat();
     return [...new Map(assignments.map((item) => [item.id, item])).values()];

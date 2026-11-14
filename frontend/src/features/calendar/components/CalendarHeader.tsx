@@ -19,7 +19,6 @@ export function CalendarHeader({
   return (
     <div className="flex h-[76px] shrink-0 flex-col justify-center gap-[6px] rounded-[20px] bg-surface px-6 py-2 max-[760px]:h-auto max-[760px]:gap-2 max-[760px]:py-3">
 
-      {/* Навігація по місяцях */}
       <div className="flex items-center gap-[10px]">
         <button
           type="button"
@@ -54,7 +53,6 @@ export function CalendarHeader({
         </button>
       </div>
 
-      {/* Фільтри календаря */}
       <div className="flex h-8 items-center gap-[10px] max-[420px]:gap-1">
         <span className="text-[13px] font-bold tracking-[0.02em] text-[var(--text-secondary)]">ПОКАЗАТИ</span>
 

@@ -4,10 +4,6 @@ import type { AuthenticatedUser } from '../auth/auth.types.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { MoodleService } from './moodle.service.js';
 
-/**
- * Raw Moodle proxies kept for diagnostics. The organizer UI reads synchronized
- * data through `/api`, using the Moodle token stored for the signed-in user.
- */
 @Controller('moodle')
 export class MoodleController {
   constructor(
@@ -15,7 +11,6 @@ export class MoodleController {
     private readonly prisma: PrismaService,
   ) {}
 
-  /** Returns the Moodle token stored during synchronization; null when missing. */
   private async tokenFor(userId: string): Promise<string | null> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },

@@ -6,9 +6,7 @@ export interface GroupOption {
 }
 
 interface EducationalInfoCardProps {
-  /** Current server-side group id (null when the admin has not assigned one). */
   groupId: number | null;
-  /** Existing groups the user may pick from. The user cannot create groups. */
   groupOptions: GroupOption[];
   role: string;
   moodleLogin: string;
@@ -31,12 +29,9 @@ export const EducationalInfoCard = ({
   onSave,
   saving,
 }: EducationalInfoCardProps) => {
-  // Parent re-mounts this card (via key) when the stored Moodle data changes, so no effect is needed.
   const [moodleLogin, setMoodleLogin] = useState(initialMoodleLogin);
   const [moodlePassword, setMoodlePassword] = useState(initialMoodlePassword);
 
-  // The parent performs the Moodle sync (token is exchanged on the backend);
-  // this card only collects the values and never calls Moodle or stores the password.
   const handleSaveClick = () => {
     onSave({ moodleLogin, moodlePassword });
   };

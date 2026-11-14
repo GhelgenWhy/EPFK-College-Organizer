@@ -16,7 +16,6 @@ interface AuthenticatedRequest extends Request {
   authUser?: AuthenticatedUser;
 }
 
-/** Activity is written at most this often per user, so a busy page does not write on every request. */
 const LAST_SEEN_THROTTLE_MS = 10 * 60 * 1000;
 
 @Injectable()
@@ -29,7 +28,6 @@ export class ClerkAuthGuard implements CanActivate {
     private readonly prisma: PrismaService,
   ) {}
 
-  /** Records that the user was active; swallows errors so auth never fails because of it. */
   private touchLastSeen(userId: string) {
     const now = Date.now();
     const last = this.lastSeenWritten.get(userId) ?? 0;
@@ -40,7 +38,6 @@ export class ClerkAuthGuard implements CanActivate {
       .catch((error: unknown) => this.logger.warn(`lastSeenAt not stored: ${(error as Error).message}`));
   }
 
-  /** Reads `publicMetadata.role` from the Clerk user when the session token has no role claim. */
   private async roleFromClerk(userId: string, secretKey: string) {
     try {
       const clerk = createClerkClient({ secretKey });
@@ -72,14 +69,10 @@ export class ClerkAuthGuard implements CanActivate {
 
     try {
       const claims = await verifyToken(token, { secretKey });
-      // The session token can expose the metadata either flattened (`publicMetadata`)
-      // or as the raw session claim `public_metadata`; accept both.
       const metadata = claims.publicMetadata ?? claims.public_metadata;
       const hasRoleClaim = metadata && typeof metadata === 'object' && 'role' in metadata;
       const role = hasRoleClaim ? (metadata as Record<string, unknown>).role : undefined;
 
-      // Without the session claim the token says nothing about the role; ask Clerk
-      // instead of silently downgrading an admin to a student.
       const resolvedRole = hasRoleClaim
         ? resolveAppRole(role)
         : await this.roleFromClerk(claims.sub, secretKey);

@@ -3,16 +3,10 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import type { AuthenticatedUser } from '../auth/auth.types.js';
 
 export interface HomeroomScope {
-  /** The authenticated user with the resolved application role. */
   user: AuthenticatedUser;
-  /** Group ids the user may manage; empty for admins (they manage every group). */
   groupIds: number[];
 }
 
-/**
- * Resolves which groups a starosta (or admin) is allowed to manage.
- * Admins have access to every group, so their restriction list stays empty.
- */
 @Injectable()
 export class RolesService {
   constructor(private readonly prisma: PrismaService) {}
@@ -32,7 +26,6 @@ export class RolesService {
     return { user, groupIds: [dbUser.groupId] };
   }
 
-  /** Throws when a non-admin scope tries to touch another group's data. */
   assertGroupAccess(scope: HomeroomScope, groupId: number): void {
     if (scope.user.role === 'admin') return;
     if (!scope.groupIds.includes(groupId)) {
@@ -70,7 +63,6 @@ export class RolesService {
     return discipline;
   }
 
-  /** Group ids that a user belongs to, used to filter schedule reads. */
   async getMemberGroupIds(user: AuthenticatedUser): Promise<number[]> {
     if (user.role === 'admin') return [];
     const dbUser = await this.prisma.user.findUnique({

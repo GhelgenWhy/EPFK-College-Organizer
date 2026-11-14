@@ -46,8 +46,6 @@ export class RolesGuard implements CanActivate {
     }
 
     if (!request.authUser.role) {
-      // The session token usually carries the role; fall back to the Clerk API
-      // when the session claim was not customised yet.
       try {
         const user = await this.clerk.users.getUser(request.authUser.userId);
         const publicMetadata = user.publicMetadata as { role?: string };

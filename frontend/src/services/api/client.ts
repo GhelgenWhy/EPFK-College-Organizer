@@ -37,8 +37,6 @@ export async function fetchWithClerkAuth(
   return fetch(input, { credentials: 'include', ...init, headers });
 }
 
-// Paths stay relative so both the Vite proxy and production reverse proxy
-// send requests (including the Moodle cookie) through the frontend origin.
 export async function requestJson<T>(
   path: string,
   { getToken, signal }: ApiRequestOptions,

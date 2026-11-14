@@ -4,6 +4,7 @@ import { EventList } from "../features/events/components/EventList";
 import { organizerApi } from "../services/api/organizer";
 import { useApiQuery } from "../services/api/useApiQuery";
 import { ApiQueryStatus } from "../features/api/components/ApiQueryStatus";
+import { CheshireCat } from "../features/mystic/CheshireCat";
 import type {
   PeriodFilter,
   StatusFilter,
@@ -26,7 +27,6 @@ export const EventPage = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // 1. Фільтрація за періодом
     const periodFiltered = (query.data ?? []).filter((event) => {
       const eventDate = new Date(event.date);
       eventDate.setHours(0, 0, 0, 0);
@@ -49,10 +49,9 @@ export const EventPage = () => {
           eventDate.getFullYear() === today.getFullYear()
         );
       }
-      return true; // "Усі дати"
+      return true;
     });
 
-    // 2. Фільтрація за статусом
     const statusFiltered = periodFiltered.filter((event) => {
       if (status === "Усі статуси") return true;
       return event.status === status;
@@ -78,7 +77,7 @@ export const EventPage = () => {
   }, [query.data, period, status, sort]);
 
   return (
-    <div className="flex flex-col w-full h-full overflow-hidden">
+    <div className="relative flex w-full h-full flex-col overflow-x-clip overflow-y-hidden">
       <EventHeader
         period={period}
         setPeriod={setPeriod}
@@ -88,6 +87,9 @@ export const EventPage = () => {
         setSort={setSort}
         onReset={handleReset}
       />
+      <div className="pointer-events-none fixed top-[96px] right-0 z-[70] hidden min-[900px]:block" aria-hidden="true">
+        <CheshireCat pose="peek" height={150} className="translate-x-[36px]" />
+      </div>
       <ApiQueryStatus query={query} loadingText="Завантаження подій…" />
       {query.data && <EventList events={filteredAndSortedEvents} />}
     </div>

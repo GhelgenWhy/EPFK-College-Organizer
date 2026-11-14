@@ -1,6 +1,7 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { SyncSetupNotice } from './SyncSetupNotice';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -30,7 +31,17 @@ export const AppLayout = ({
           onSyncClick={onSyncClick}
           onProfileClick={onProfileClick}
         />
-        {children}
+        <SyncSetupNotice />
+        <div
+          className="relative flex min-h-0 min-w-0 flex-1 flex-row gap-2"
+          style={{
+            '--app-main-left': '22px',
+            '--app-view-left': '106px',
+            '--app-view-top': '100px',
+          } as CSSProperties}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );

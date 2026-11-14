@@ -2,7 +2,7 @@ export interface HomeworkTask {
   id: string;
   title: string;
   course: string;
-  dueDate: string;
+  dueDate: string | null;
 }
 
 export interface Assignment extends Omit<HomeworkTask, 'dueDate'> {

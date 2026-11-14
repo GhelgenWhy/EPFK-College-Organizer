@@ -1,5 +1,5 @@
 import { NavLink } from "react-router";
-import logoSvg from "../../../assets/logo.svg";
+import logoSvg from "../../../assets/brand/epfk-znu-logo.svg";
 import { useClerk, useUser } from "@clerk/react";
 import { isManager, resolveAppRole } from "../../auth/roles";
 import { SidebarIcon, type SidebarIconName } from './SidebarIcon';
@@ -16,7 +16,7 @@ function SidebarLink({ to, label, icon }: SidebarLinkProps) {
       to={to}
       end={to === "/"}
       className={({ isActive }) =>
-        `flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full transition-colors max-[760px]:h-[46px] max-[760px]:w-[46px] ${isActive ? "bg-bg-active" : "hover:bg-[var(--surface-hover)]"}`
+        `flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full transition-colors max-[760px]:h-[38px] max-[760px]:w-[38px] ${isActive ? "bg-bg-active" : "hover:bg-[var(--surface-hover)]"}`
       }
       aria-label={label}
       title={label}
@@ -31,12 +31,11 @@ function SidebarLink({ to, label, icon }: SidebarLinkProps) {
 export const Sidebar = () => {
   const { signOut } = useClerk();
   const { user } = useUser();
-  // The sidebar mirrors Clerk metadata; the route guards re-check the server role.
   const role = resolveAppRole(user?.publicMetadata.role);
 
   return (
-    <aside className="flex min-h-[calc(100vh-20px)] w-[80px] shrink-0 flex-col items-center justify-between px-[10px] py-0 max-[760px]:fixed max-[760px]:right-3 max-[760px]:bottom-3 max-[760px]:left-3 max-[760px]:z-50 max-[760px]:min-h-0 max-[760px]:w-auto max-[760px]:rounded-[50px] max-[760px]:border max-[760px]:border-border max-[760px]:bg-surface/95 max-[760px]:p-[6px] max-[760px]:shadow-[0_8px_30px_var(--shadow-color)] max-[760px]:backdrop-blur-[12px]">
-      <div className="flex w-full flex-col items-center gap-[50px] max-[760px]:gap-0">
+    <aside className="flex min-h-[calc(100vh-20px)] w-[80px] shrink-0 flex-col items-center justify-between px-[10px] py-0 max-[760px]:fixed max-[760px]:right-3 max-[760px]:bottom-3 max-[760px]:left-3 max-[760px]:z-50 max-[760px]:min-h-0 max-[760px]:w-auto max-[760px]:flex-row max-[760px]:items-center max-[760px]:gap-[8px] max-[760px]:border-0 max-[760px]:bg-transparent max-[760px]:p-0 max-[760px]:shadow-none max-[760px]:backdrop-blur-0">
+      <div className="flex w-full flex-col items-center gap-[50px] max-[760px]:min-w-0 max-[760px]:flex-1 max-[760px]:gap-0 max-[760px]:rounded-[50px] max-[760px]:border max-[760px]:border-border max-[760px]:bg-surface/95 max-[760px]:p-[6px] max-[760px]:shadow-[0_8px_30px_var(--shadow-color)] max-[760px]:backdrop-blur-[12px]">
         <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center max-[760px]:hidden">
           <img
             className="h-full w-full object-contain"
@@ -45,7 +44,7 @@ export const Sidebar = () => {
           />
         </div>
 
-        <nav className="flex w-[60px] flex-col items-center gap-[10px] rounded-[50px] bg-surface py-[5px] shadow-[0_1px_3px_var(--shadow-soft-color)] max-[760px]:w-full max-[760px]:flex-row max-[760px]:justify-evenly max-[760px]:gap-[3px] max-[760px]:bg-transparent max-[760px]:py-0 max-[760px]:shadow-none">
+        <nav className="flex w-[60px] flex-col items-center gap-[10px] rounded-[50px] bg-surface py-[5px] shadow-[0_1px_3px_var(--shadow-soft-color)] max-[760px]:w-full max-[760px]:flex-row max-[760px]:justify-between max-[760px]:gap-[2px] max-[760px]:bg-transparent max-[760px]:py-0 max-[760px]:shadow-none">
           <SidebarLink to="/" label="Головна" icon="home" />
           <SidebarLink to="/calendar" label="Календар" icon="calendar" />
           <SidebarLink to="/schedule" label="Розклад" icon="schedule" />
@@ -63,7 +62,7 @@ export const Sidebar = () => {
       </div>
 
       <button
-        className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full bg-surface shadow-[0_1px_3px_var(--shadow-soft-color)] transition-colors hover:bg-red-100 max-[760px]:hidden"
+        className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full bg-surface shadow-[0_1px_3px_var(--shadow-soft-color)] transition-colors hover:bg-red-100 max-[760px]:h-[50px] max-[760px]:w-[50px]"
         type="button"
         onClick={() => void signOut({ redirectUrl: "/sign-in" })}
         title="Вийти"

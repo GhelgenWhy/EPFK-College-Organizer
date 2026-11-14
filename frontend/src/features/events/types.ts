@@ -3,13 +3,12 @@ export type EventStatus = "Заплановано" | "Перенесено" | "�
 export interface CollegeEvent {
   id: string | number;
   title: string;
-  date: string; // Формат 'YYYY-MM-DD'
-  time: string; // Формат '14:00'
+  date: string;
+  time: string;
   status: EventStatus;
   location: string;
   description: string;
   organizer: string;
-  /** Optional link to details or a registration form. */
   detailsUrl?: string;
   site: string;
   createdAt: string;

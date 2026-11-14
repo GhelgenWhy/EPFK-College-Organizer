@@ -8,7 +8,6 @@ import { studentDisplayName } from '../utils/studentName';
 import { useManageAction } from '../hooks/useManageAction';
 
 interface StudentsManagerProps {
-  /** Admins manage groups and assign students; starostas only see their own group. */
   isAdmin: boolean;
   groups: GroupInfo[];
   students: StudentInfo[];
@@ -36,7 +35,6 @@ export function StudentsManager({ isAdmin, groups, students, isLoading, onChange
 
   const visible = students.filter((student) => filter === 'ALL' || student.groupId === filter);
 
-  /** Saves a new group name; students follow automatically (they reference the group id). */
   async function saveRename(groupId: number, currentName: string) {
     const next = renameValue.trim();
     if (!next || next === currentName) {
@@ -197,7 +195,6 @@ export function StudentsManager({ isAdmin, groups, students, isLoading, onChange
             </button>
           )}
         </div>
-        {/* Wide screens: table. Narrow screens: one card per student (see below). */}
         <table className="w-full min-w-[640px] border-collapse text-sm max-[760px]:hidden">
           <thead>
             <tr className="text-left text-secondary">
@@ -266,7 +263,6 @@ export function StudentsManager({ isAdmin, groups, students, isLoading, onChange
           </tbody>
         </table>
 
-        {/* Narrow screens: one card per student instead of a horizontally scrolling table. */}
         <ul className="hidden flex-col gap-2 p-3 max-[760px]:flex">
           {visible.length === 0 && !isLoading && (
             <li className="p-2 text-sm text-muted">Студентів не знайдено</li>
