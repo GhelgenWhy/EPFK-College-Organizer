@@ -63,7 +63,7 @@ export const Sidebar = () => {
       </div>
 
       <button
-        className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full bg-surface shadow-[0_1px_3px_var(--shadow-soft-color)] transition-colors hover:bg-red-100 max-[760px]:hidden"
+        className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full bg-surface shadow-[0_1px_3px_var(--shadow-soft-color)] transition-colors hover:bg-red-100 max-[760px]:h-[46px] max-[760px]:w-[46px] max-[760px]:bg-transparent max-[760px]:shadow-none"
         type="button"
         onClick={() => void signOut({ redirectUrl: "/sign-in" })}
         title="Вийти"
