@@ -34,11 +34,11 @@ export const Sidebar = () => {
   const role = resolveAppRole(user?.publicMetadata.role);
 
   return (
-    <aside className="flex min-h-[calc(100vh-20px)] w-[80px] shrink-0 flex-col items-center justify-between px-[10px] py-0 max-[760px]:fixed max-[760px]:right-3 max-[760px]:bottom-3 max-[760px]:left-3 max-[760px]:z-50 max-[760px]:min-h-0 max-[760px]:w-auto max-[760px]:flex-row max-[760px]:items-center max-[760px]:gap-[8px] max-[760px]:border-0 max-[760px]:bg-transparent max-[760px]:p-0 max-[760px]:shadow-none max-[760px]:backdrop-blur-0">
+    <aside className="flex min-h-[calc(100vh-20px)] w-[124px] shrink-0 flex-col items-center justify-between px-[10px] py-0 max-[760px]:fixed max-[760px]:right-3 max-[760px]:bottom-3 max-[760px]:left-3 max-[760px]:z-50 max-[760px]:min-h-0 max-[760px]:w-auto max-[760px]:flex-row max-[760px]:items-center max-[760px]:gap-[8px] max-[760px]:border-0 max-[760px]:bg-transparent max-[760px]:p-0 max-[760px]:shadow-none max-[760px]:backdrop-blur-0">
       <div className="flex w-full flex-col items-center gap-[50px] max-[760px]:min-w-0 max-[760px]:flex-1 max-[760px]:gap-0 max-[760px]:rounded-[50px] max-[760px]:border max-[760px]:border-border max-[760px]:bg-surface/95 max-[760px]:p-[6px] max-[760px]:shadow-[0_8px_30px_var(--shadow-color)] max-[760px]:backdrop-blur-[12px]">
-        <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center max-[760px]:hidden">
+        <div className="flex h-[64px] w-full shrink-0 items-center justify-center max-[760px]:hidden">
           <img
-            className="h-full w-full object-contain"
+            className="h-auto w-[104px] max-w-none shrink-0"
             src={logoSvg}
             alt="Logo"
           />
