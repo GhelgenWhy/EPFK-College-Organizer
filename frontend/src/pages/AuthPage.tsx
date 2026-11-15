@@ -1,6 +1,6 @@
 import { SignIn, SignUp, useAuth } from "@clerk/react";
 import { Navigate } from "react-router";
-import logo from "../assets/logo.svg";
+import logo from "../assets/brand/epfk-znu-logo.svg";
 
 const FEATURES: { title: string; text: string }[] = [
     {
@@ -33,7 +33,7 @@ export function AuthPage({ mode }: { mode: "sign-in" | "sign-up" }) {
             <section className="auth-intro" aria-labelledby="auth-intro-heading">
                 <div className="auth-intro-head">
                     <img src={logo} alt="EPFK College Organizer" className="auth-intro-logo" />
-                    <span className="auth-intro-badge">ЕПФК ЗНУ</span>
+                    {/* <span className="auth-intro-badge">ЕПФК ЗНУ</span> */}
                 </div>
 
                 <div>

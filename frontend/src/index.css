@@ -84,6 +84,7 @@ body {
   display: flex;
   justify-content: center;
   min-height: 100vh;
+  min-height: 100dvh;
   padding: 32px 20px;
 }
 
@@ -106,7 +107,7 @@ body {
   position: relative;
 }
 .auth-intro-head { align-items: center; display: flex; gap: 12px; }
-.auth-intro-logo { height: 38px; width: auto; }
+.auth-intro-logo { height: 72px; width: auto; max-width: 100%; }
 .auth-intro-badge {
   background: var(--accent-soft);
   border-radius: 8px;
@@ -229,11 +230,12 @@ body {
 .auth-provider-social-button, .auth-provider-alt-button { background-color: var(--surface-muted) !important; border: 1px solid var(--border) !important; color: var(--text-primary) !important; }
 .auth-provider-social-button:hover, .auth-provider-alt-button:hover { background-color: var(--border) !important; }
 .auth-provider-social-text, .auth-provider-footer-text { color: var(--text-primary) !important; }
-.auth-loading, .auth-denied, .auth-config-notice { align-content: center; background: var(--background); color: var(--text-primary); display: grid; justify-items: center; min-height: 100vh; padding: 24px; text-align: center; }
+.auth-loading, .auth-denied, .auth-config-notice { align-content: center; background: var(--background); color: var(--text-primary); display: grid; justify-items: center; min-height: 100vh; min-height: 100dvh; padding: 24px; text-align: center; }
 .auth-denied h1, .auth-config-notice h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
 
 @media (max-width: 600px) {
-  .auth-page { padding: 16px; }
+  .auth-page { min-height: 100dvh; padding: 16px; }
+  .auth-split { min-height: 0; }
   .auth-card { padding: 0; }
   .auth-provider-card { border-radius: 18px !important; padding: 30px 20px !important; }
 }
